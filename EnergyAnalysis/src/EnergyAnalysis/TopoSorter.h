@@ -29,9 +29,10 @@ public:
 	virtual void visit(EnergyModule & em) override;
 
 	void runToposort(llvm::Function& F);
-
+	void TopoSorter::PrintSorted();
 private:
 	enum Color {WHITE, GREY, BLACK};
+	enum State { NEW, DETECTED, SORTED };
 
 	typedef llvm::DenseMap<const llvm::BasicBlock*, Color> BBColorMap;
 	typedef llvm::SmallVector<const llvm::BasicBlock*, 32> BBVector;
@@ -41,7 +42,5 @@ private:
 	
 
 	bool recursiveDFSToposort( llvm::BasicBlock* BB);
-
-	static std::string getSimpleNodeLabel(llvm::BasicBlock* Node);
 	void CheckForFunctions(llvm::BasicBlock& BB);
 };

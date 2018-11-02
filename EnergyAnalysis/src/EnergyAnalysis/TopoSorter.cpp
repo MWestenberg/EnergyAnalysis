@@ -5,18 +5,23 @@ void TopoSorter::visit(EnergyModule & em)
 
 	llvm::Module& M = em.GetLLVMModule();
 
+
+	//iterate over all functions
 	for (llvm::Function& F : M)
 	{
 
-		if (F.hasFnAttribute("Energy"))
+		/*if (F.hasFnAttribute("Energy"))
 		{
 			llvm::outs() << F.getFnAttribute("name").getValueAsString().str() << " " << F.getFnAttribute("t").getValueAsString().str() << "\n";
-		}
-		//runToposort(F);
+		}*/
+		runToposort(F);
 	}
+
+	PrintSorted();
 	
 }
 
+//Sort all BB's for each function 
 void TopoSorter::runToposort(llvm::Function& F)
 {
 	llvm::outs() << "Topological sort of " << F.getName().str() << ":\n";
@@ -37,34 +42,30 @@ void TopoSorter::runToposort(llvm::Function& F)
 		bbC++; //set the counter
 		for (llvm::Instruction& Instr : BB)
 		{
-			
 			iC++;
-			
-
-			
-			//llvm::errs() << Instr << "\n";
 		}
 	}
-	llvm::outs() << "Number of BBs: " << std::to_string(bbC) << "\n";
-	llvm::outs() << "Number of Instructions: " << std::to_string(iC) << "\n";
+	llvm::outs() << "  Number of BBs: " << std::to_string(bbC) << "\n";
+	//llvm::outs() << "Number of Instructions: " << std::to_string(iC) << "\n";
 
 
 	//When our function has 0 BB's and 0 Instructions it is probably a dummy function
 	
-	if (bbC < 2) {
-		
-		if (iC > 0)
-		{
-			llvm::outs() << "Function with Instructions only" << "\n";
-		}
-		else
-		{
-			llvm::outs() << "Empty function declared outside of translation unit" << "\n";
-		}
-		
-		return;
-	}
+	//if (bbC < 2) {
+	//	
+	//	if (iC > 0)
+	//	{
+	//	//	llvm::outs() << "Function with Instructions only" << "\n";
+	//	}
+	//	else
+	//	{
+	//		//llvm::outs() << "Empty function declared outside of translation unit" << "\n";
+	//	}
+	//	
+	//	return;
+	//}
 
+	// Get the entry block
 	bool success = recursiveDFSToposort(&F.getEntryBlock());
 	if (success) {
 		for (BBVector::const_reverse_iterator RI = SortedBBS.rbegin(), RE = SortedBBS.rend(); RI != RE; ++RI)
@@ -73,16 +74,13 @@ void TopoSorter::runToposort(llvm::Function& F)
 			{
 
 				llvm::outs() << " " << getSimpleNodeLabel(const_cast<llvm::BasicBlock*>(*RI)) << "\n";
+				
+				
 				//llvm::BasicBlock* BB = const_cast<llvm::BasicBlock*>(*RI);
 				/*for (llvm::Instruction& Instr : *BB) {
 					llvm::errs() << Instr << "\n";
 				}*/
 			}
-			
-				
-			
-			
-
 		}
 	}
 	else
@@ -93,6 +91,8 @@ void TopoSorter::runToposort(llvm::Function& F)
 
 }
 
+
+// This sorts each basic block 
 bool TopoSorter::recursiveDFSToposort(llvm::BasicBlock * BB)
 {
 	ColorMap[BB] = TopoSorter::GREY;
@@ -106,8 +106,8 @@ bool TopoSorter::recursiveDFSToposort(llvm::BasicBlock * BB)
 	}
 	
 	
-	llvm::outs() << " Name of BB: " << getSimpleNodeLabel(BB) << "\n";
-	CheckForFunctions(*BB);
+	//llvm::outs() << " Name of BB: " << getSimpleNodeLabel(BB) << "\n";
+	//CheckForFunctions(*BB);
 
 	
 	for (unsigned I = 0; I < NSucc; ++I) 
@@ -123,9 +123,9 @@ bool TopoSorter::recursiveDFSToposort(llvm::BasicBlock * BB)
 		else if (SuccColor = TopoSorter::GREY)
 		{
 			//we have a cycle
-			llvm::outs() << " Detected cycle: edge from  " << getSimpleNodeLabel(BB) << " to " << getSimpleNodeLabel(Succ) << "\n";
+			llvm::outs() << "   Detected cycle: edge from  " << getSimpleNodeLabel(BB) << " to " << getSimpleNodeLabel(Succ) << "\n";
 			
-			llvm::outs() << "\n";
+			//llvm::outs() << "\n";
 		}
 	}
 	ColorMap[BB] = TopoSorter::BLACK;
@@ -133,8 +133,16 @@ bool TopoSorter::recursiveDFSToposort(llvm::BasicBlock * BB)
 	return true;
 }
 
+
+
+// for each basicblock has a number of instructions
+// iterate them and check for function calls.
+//
 void TopoSorter::CheckForFunctions(llvm::BasicBlock& BB)
 {
+
+
+
 	for (llvm::Instruction& inst : BB)
 	{
 		//inst.dump();
@@ -145,51 +153,42 @@ void TopoSorter::CheckForFunctions(llvm::BasicBlock& BB)
 
 		//callInst->dump();
 		if (llvm::Function *calledFunction = callInst->getCalledFunction()) {
-			std::cout << "Call to => " << calledFunction->getName().str() << std::endl;
+			std::cout << "Call to => " << calledFunction->getName().str();
 			if (calledFunction->hasFnAttribute("Energy"))
 			{
-				std::cout << calledFunction->getFnAttribute("name").getValueAsString().str() << " pd="
+				std::cout << " => EName: " << calledFunction->getFnAttribute("name").getValueAsString().str() << std::endl;
+				/*<< " pd="
 					<< calledFunction->getFnAttribute("pd").getValueAsString().str() << " e=c"
 					<< calledFunction->getFnAttribute("ec").getValueAsString().str() << " t="
 					<< calledFunction->getFnAttribute("t").getValueAsString().str()
-					<< std::endl;
+					<< std::endl;*/
 			}
 		}
-		else
+		if (llvm::Function *voidFunc = llvm::dyn_cast<llvm::Function>(callInst->getCalledValue()->stripPointerCasts())) 
 		{
-			llvm::Type* t = callInst->getCalledValue()->getType();
-			if (llvm::FunctionType* ft = llvm::cast<llvm::FunctionType>(llvm::cast<llvm::PointerType>(t)->getElementType()))
+			std::cout << "Call to => " << voidFunc->getName().str();
+			if (voidFunc->hasFnAttribute("Energy"))
 			{
-				if (llvm::Value *calledVoid = callInst->getCalledValue())
-				{
-					llvm::Function* voidFunc = llvm::dyn_cast_or_null<llvm::Function>(calledVoid);
-					if (voidFunc != nullptr)
-						std::cout << calledFunction->getFnAttribute("name").getValueAsString().str() << std::endl;
-				}
+				std::cout << " => EName: " << voidFunc->getFnAttribute("name").getValueAsString().str() << std::endl; 
+				/*<< " pd="
+					<< voidFunc->getFnAttribute("pd").getValueAsString().str() << " e=c"
+					<< voidFunc->getFnAttribute("ec").getValueAsString().str() << " t="
+					<< voidFunc->getFnAttribute("t").getValueAsString().str()
+					<< std::endl;*/
 			}
-			
-			
 		}
-
-		
 
 		
 	}
 }
 
-std::string TopoSorter::getSimpleNodeLabel( llvm::BasicBlock* Node)
+
+void TopoSorter::PrintSorted()
 {
-	
-
-	if (!Node->getName().empty())
-		return Node->getName().str();
-
-	std::string Str;
-	llvm::raw_string_ostream OS(Str);
-
-	Node->printAsOperand(OS, false);
-	return OS.str();
+	for (auto *e : SortedBBS)
+	{
+		llvm::BasicBlock* Node = const_cast<llvm::BasicBlock*>(e);
+		llvm::outs() << getSimpleNodeLabel(Node) << "\n";
+	}
 }
-
-
 

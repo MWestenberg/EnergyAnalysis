@@ -6,37 +6,180 @@ void CallGraphVisitor::visit(EnergyModule& em)
 {
 	llvm::Module& module = em.GetLLVMModule();
 	
-	for (llvm::Function& F : module)
+	//llvm::CallGraph cfg = llvm::CallGraph(module);
+	//cfg.dump();
+	
+	//PostOrderTraversal(module);
+	llvm::Function *mainFunction = GetModuleEntryPoint(module);
+
+	TraverseFunction(*mainFunction);
+	
+	OrderedBB bbs = OrderedF[mainFunction];
+	for (llvm::BasicBlock* b : bbs)
 	{
-		
-		if (F.getName().str() != "main")
+		std::cout << getSimpleNodeLabel(b) << std::endl;
+		TraverseInstructions(*b);
+
+	}
+}
+
+
+void CallGraphVisitor::IterateSCC(llvm::BasicBlock& BB)
+{
+	llvm::Function* parent = BB.getParent();
+
+}
+
+
+void CallGraphVisitor::TraverseInstructions(llvm::BasicBlock& BB)
+{
+	std::vector<llvm::StringRef> eFunctions; //temp store
+
+	for (llvm::Instruction& inst : BB)
+	{
+		std::cout << " ";
+		inst.dump();
+		llvm::CallInst * callInst = llvm::dyn_cast<llvm::CallInst>(&inst);
+
+		if (callInst == nullptr)
 			continue;
 
-		for (llvm::BasicBlock& BB : F)
+		if (llvm::Function *voidFunc = llvm::dyn_cast<llvm::Function>(callInst->getCalledValue()->stripPointerCasts()))
 		{
-			for (llvm::Instruction& I : BB)
+			std::cout << "   ===> Call to Function => " << voidFunc->getName().str();
+
+			if (voidFunc->hasFnAttribute("Energy"))
 			{
-				llvm::CallInst * callInst = llvm::dyn_cast<llvm::CallInst>(&I);
-				
+				llvm::StringRef eName = voidFunc->getFnAttribute("name").getValueAsString();
 
-				if (callInst == nullptr)
-					continue;
-
-				if (llvm::Function *calledFunction = callInst->getCalledFunction()) {
-					//std::cout << calledFunction->getName().str() << std::endl;
+				if (std::binary_search(eFunctions.begin(), eFunctions.end(), eName))
+				{
+					std::cout << "  => EName: " << eName.str() << " STOP powerdraw" << std::endl;
 				}
+				else
+				{
+					eFunctions.push_back(eName);
+					std::cout << " => EName: " << eName.str()
+						<< " (pd="
+						<< voidFunc->getFnAttribute("pd").getValueAsString().str() << " ec="
+						<< voidFunc->getFnAttribute("ec").getValueAsString().str() << " t="
+						<< voidFunc->getFnAttribute("t").getValueAsString().str() << ")"
+						<< std::endl;
+				}
+
 			}
+			
 		}
+
+
+	}
+
+}
+
+//This traveses the function 
+void  CallGraphVisitor::TraverseFunction(llvm::Function& F)
+{	
+	OrderedBB orderedBB;
+	for (llvm::po_iterator<llvm::BasicBlock*> I = llvm::po_begin(&F.getEntryBlock()),
+		IE = llvm::po_end(&F.getEntryBlock()); I != IE; I++)
+	{
+		orderedBB.push_back(*I);
+	}
+
+	//reverse order
+	std::reverse(orderedBB.begin(), orderedBB.end());
+	
+	//assign to vector
+	OrderedF[&F] = orderedBB;
+
+	for (llvm::scc_iterator<llvm::Function *> I = llvm::scc_begin(&F),
+		IE = llvm::scc_end(&F);
+		I != IE; ++I)
+	{
+		OrderedBB &SCCBBs = const_cast<OrderedBB&>(*I); //cast to non const
+		std::reverse(SCCBBs.begin(), SCCBBs.end()); //reverse the order
+		//SCCs[&F] = SCCBBs;
+
+		llvm::outs() << "  SCC: ";
+		for (std::vector<llvm::BasicBlock *>::const_iterator BBI = SCCBBs.begin(),
+			BBIE = SCCBBs.end();
+			BBI != BBIE; ++BBI) {
+			llvm::outs() << getSimpleNodeLabel(*BBI) << "  ";
+		}
+		llvm::outs() << "\n";
+		
 	}
 	
-	llvm::CallGraph cfg = llvm::CallGraph(module);
-	//cfg.dump();
 
-	//llvm::SmallVector<llvm::CallGraphNode *, 16> Nodes;
+}
+
+
+// The main function is a C/C++ entry point. LLVM is not aware of the real module entry point.
+//TODO: allow annotating the entry function 
+// for now look for main function
+llvm::Function* CallGraphVisitor::GetModuleEntryPoint(llvm::Module& M)
+{
+
+	for (llvm::Function& F : M)
+	{
+		if (F.getName().str() == "main")
+		{
+			return &F;
+		}
+	}
+
+	return nullptr;
+}
+
+
+
+//TODO: clean this up
+void CallGraphVisitor::PostOrderTraversal(llvm::Module& M)
+{
+
+	for (llvm::Function& F : M)
+	{
+		llvm::outs() << "Basic blocks of " << F.getName() << " in post-order:\n";
+		for (llvm::po_iterator<llvm::BasicBlock*> I = llvm::po_begin(&F.getEntryBlock()),
+			IE = llvm::po_end(&F.getEntryBlock()); I != IE; I++)
+		{
+			
+		}
+	}
+
+	/*std::reverse(vec.begin(), vec.end());
+	for (auto &B : vec)
+	{
+		llvm::outs() << " " << getSimpleNodeLabel(B) << "\n";
+	}*/
+
+}
+
+
+
+
+
+
+
+CallGraphVisitor::CallGraphVisitor()
+{
+	
+
+
+
+}
+
+
+CallGraphVisitor::~CallGraphVisitor()
+{
+}
+
+
+//llvm::SmallVector<llvm::CallGraphNode *, 16> Nodes;
 	//Nodes.reserve(FunctionMap.size());
 
 
-	
+
 
 	//each node can be printed via CallGraphNode.print(OS);
 
@@ -55,23 +198,5 @@ void CallGraphVisitor::visit(EnergyModule& em)
 			llvm::StringRef fName = F.getName();
 			std::cout << fName.str() << std::endl;
 
-		}*/		
-	//}
-
-
-
-}
-
-
-CallGraphVisitor::CallGraphVisitor()
-{
-	
-
-
-
-}
-
-
-CallGraphVisitor::~CallGraphVisitor()
-{
-}
+		}*/
+		//}

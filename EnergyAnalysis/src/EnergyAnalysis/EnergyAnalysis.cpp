@@ -148,8 +148,8 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	AnnotationVisitor annotate;
 	energy->accept(annotate);
 
-	TopoSorter topoSorter;
-	energy->accept(topoSorter);
+	//TopoSorter topoSorter;
+	//energy->accept(topoSorter);
 
 	CallGraphVisitor cfg;
 	energy->accept(cfg);

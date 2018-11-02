@@ -93,7 +93,7 @@ void AnnotationVisitor::SetEnergyFunctions(llvm::Module &M)
 		llvm::StringRef fnName = fn.getName();
 		if (!fnName.startswith_lower("_"))
 		{
-			llvm::errs() << fnName.str() << "\n";
+			//llvm::errs() << fnName.str() << "\n";
 			m_EnergyFunctions[fn.getName()] = &fn;
 		}
 
