@@ -76,11 +76,12 @@ void startController()
                     struct CuttingLine line = CalculateLine(m);
                     bool laser_busy = fire_laser(line);
                 
-                    do
+					int x = 0;
+                    do 
                     {
                         delay(5);
                         laser_busy = laser_firing();
-                    
+						
                     } while(laser_busy);
                     stop_laser();
             
@@ -99,11 +100,13 @@ int main(int argc, const char * argv[]) {
 	if (argc < 1)
         return 0;
 
-    int number_of_plates = (int)argv[1];
-    do{
+    int  number_of_plates = (int)argv[1];
+	do{
 		startController();
         number_of_plates--;
         delay(5);
+		
+
 	} while (number_of_plates> 0);
 	
     return 0;

@@ -153,7 +153,7 @@ int EnergyAnalysis::StartEnergyAnalysis()
 
 	CallGraphVisitor cfg;
 	energy->accept(cfg);
-
+	
 
 
 	/*AnnotationPass annotate;

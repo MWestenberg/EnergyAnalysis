@@ -1,10 +1,10 @@
-; ModuleID = 'plateCutter.c'
-source_filename = "plateCutter.c"
+; ModuleID = 'platecutter.c'
+source_filename = "platecutter.c"
 target datalayout = "e-m:o-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.13.0"
 
 @.str = private unnamed_addr constant [21 x i8] c"AssemblyLine,0,100,2\00", section "llvm.metadata"
-@.str.1 = private unnamed_addr constant [14 x i8] c"plateCutter.c\00", section "llvm.metadata"
+@.str.1 = private unnamed_addr constant [14 x i8] c"platecutter.c\00", section "llvm.metadata"
 @.str.2 = private unnamed_addr constant [18 x i8] c"PlateSensor,5,5,1\00", section "llvm.metadata"
 @.str.3 = private unnamed_addr constant [22 x i8] c"PlateSensorRead,0,5,2\00", section "llvm.metadata"
 @.str.4 = private unnamed_addr constant [18 x i8] c"PlateSensor,0,5,1\00", section "llvm.metadata"
@@ -13,7 +13,7 @@ target triple = "x86_64-apple-macosx10.13.0"
 @.str.7 = private unnamed_addr constant [16 x i8] c"Laser,0,1000,10\00", section "llvm.metadata"
 @.str.8 = private unnamed_addr constant [12 x i8] c"Delay,0,0,5\00", section "llvm.metadata"
 @.str.9 = private unnamed_addr constant [22 x i8] c"MeasurePlate, 0, 5, 2\00", section "llvm.metadata"
-@llvm.global.annotations = appending global [9 x { i8*, i8*, i8*, i32 }] [{ i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_start_assembly_line to i8*), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 46 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_start_sensor to i8*), i8* getelementptr inbounds ([18 x i8], [18 x i8]* @.str.2, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 47 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_sensor_read to i8*), i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.3, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 48 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_stop_sensor to i8*), i8* getelementptr inbounds ([18 x i8], [18 x i8]* @.str.4, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 49 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_fire_laser to i8*), i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str.5, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 51 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_laser_firing to i8*), i8* getelementptr inbounds ([18 x i8], [18 x i8]* @.str.6, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 52 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_stop_laser to i8*), i8* getelementptr inbounds ([16 x i8], [16 x i8]* @.str.7, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 53 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_delay to i8*), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str.8, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 54 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_measure_plate to i8*), i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.9, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 55 }], section "llvm.metadata"
+@llvm.global.annotations = appending global [9 x { i8*, i8*, i8*, i32 }] [{ i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_start_assembly_line to i8*), i8* getelementptr inbounds ([21 x i8], [21 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 32 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_start_sensor to i8*), i8* getelementptr inbounds ([18 x i8], [18 x i8]* @.str.2, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 33 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_sensor_read to i8*), i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.3, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 34 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_stop_sensor to i8*), i8* getelementptr inbounds ([18 x i8], [18 x i8]* @.str.4, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 35 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_fire_laser to i8*), i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str.5, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 37 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_laser_firing to i8*), i8* getelementptr inbounds ([18 x i8], [18 x i8]* @.str.6, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 38 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_stop_laser to i8*), i8* getelementptr inbounds ([16 x i8], [16 x i8]* @.str.7, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 39 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_delay to i8*), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str.8, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 40 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_measure_plate to i8*), i8* getelementptr inbounds ([22 x i8], [22 x i8]* @.str.9, i32 0, i32 0), i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i32 0, i32 0), i32 41 }], section "llvm.metadata"
 
 ; Function Attrs: norecurse nounwind readnone ssp uwtable
 define void @_start_assembly_line() #0 {
@@ -109,6 +109,7 @@ define void @startController() local_unnamed_addr #1 {
   br label %20
 
 ; <label>:20:                                     ; preds = %20, %8
+  tail call void @LOOP_TRIPCOUNT(i32 5) #3
   tail call void (i32, ...) bitcast (void (...)* @delay to void (i32, ...)*)(i32 5) #3
   %21 = tail call zeroext i1 (...) @laser_firing() #3
   br i1 %21, label %20, label %22
@@ -133,6 +134,8 @@ declare { <2 x float>, <2 x float> } @measure_plate(...) local_unnamed_addr #2
 
 declare zeroext i1 @fire_laser(<2 x float>, <2 x float>, ...) local_unnamed_addr #2
 
+declare void @LOOP_TRIPCOUNT(i32) local_unnamed_addr #2
+
 declare void @delay(...) local_unnamed_addr #2
 
 declare zeroext i1 @laser_firing(...) local_unnamed_addr #2
@@ -153,6 +156,7 @@ define i32 @main(i32, i8** nocapture readonly) local_unnamed_addr #1 {
 
 ; <label>:9:                                      ; preds = %34, %4
   %10 = phi i32 [ %8, %4 ], [ %35, %34 ]
+  tail call void @LOOP_TRIPCOUNT(i32 10) #3
   %11 = tail call zeroext i1 (...) @start_assembly_line() #3
   br i1 %11, label %12, label %34
 
@@ -181,6 +185,7 @@ define i32 @main(i32, i8** nocapture readonly) local_unnamed_addr #1 {
   br label %30
 
 ; <label>:30:                                     ; preds = %30, %18
+  tail call void @LOOP_TRIPCOUNT(i32 5) #3
   tail call void (i32, ...) bitcast (void (...)* @delay to void (i32, ...)*)(i32 5) #3
   %31 = tail call zeroext i1 (...) @laser_firing() #3
   br i1 %31, label %30, label %32

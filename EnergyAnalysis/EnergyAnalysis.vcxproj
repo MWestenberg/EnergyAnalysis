@@ -257,6 +257,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EnergyAnalysis\Logging.cpp" />
     <ClCompile Include="src\EnergyAnalysis\CallGraphVisitor.cpp" />
     <ClCompile Include="src\EnergyAnalysis\EnergyAnalysis.cpp" />
     <ClCompile Include="src\EnergyAnalysis\EnergyModule.cpp" />
@@ -265,6 +266,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\EnergyAnalysis\Logging.h" />
     <ClInclude Include="src\EnergyAnalysis\CallGraphVisitor.h" />
     <ClInclude Include="src\EnergyAnalysis\AnalysisVisitor.h" />
     <ClInclude Include="src\EnergyAnalysis\AnnotationVisitor.h" />

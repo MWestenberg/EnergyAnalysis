@@ -17,41 +17,59 @@
 //#include "llvm/IR/CFG.h"
 //#include <utility>
 
+#include "llvm/IR/InstIterator.h"
+#include "llvm/Analysis/LoopInfo.h"
+#include "llvm/IR/Dominators.h"
+#include "llvm/ADT/PostOrderIterator.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/Analysis/ScalarEvolution.h"
+
 #include "EnergyAnalysis.h"
 #include "AnalysisVisitor.h"
 #include <iostream>
 #include <algorithm>
 
 
-#include "llvm/ADT/PostOrderIterator.h"
-
 class CallGraphVisitor : public AnalysisVisitor
 {
 private:
 	
+	const llvm::StringRef LOOP_TRIPCOUNT = "LOOP_TRIPCOUNT";
+
 	typedef std::vector<llvm::BasicBlock*> OrderedBB;
-	typedef std::map<llvm::Function*, OrderedBB> OrderedFunctions;
-	typedef std::map<llvm::Function*, OrderedBB> SCCsinFunction;
+	typedef llvm::DenseMap<llvm::Function*, OrderedBB> OrderedFunctions;
+	//typedef llvm::DenseMap<llvm::Function*, OrderedBB> SCCsinFunction;
+	typedef llvm::DenseMap<llvm::BasicBlock*, OrderedBB> SCCs;
 	
 	OrderedFunctions OrderedF;
-	SCCsinFunction SCCs;
+	//SCCsinFunction SCCs;
+	SCCs loops;
 	
-	
+	std::map<llvm::StringRef, llvm::StringRef> m_eFunctions; //temp store
 
 public:
-	CallGraphVisitor();
-	~CallGraphVisitor();
-		
-
 	// Inherited via AnalysisVisitor
 	virtual void visit(EnergyModule& em) override;
 private:
+	//Method to find the entry point
 	llvm::Function* GetModuleEntryPoint(llvm::Module& M);
 
-	void CallGraphVisitor::IterateSCC(llvm::BasicBlock& BB);
+	void SortBasicBlocks(llvm::Module& M);
+	void IterateFunction(OrderedBB& F, bool firstRun);
+	
+
+	//Helper methods
+	llvm::Function* IsFunction(llvm::Instruction& I) const;
+	bool HasEnergyAnnotation(llvm::Instruction& I) const;
+	bool HasEnergyAnnotation(const llvm::Function& F) const;
+	bool HasFunctionName(const llvm::Function& F, const llvm::StringRef& name) const;
+	int GetLoopTripCount(llvm::Instruction& I) const;
+
+	// BELOW ARE TEST FUNCTIONS
 	void PostOrderTraversal(llvm::Module& M);
 	void TraverseFunction(llvm::Function& F);
 	void TraverseInstructions(llvm::BasicBlock& BB);
+	void LoopCountTest(llvm::Function& M);
 
 };
 
