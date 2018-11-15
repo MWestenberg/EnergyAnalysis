@@ -24,11 +24,21 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Analysis/ScalarEvolution.h"
 
+
 #include "EnergyAnalysis.h"
 #include "AnalysisVisitor.h"
 #include <iostream>
 #include <algorithm>
 
+
+struct LoopOrderedSet
+{
+	typedef std::vector<llvm::BasicBlock*> Loop;
+	Loop loop;
+	unsigned int tripCount = 0;
+	unsigned int loopSize = 0;
+	unsigned int currentTrip = 0;
+};
 
 class CallGraphVisitor : public AnalysisVisitor
 {
@@ -38,12 +48,11 @@ private:
 
 	typedef std::vector<llvm::BasicBlock*> OrderedBB;
 	typedef llvm::DenseMap<llvm::Function*, OrderedBB> OrderedFunctions;
-	//typedef llvm::DenseMap<llvm::Function*, OrderedBB> SCCsinFunction;
-	typedef llvm::DenseMap<llvm::BasicBlock*, OrderedBB> SCCs;
+	typedef llvm::DenseMap<llvm::BasicBlock*, LoopOrderedSet> SCCs;
 	
 	OrderedFunctions OrderedF;
 	//SCCsinFunction SCCs;
-	SCCs loops;
+	SCCs LoopSet;
 	
 	std::map<llvm::StringRef, llvm::StringRef> m_eFunctions; //temp store
 
@@ -55,7 +64,7 @@ private:
 	llvm::Function* GetModuleEntryPoint(llvm::Module& M);
 
 	void SortBasicBlocks(llvm::Module& M);
-	void IterateFunction(OrderedBB& F, bool firstRun);
+	void IterateFunction(OrderedBB& OBB, bool firstRun);
 	
 
 	//Helper methods
@@ -64,12 +73,17 @@ private:
 	bool HasEnergyAnnotation(const llvm::Function& F) const;
 	bool HasFunctionName(const llvm::Function& F, const llvm::StringRef& name) const;
 	int GetLoopTripCount(llvm::Instruction& I) const;
+	void CreateLoopSet(LoopOrderedSet& stack, LoopOrderedSet& nestedLoop, llvm::BasicBlock* BBbegin, llvm::BasicBlock* BBend);
+	LoopOrderedSet& GetLoop(llvm::BasicBlock& BB);
+	bool IsLoopStart(llvm::BasicBlock& BB);
+	void SetLoopTripCount(LoopOrderedSet& ls);
 
 	// BELOW ARE TEST FUNCTIONS
 	void PostOrderTraversal(llvm::Module& M);
 	void TraverseFunction(llvm::Function& F);
 	void TraverseInstructions(llvm::BasicBlock& BB);
 	void LoopCountTest(llvm::Function& M);
-
+	void Print(OrderedBB& F);
+	void PrintAllLoops();
 };
 
