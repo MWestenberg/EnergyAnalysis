@@ -21,7 +21,6 @@
 #include "TopoSorter.h"
 #include "EnergyModule.h"
 #include "CallGraphVisitor.h"
-
 #include "Logging.h"
 
 
@@ -29,9 +28,6 @@
 class EnergyAnalysis
 {
 public:
-
-	EnergyAnalysis() : m_arg_counter(0), m_executable("") {};
-	
 
 	enum ProgramOptions
 	{
@@ -44,6 +40,8 @@ public:
 	{
 		NO_ERRORS, E_USAGE, E_MESSAGE_MISSING_IRFILE, E_MESSAGE_INVALID_PASS, E_MESSAGE_ERROR_IRFILE
 	};
+
+	EnergyAnalysis() : m_arg_counter(0), m_executable("") { log.SetLevel(LOGLEVEL); };
 
 	static const struct AnalysisType
 	{
@@ -70,6 +68,8 @@ public:
 	
 
 private:
+
+	Logging log;
 
 	int m_arg_counter;
 	char** m_argv;

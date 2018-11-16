@@ -265,6 +265,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\EnergyAnalysis\Constants.h" />
     <ClInclude Include="src\EnergyAnalysis\Logging.h" />
     <ClInclude Include="src\EnergyAnalysis\CallGraphVisitor.h" />
     <ClInclude Include="src\EnergyAnalysis\AnalysisVisitor.h" />

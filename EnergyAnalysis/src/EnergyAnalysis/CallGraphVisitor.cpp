@@ -12,32 +12,20 @@ void CallGraphVisitor::visit(EnergyModule& em)
 	// This just gets the main entry point from the Module.
 	llvm::Function *mainFunction = GetModuleEntryPoint(module);
 
-	//TraverseFunction(*mainFunction);
-
 	//Create vector of ordered basic blocks per function
 	//Only on functions that are not external components
 	SortBasicBlocks(module);
 	
-	
-
 	// Get the list of basic blocks for the Main function
-	OrderedBB bbs = OrderedF[mainFunction];
+	OrderedBB entryPointBBs = OrderedF[mainFunction];
 	
 	//Print(bbs);
 	//PrintAllLoops();
 
+	IterateFunction(entryPointBBs, true);
 
-	IterateFunction(bbs, true);
-
-
-	//for (llvm::BasicBlock* b : bbs)
-	//{
-	//	std::cout << getSimpleNodeLabel(b) << std::endl;
-	//	//Traverse the instructions per Basic block
-	//	//TraverseInstructions(*b);
-	//	
-	//}
 }
+
 
 
 
@@ -78,7 +66,7 @@ llvm::Function* CallGraphVisitor::IsFunction(llvm::Instruction& I) const
 
 	if (llvm::Function *tailCall = llvm::dyn_cast<llvm::Function>(callInst->getCalledValue()->stripPointerCasts()))
 	{
-		// log.LogInfo("   ===> Call to Function => " +  tailCall->getName().str() + "\n")
+		// log.LogDebug("   ===> Call to Function => " +  tailCall->getName().str() + "\n")
 		return tailCall;
 	}
 		
@@ -116,10 +104,10 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 	for (llvm::BasicBlock* BB : OBB)
 	{
 
-		log.LogInfo("========================================"  + getSimpleNodeLabel(BB) + "========================================");
+		log.LogDebug("========================================"  + getSimpleNodeLabel(BB) + "========================================");
 		for (llvm::Instruction& inst : *BB)
 		{
-			if (log.GetLevel() == log.INFO)
+			if (log.GetLevel() == log.DEBUG)
 				inst.dump();
 
 			//retrieve call instruction
@@ -127,7 +115,7 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 		
 			//First run means we can ignore the non energy functions
 			if (firstRun && fn == nullptr) {
-				log.LogInfo(" (first run: ignored) \n\n");
+				log.LogDebug(" (first run: ignored) \n\n");
 				continue; //no need to calc instruction cost
 			}
 
@@ -138,7 +126,7 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 				if (HasEnergyAnnotation(*fn))
 				{
 				
-					log.LogInfo(" (First Energy Function) \n\n");
+					log.LogDebug(" (First Energy Function) \n\n");
 					//calc the first energy function
 					firstRun = false;
 
@@ -148,7 +136,7 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 				//Normal function so traverse this function recursively
 				//calc cost of tail call first
 				// then traverse function
-				log.LogInfo(" (Normal function needs traversing \n\n");
+				log.LogDebug(" (Normal function needs traversing \n\n");
 				IterateFunction(OrderedF[fn], firstRun);
 			}
 			else
@@ -156,7 +144,7 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 
 				//In case of first run, continue until a function is found
 				if (firstRun) {
-					log.LogInfo(" (first run: ignored) \n\n");
+					log.LogDebug(" (first run: ignored) \n\n");
 					continue;
 				}
 					   
@@ -165,7 +153,7 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 					//Check for Energy  Functions
 					if (HasEnergyAnnotation(*fn))
 					{
-						log.LogInfo(" (Follow-up Energy Function) \n\n");
+						log.LogDebug(" (Follow-up Energy Function) \n\n");
 						//calc the first energy function
 						firstRun = false;
 					
@@ -177,13 +165,13 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 					//Normal function so traverse this function recursively
 					//calc cost of tail call first
 					// then traverse function
-					log.LogInfo(" (Normal function needs traversing \n\n");
+					log.LogDebug(" (Normal function needs traversing \n\n");
 					IterateFunction(OrderedF[fn], firstRun);
 					
 				}
 				else
 				{
-					log.LogInfo(" (normal instruction) \n\n");
+					log.LogDebug(" (normal instruction) \n\n");
 					//normal instruction need to calc cost
 
 					//The last instruction of a basic Block is always of type br meaning it is a normal instruction
@@ -191,22 +179,20 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 					//also check if it is a loop
 					if (BB->getTerminator() == &inst && IsLoopStart(*BB))
 					{
-						log.LogInfo("========================================LOOP START===============================\n");
+						log.LogDebug("========================================LOOP START===============================\n");
 						//When entered here the current Basic Block is the start of a loop
 						LoopOrderedSet& currentLoop = GetLoop(*BB);
 						currentLoop.currentTrip++;
 						if (currentLoop.tripCount >= currentLoop.currentTrip)
 						{
-							log.LogInfo("COUNTER: " + std::to_string(currentLoop.currentTrip) + " / " + std::to_string(currentLoop.tripCount) + "\n");
+							log.LogDebug("COUNTER: " + std::to_string(currentLoop.currentTrip) + " / " + std::to_string(currentLoop.tripCount) + "\n");
 							IterateFunction(currentLoop.loop, firstRun);
 						}
 						else
 						{
 							currentLoop.currentTrip = 1;
-							log.LogInfo("========================================LOOP END=================================\n");
+							log.LogDebug("========================================LOOP END=================================\n");
 						}
-
-						
 
 					}
 				}
@@ -225,7 +211,7 @@ void  CallGraphVisitor::SortBasicBlocks(llvm::Module& M)
 
 	for (llvm::Function& F : M)
 	{
-		log.LogInfo("Function:  " + F.getName().str() + "\n");
+		log.LogDebug("Function:  " + F.getName().str() + "\n");
 		
 		//Energy Functions are not traversed. 
 		//Functions that cannot be accessed can be ignored
@@ -260,7 +246,7 @@ void  CallGraphVisitor::SortBasicBlocks(llvm::Module& M)
 			OrderedBB &SCCBBs = const_cast<OrderedBB&>(*I); //cast to non const
 			std::reverse(SCCBBs.begin(), SCCBBs.end());
 			//if (SCCBBs.size() == 1)
-			//	log.LogInfo("Not part of a loop: "+ getSimpleNodeLabel(SCCBBs[0]) + "\n");
+			//	log.LogDebug("Not part of a loop: "+ getSimpleNodeLabel(SCCBBs[0]) + "\n");
 			
 			LoopLookup(SCCBBs);
 	
@@ -295,7 +281,7 @@ void CallGraphVisitor::LoopLookup(OrderedBB& SCCBBs)
 			// this works because we order the Basic Blocks in topological order for each function
 			if (std::find(los.loop.begin(), los.loop.end(), Succ) != los.loop.end())
 			{
-				log.LogInfo("Loop from BB: " + getSimpleNodeLabel(Succ) + "  loop to BB: " + getSimpleNodeLabel(*BBI) + "\n");
+				log.LogDebug("Loop from BB: " + getSimpleNodeLabel(Succ) + "  loop to BB: " + getSimpleNodeLabel(*BBI) + "\n");
 				LoopOrderedSet nestedLoop;
 				CreateLoopSet(los, nestedLoop, Succ, *BBI);
 				LoopSet[*BBI] = nestedLoop;
@@ -348,7 +334,7 @@ void CallGraphVisitor::SetLoopTripCount(LoopOrderedSet& ls)
 
 void CallGraphVisitor::CreateLoopSet(LoopOrderedSet& stack, LoopOrderedSet& nestedLoop, llvm::BasicBlock* BBbegin, llvm::BasicBlock* BBend)
 {
-	log.LogInfo(" LOOP: " + getSimpleNodeLabel(BBbegin) + "\n");
+	log.LogDebug(" LOOP: " + getSimpleNodeLabel(BBbegin) + "\n");
 	int i = 0;
 	for (llvm::BasicBlock* BB : stack.loop)
 	{
@@ -391,7 +377,7 @@ int CallGraphVisitor::GetLoopTripCount(llvm::Instruction& I) const
 
 /*======================================================================================================================
 
-	BELOW THIS POINT ARE TEST FUNCTIONS
+	BELOW THIS POINT ARE TEST FUNCTIONS. SHOULD BE REMOVED
 
 =======================================================================================================================*/
 
@@ -430,20 +416,20 @@ void CallGraphVisitor::TraverseInstructions(llvm::BasicBlock& BB)
 		if (callInst == nullptr)
 			continue;
 
-		log.LogInfo(" ");
+		log.LogDebug(" ");
 		inst.dump();
 
 		//Check if the instruction is a function call
 		if (llvm::Function *tailCall = llvm::dyn_cast<llvm::Function>(callInst->getCalledValue()->stripPointerCasts()))
 		{
-			log.LogInfo("   ===> Call to Function => " + tailCall->getName().str());
+			log.LogDebug("   ===> Call to Function => " + tailCall->getName().str());
 
 			if (tailCall->getName() == LOOP_TRIPCOUNT)
 			{
 				llvm::ConstantInt* tripCountConstant = llvm::dyn_cast<llvm::ConstantInt>(callInst->getOperand(0));
 				int64_t tripCount = tripCountConstant->getSExtValue();
 
-				log.LogInfo("Basic block " + getSimpleNodeLabel(&BB) + " is part of a LOOP with trip count " + std::to_string(tripCount) + "\n");
+				log.LogDebug("Basic block " + getSimpleNodeLabel(&BB) + " is part of a LOOP with trip count " + std::to_string(tripCount) + "\n");
 				
 
 				continue;
@@ -460,7 +446,7 @@ void CallGraphVisitor::TraverseInstructions(llvm::BasicBlock& BB)
 				//if used power draw must stop
 				if (found != m_eFunctions.end())
 				{
-					log.LogInfo("  => EName: " + eName.str() + " STOP powerdraw (" + found->second.str() + ")" + "\n");
+					log.LogDebug("  => EName: " + eName.str() + " STOP powerdraw (" + found->second.str() + ")" + "\n");
 				}
 				else
 				{
@@ -470,7 +456,7 @@ void CallGraphVisitor::TraverseInstructions(llvm::BasicBlock& BB)
 						m_eFunctions.insert(std::pair<llvm::StringRef, llvm::StringRef>(eName, tailCall->getFnAttribute("pd").getValueAsString()));
 
 
-					log.LogInfo(" => EName: " + eName.str()
+					log.LogDebug(" => EName: " + eName.str()
 						+ " (pd="
 						+ tailCall->getFnAttribute(ENERGY_TEMPORAL_CONSUMPTION).getValueAsString().str() + " ec="
 						+ tailCall->getFnAttribute(ENERGY_CONSUMPTION).getValueAsString().str() + " t="
@@ -500,7 +486,7 @@ void CallGraphVisitor::LoopCountTest(llvm::Function & F)
 			L->dump();
 			llvm::BasicBlock* h = L->getHeader();
 
-			log.LogInfo(L->getNumBackEdges() + "\n");
+			log.LogDebug(L->getNumBackEdges() + "\n");
 
 			if (llvm::BranchInst *bi = llvm::dyn_cast<llvm::BranchInst>(h->getTerminator())) {
 				llvm::Value *loopCond = bi->getCondition();
@@ -540,11 +526,11 @@ void  CallGraphVisitor::TraverseFunction(llvm::Function& F)
 		OrderedBB &SCCBBs = const_cast<OrderedBB&>(*I); //cast to non const
 		std::reverse(SCCBBs.begin(), SCCBBs.end()); //reverse the order
 			
-		log.LogInfo("  SCC: ");
+		log.LogDebug("  SCC: ");
 
 		if (SCCBBs.size() == 1)
 		{
-			log.LogInfo(getSimpleNodeLabel(SCCBBs[0]) + " (no loop)\n");
+			log.LogDebug(getSimpleNodeLabel(SCCBBs[0]) + " (no loop)\n");
 			continue;
 		}
 
@@ -557,7 +543,7 @@ void  CallGraphVisitor::TraverseFunction(llvm::Function& F)
 		{
 			los.loop.push_back(*BBI);
 
-			log.LogInfo(getSimpleNodeLabel(*BBI) + "  ");
+			log.LogDebug(getSimpleNodeLabel(*BBI) + "  ");
 
 			const llvm::BasicBlock* BB = *BBI;
 			const llvm::TerminatorInst *TInst = BB->getTerminator();
@@ -566,13 +552,13 @@ void  CallGraphVisitor::TraverseFunction(llvm::Function& F)
 				
 				if (std::find(los.loop.begin(), los.loop.end(), Succ) != los.loop.end())
 				{
-					log.LogInfo("(nested loop to  " + getSimpleNodeLabel(Succ) + ") ");
+					log.LogDebug("(nested loop to  " + getSimpleNodeLabel(Succ) + ") ");
 				}
 				
 			}
 
 		}
-		log.LogInfo("\n");
+		log.LogDebug("\n");
 		
 		los.tripCount = los.loop.size();
 		LoopSet[SCCBBs[0]] = los;
@@ -594,7 +580,7 @@ void CallGraphVisitor::PostOrderTraversal(llvm::Module& M)
 
 	for (llvm::Function& F : M)
 	{
-		log.LogInfo("Basic blocks of " + F.getName().str() + " in post-order:\n");
+		log.LogDebug("Basic blocks of " + F.getName().str() + " in post-order:\n");
 		for (llvm::po_iterator<llvm::BasicBlock*> I = llvm::po_begin(&F.getEntryBlock()),
 			IE = llvm::po_end(&F.getEntryBlock()); I != IE; I++)
 		{
@@ -616,17 +602,17 @@ void CallGraphVisitor::PrintAllLoops()
 	for (llvm::DenseMap<llvm::BasicBlock*, LoopOrderedSet>::iterator IT = LoopSet.begin(),
 		IE = LoopSet.end(); IT != IE; IT++)
 	{
-		log.LogInfo(getSimpleNodeLabel(IT->first) + ": ");
+		log.LogDebug(getSimpleNodeLabel(IT->first) + ": ");
 		LoopOrderedSet set = IT->second;
 
-		log.LogInfo("(" + std::to_string(set.tripCount) + ", "+ std::to_string(set.loopSize) + "): ");
+		log.LogDebug("(" + std::to_string(set.tripCount) + ", "+ std::to_string(set.loopSize) + "): ");
 
 		for (llvm::BasicBlock* bb : set.loop)
 		{
-			log.LogInfo(getSimpleNodeLabel(bb));
+			log.LogDebug(getSimpleNodeLabel(bb));
 		}
 		
-		log.LogInfo("\n");
+		log.LogDebug("\n");
 	}
 
 }
@@ -635,20 +621,20 @@ void CallGraphVisitor::Print(OrderedBB & F)
 {
 	for (llvm::BasicBlock* bb : F)
 	{
-		log.LogInfo(getSimpleNodeLabel(bb));
+		log.LogDebug(getSimpleNodeLabel(bb));
 		auto x = LoopSet.find(bb);
 		if (x != LoopSet.end())
 		{
 			//has a loop
 			for (llvm::BasicBlock* b : LoopSet[bb].loop)
 			{
-			  log.LogInfo(getSimpleNodeLabel(b) + ", ");
+			  log.LogDebug(getSimpleNodeLabel(b) + ", ");
 			}
 
 		}
 			
 
-		log.LogInfo("\n");
+		log.LogDebug("\n");
 	}
 }
 

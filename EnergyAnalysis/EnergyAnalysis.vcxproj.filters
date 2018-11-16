@@ -53,5 +53,8 @@
     <ClInclude Include="src\EnergyAnalysis\Logging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\EnergyAnalysis\Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

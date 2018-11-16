@@ -127,39 +127,17 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	if (!Mod)
 		return E_MESSAGE_ERROR_IRFILE;
 	
-	/*
-	ik heb een module die bestaat uit functies en bb
-	elke functie bestaat uit alleen instructies of bb.
-	elke bb bestaat uit instructies
-
-	stap 1: we moeten weten in welke volgorde de functies worden aangeroepen die energie verbruiken
-	daarvoor moet eerst elke functie een energienotatie krijgen. Dit werkt al.
-
-	stap 2: Nu moeten alle functies die aangeroepen worden in de juiste volgorde worden gezet.
-	Dit kan door deze in een multiset te zetten std::multiset<llvm::StringRef, llvm::Function); waarbij de StringRef gelijk is aan llvm::Function.GetName()
-
-	stap 3: per functie moet de volgorde worden bepaald en de SCC's worden bepaald. Ook hiervoor maken we een order set van BB's per functie maken. Als we dit doen kunnen we natuurlijk ook meteen voor de functie de kosten per pad uitrekenen en het duurste pad opslaan
-
-	Stap 4: ...
-	*/
-
 	//Run the Analysis
+	log.LogInfo("=============================== Starting Energy Analysis ===============================\n\n");
 	std::unique_ptr<EnergyModule> energy(new EnergyModule(*Mod));
+
+	log.LogInfo("Reading Energy Annotations...\n");
 	AnnotationVisitor annotate;
 	energy->accept(annotate);
 
-	//TopoSorter topoSorter;
-	//energy->accept(topoSorter);
-
+	log.LogInfo("Traversing CFG...\n");
 	CallGraphVisitor cfg;
 	energy->accept(cfg);
-	
-
-
-	/*AnnotationPass annotate;
-	annotate.runOnModule(*m_Module);
-	annotate.PrintAnnotations(*m_Module);*/
-
 
 	
 	return NO_ERRORS;

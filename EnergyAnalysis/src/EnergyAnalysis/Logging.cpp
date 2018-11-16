@@ -31,5 +31,12 @@ void Logging::LogInfo(const std::string& message)
 {
 
 	if (m_loglevel >= INFO)
-		std::cout << "[INFO]: " << message;
+		std::cout << message;
+}
+
+void Logging::LogDebug(const std::string& message)
+{
+
+	if (m_loglevel >= DEBUG)
+		std::cout << message;
 }

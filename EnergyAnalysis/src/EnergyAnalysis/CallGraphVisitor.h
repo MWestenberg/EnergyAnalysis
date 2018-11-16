@@ -48,7 +48,6 @@ struct LoopOrderedSet
 class CallGraphVisitor : public AnalysisVisitor
 {
 private:
-	
 	// An orederd vector of Basic Blocks
 	typedef std::vector<llvm::BasicBlock*> OrderedBB;
 	// A map of functions with a vector of Basic Blocks. This map is sorted in topological order
@@ -58,19 +57,21 @@ private:
 	// The value is the struct LoopOrderedSet and contains all information regarding the loop.
 	typedef llvm::DenseMap<llvm::BasicBlock*, LoopOrderedSet> SCCs;
 	
-	OrderedFunctions OrderedF; //Declaration of OrederedFunctions
+	OrderedFunctions OrderedF; //Declaration of OrderedFunctions
 	SCCs LoopSet; // Declaration of entire set of loops
+
 	
 public:
 	// Inherited via AnalysisVisitor
 	// Vistit method
 	virtual void visit(EnergyModule& em) override;
-private:
 
 	//Method to find the entry point
 	//At this point a fixed value in AnalysisVisitor.h
 	//Looks up the main entry point by name and returns a pointer to it.
 	llvm::Function* GetModuleEntryPoint(llvm::Module& M);
+
+private:
 
 	// Basic blocks are not in topological order by default in LLVM. 
 	// To calculate WCET and energy consumption these must be ordered first
@@ -89,18 +90,22 @@ private:
 	// iterates nested functions and iterates loops (including nested loops) defined in LoopSet
 	void IterateFunction(OrderedBB& OBB, bool firstRun);
 	
-	/* HELPER METHODS */
 
+/* ========================== HELPER METHODS ================================*/
+public:
 	//Check if the instruction passed is a function call
 	llvm::Function* IsFunction(llvm::Instruction& I) const;
-	
+
+
+	//overloaded method that requires a function reference instead of an Instruction reference
+	bool HasEnergyAnnotation(const llvm::Function& F) const;
+
+private:
 	//check if the instruction that was passed has an Energy Annotation
 	//It does this by calling IsFunction first and then the overloaded method
 	// HasEnergyAnnotation that requires a function reference
 	bool HasEnergyAnnotation(llvm::Instruction& I) const;
 
-	//overloaded method that requires a function reference instead of an Instruction reference
-	bool HasEnergyAnnotation(const llvm::Function& F) const;
 
 	//Method that returns true if the given name is given to the function referenced
 	bool HasFunctionName(const llvm::Function& F, const llvm::StringRef& name) const;

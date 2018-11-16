@@ -81,7 +81,8 @@ void AnnotationVisitor::SetEnergyFunctions(llvm::Module &M)
 	for (llvm::Function& fn : M)
 	{
 		llvm::StringRef fnName = fn.getName();
-		if (!fnName.startswith_lower(ENERGY_FUNCTION_PREFIX))
+		std::string prefix = ENERGY_FUNCTION_PREFIX;
+		if (!fnName.startswith_lower(prefix))
 		{
 			m_filteredFunctions[fn.getName()] = &fn;
 		}
