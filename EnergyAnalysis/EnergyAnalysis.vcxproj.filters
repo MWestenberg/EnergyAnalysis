@@ -27,9 +27,6 @@
     <ClCompile Include="src\EnergyAnalysis\AnnotationVisitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\EnergyAnalysis\TopoSorter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\EnergyAnalysis\CallGraphVisitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,9 +45,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\EnergyAnalysis\AnnotationVisitor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EnergyAnalysis\TopoSorter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\EnergyAnalysis\CallGraphVisitor.h">

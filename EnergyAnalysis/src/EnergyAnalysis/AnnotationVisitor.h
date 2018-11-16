@@ -17,25 +17,43 @@
 
 class AnnotationVisitor : public AnalysisVisitor
 {
+private:
+	//map of all functions excluding dummy function that start with ENERGY_FUNCTION_PREFIX (defined in AnalysisVistor.h). 
+	std::map<llvm::StringRef, llvm::Function*> m_filteredFunctions;
+	//helper boolean for assiting the Print method.
+	bool m_annotationedAdded = false; 
 public:
 
 	// Inherited via AnalysisVisitor
 	virtual void visit(EnergyModule & em) override;
 	
-	void PrintAnnotations(llvm::Module&) const;
+	//function to print all annotations for the entire module. 
+	//This is purely for debugging purposes
+	// Annotation must be added. This is checked by the m_annotationedAdded boolean
+	void PrintAnnotations(llvm::Module& M);
 
 private:
-	//static std::vector<llvm::StringRef> Tokenize(const llvm::StringRef& text, char sep);
-
+	// Splits StringRef into separate tokens based on a separator.
+	// All annotations are comma separated in a certain order.
+	// Requires a reference to a vector
 	void Tokenize(std::vector<llvm::StringRef>& tokens, const llvm::StringRef& text, char sep);
 
+	// Energy annotated functions start with an ENERGY_FUNCTION_PREFIX (defined in AnalysisVistor.h). 
+	// These functions are declared and defined in the code.
+	// The EnergyAnalysis header implements these via Macros and makes undefined functions without the ENERGY_FUNCTION_PREFIX.
+	// This methods retrieves all global annotations and applies them to the correct functions (without prefix)
+	// such that these functions have no definition just a declaration.
+	// The definined dummy functions with prefix are removed
 	void AddAnnotation(llvm::Module &M);
+
+	// The EnergyAnalysis header implements dummy functions with  ENERGY_FUNCTION_PREFIX (defined in AnalysisVistor.h). 
+	// this functions filters out those functions and assign the "real" functions to the map m_EnergyFunctions
 	void SetEnergyFunctions(llvm::Module&);
+
+	//Helper function that removes functions that are passed by reference.
+	//This actually removes the functions from the Module
 	void RemoveUnusedFunctions(llvm::Function&);
 
+	// Retrieves the orignal Energy Annotated function based on a declared function
 	llvm::Function* GetEnergyFunction(const llvm::Function& fn);
-	//void AnnotationPass::SetEnergyAttr(llvm::Function& fn) const;
-
-	std::map<llvm::StringRef, llvm::Function*> m_EnergyFunctions;
-	bool m_annotationedAdded = false;
 };

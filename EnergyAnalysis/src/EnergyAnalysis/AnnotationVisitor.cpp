@@ -10,12 +10,11 @@ void AnnotationVisitor::visit(EnergyModule & em)
 }
 
 
-
 // Finds all global Energy Annotations and adds them to the real functions
 // Due to limitations the Energy annotations are annoted to all functions by adding a underscore in front of the function names
 // This methods reattaches those annotations to the correct functions to make use easier in a later stage.
 void AnnotationVisitor::AddAnnotation(llvm::Module &M) {
-	auto global_annos = M.getNamedGlobal("llvm.global.annotations");
+	auto global_annos = M.getNamedGlobal(LLVM_GLOBAL_ANNOTATIONS);
 
 	if (global_annos) {
 		auto a = llvm::cast< llvm::ConstantArray>(global_annos->getOperand(0));
@@ -27,24 +26,22 @@ void AnnotationVisitor::AddAnnotation(llvm::Module &M) {
 				std::vector<llvm::StringRef> tokens;
 				Tokenize(tokens, anno, ',');
 
-				//std::vector<llvm::StringRef> tokens = Tokenize(anno, ',');
-
 				if (tokens.size() == EnergyAnalysis::NUM_OF_TOKENS) {
 					assert(tokens.size() >= 4 && "Need at least 4 tokens in the Energy Annotation");
 					llvm::Function* realFN = GetEnergyFunction(*fn);
 					if (realFN)
 					{
 						//llvm::errs() << "Real:" << realFN->getName() << "\n";
-						realFN->addFnAttr("Energy");
+						realFN->addFnAttr(ENERGY_ATTR);
 						int count = 1;
 
 						for (llvm::StringRef token : tokens) {
 							llvm::StringRef kind;
 							switch (count) {
-							case 1: kind = llvm::StringRef("name"); break;
-							case 2: kind = llvm::StringRef("pd"); break;
-							case 3: kind = llvm::StringRef("ec"); break;
-							case 4: kind = llvm::StringRef("t"); break;
+							case 1: kind = llvm::StringRef(ENERGY_FUNCTION_NAME); break;
+							case 2: kind = llvm::StringRef(ENERGY_TEMPORAL_CONSUMPTION); break;
+							case 3: kind = llvm::StringRef(ENERGY_CONSUMPTION); break;
+							case 4: kind = llvm::StringRef(ENERGY_TIME_UNIT); break;
 							}
 
 							realFN->addFnAttr(kind, token.str());
@@ -56,12 +53,6 @@ void AnnotationVisitor::AddAnnotation(llvm::Module &M) {
 
 					}
 				}
-
-
-				// So now we could more annotations if we would like.
-				//                    fn->addFnAttr("Energy"); // <-- add function annotation here
-				//                    fn->addFnAttr(anno);
-
 			}
 		}
 		m_annotationedAdded = true; //for printing
@@ -87,14 +78,12 @@ void AnnotationVisitor::Tokenize(std::vector<llvm::StringRef>& tokens, const llv
 // If this code was not added the global annotations are removed by the frontend compiler
 void AnnotationVisitor::SetEnergyFunctions(llvm::Module &M)
 {
-
 	for (llvm::Function& fn : M)
 	{
 		llvm::StringRef fnName = fn.getName();
-		if (!fnName.startswith_lower("_"))
+		if (!fnName.startswith_lower(ENERGY_FUNCTION_PREFIX))
 		{
-			//llvm::errs() << fnName.str() << "\n";
-			m_EnergyFunctions[fn.getName()] = &fn;
+			m_filteredFunctions[fn.getName()] = &fn;
 		}
 
 	}
@@ -116,9 +105,9 @@ llvm::Function* AnnotationVisitor::GetEnergyFunction(const llvm::Function& fn)
 	llvm::StringRef origName = llvm::StringRef(fn.getName()).substr(1);
 	llvm::Function* realFn = nullptr;
 
-	if (m_EnergyFunctions.find(origName) != m_EnergyFunctions.end())
+	if (m_filteredFunctions.find(origName) != m_filteredFunctions.end())
 	{
-		realFn = m_EnergyFunctions[origName];
+		realFn = m_filteredFunctions[origName];
 	}
 
 	return realFn;
@@ -126,7 +115,7 @@ llvm::Function* AnnotationVisitor::GetEnergyFunction(const llvm::Function& fn)
 
 // To test if the annotations are there this functions prints them to the console for all global annotated
 // functions
-void AnnotationVisitor::PrintAnnotations(llvm::Module& M) const
+void AnnotationVisitor::PrintAnnotations(llvm::Module& M) 
 {
 
 	if (!m_annotationedAdded) // the annotation was not added no use in running this function
@@ -134,28 +123,25 @@ void AnnotationVisitor::PrintAnnotations(llvm::Module& M) const
 
 	for (llvm::Function &fn : M) {
 
-		if (fn.hasFnAttribute("Energy")) {
+		if (fn.hasFnAttribute(ENERGY_ATTR)) {
 			std::string name = "";
 			signed int pd = 0;
 			unsigned int ec = 0;
 			unsigned int t = 0;
 
-			if (fn.hasFnAttribute("name")) {
-
-				name = std::string(fn.getFnAttribute("name").getValueAsString());
-			}
-			if (fn.hasFnAttribute("pd")) {
-
-				pd = std::stoi(fn.getFnAttribute("pd").getValueAsString().str());
-			}
-			if (fn.hasFnAttribute("ec")) {
-				ec = std::stoi(fn.getFnAttribute("ec").getValueAsString().str());
-			}
-			if (fn.hasFnAttribute("t")) {
-				t = std::stoi(fn.getFnAttribute("t").getValueAsString().str());
-			}
+			if (fn.hasFnAttribute(ENERGY_FUNCTION_NAME)) 
+				name = std::string(fn.getFnAttribute(ENERGY_FUNCTION_NAME).getValueAsString());
 			
-			llvm::errs() << fn.getName() << " has Energy values: Time-dependent consumption=" << pd << " One-time energy consumption=" << ec << " Time=" << t << "!\n";
+			if (fn.hasFnAttribute(ENERGY_TEMPORAL_CONSUMPTION)) 
+				pd = std::stoi(fn.getFnAttribute(ENERGY_TEMPORAL_CONSUMPTION).getValueAsString().str());
+			
+			if (fn.hasFnAttribute(ENERGY_CONSUMPTION)) 
+				ec = std::stoi(fn.getFnAttribute(ENERGY_CONSUMPTION).getValueAsString().str());
+			
+			if (fn.hasFnAttribute(ENERGY_TIME_UNIT)) 
+				t = std::stoi(fn.getFnAttribute(ENERGY_TIME_UNIT).getValueAsString().str());
+			
+			log.LogInfo(fn.getName().str() + " has Energy values: Time-dependent consumption=" + std::to_string(pd) + " One-time energy consumption=" + std::to_string(ec) + " Time=" + std::to_string(t) + "!\n");
 
 		}
 	}

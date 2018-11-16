@@ -22,7 +22,7 @@
 #include "EnergyModule.h"
 #include "CallGraphVisitor.h"
 
-
+#include "Logging.h"
 
 
 
@@ -31,6 +31,7 @@ class EnergyAnalysis
 public:
 
 	EnergyAnalysis() : m_arg_counter(0), m_executable("") {};
+	
 
 	enum ProgramOptions
 	{
@@ -69,8 +70,6 @@ public:
 	
 
 private:
-
-	
 
 	int m_arg_counter;
 	char** m_argv;

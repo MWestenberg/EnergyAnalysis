@@ -262,7 +262,6 @@
     <ClCompile Include="src\EnergyAnalysis\EnergyAnalysis.cpp" />
     <ClCompile Include="src\EnergyAnalysis\EnergyModule.cpp" />
     <ClCompile Include="src\EnergyAnalysis\AnnotationVisitor.cpp" />
-    <ClCompile Include="src\EnergyAnalysis\TopoSorter.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -272,7 +271,6 @@
     <ClInclude Include="src\EnergyAnalysis\AnnotationVisitor.h" />
     <ClInclude Include="src\EnergyAnalysis\EnergyAnalysis.h" />
     <ClInclude Include="src\EnergyAnalysis\EnergyModule.h" />
-    <ClInclude Include="src\EnergyAnalysis\TopoSorter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

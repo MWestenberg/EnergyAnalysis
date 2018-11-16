@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <string>
 
 class Logging
 {
@@ -10,11 +11,11 @@ public:
 		ERROR, WARNING, INFO
 	};
 
-
+	Level GetLevel();		
 	void SetLevel(Level level);
-	void Error(const char* message);
-	void Warning(const char* message);
-	void Info(const char* message);
+	void LogError(const std::string& message);
+	void LogWarning(const std::string& message);
+	void LogInfo(const std::string& message);
 
 private:
 	Level m_loglevel = INFO;
