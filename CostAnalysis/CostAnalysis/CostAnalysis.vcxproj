@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{E67EBB23-E227-4526-A61E-923F70520CED}</ProjectGuid>
-    <RootNamespace>EnergyAnalysis</RootNamespace>
+    <RootNamespace>CostAnalysis</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -106,7 +106,7 @@
       <ConformanceMode>false</ConformanceMode>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\llvm\include;;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Dev\EnergyAnalysis\Dependencies\llvm\include;;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;GTEST_HAS_RTTI=0;_LARGEFILE_SOURCE;_FILE_OFFSET_BITS=64;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;UNICODE;_UNICODE;__STDC_CONSTANT_MACROS;__STDC_FORMAT_MACROS;__STDC_LIMIT_MACROS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling />
@@ -120,7 +120,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>LLVMCodeGen.lib;LLVMTransformUtils.lib;LLVMAnalysis.lib;LLVMAsmParser.lib;LLVMBitReader.lib;LLVMIRReader.lib;LLVMCore.lib;LLVMBinaryFormat.lib;LLVMSupport.lib;psapi.lib;shell32.lib;ole32.lib;uuid.lib;advapi32.lib;LLVMDemangle.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;oleaut32.lib;comdlg32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\llvm\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Dev\EnergyAnalysis\Dependencies\llvm\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <SubSystem>Console</SubSystem>
@@ -143,7 +143,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>false</OmitFramePointers>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\llvm\include;;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Dev\EnergyAnalysis\Dependencies\llvm\include;;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;GTEST_HAS_RTTI=0;_LARGEFILE_SOURCE;_FILE_OFFSET_BITS=64;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;UNICODE;_UNICODE;__STDC_CONSTANT_MACROS;__STDC_FORMAT_MACROS;__STDC_LIMIT_MACROS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling />
@@ -157,7 +157,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>LLVMCodeGen.lib;LLVMTransformUtils.lib;LLVMAnalysis.lib;LLVMAsmParser.lib;LLVMBitReader.lib;LLVMIRReader.lib;LLVMCore.lib;LLVMBinaryFormat.lib;LLVMSupport.lib;psapi.lib;shell32.lib;ole32.lib;uuid.lib;advapi32.lib;LLVMDemangle.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;oleaut32.lib;comdlg32.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\llvm\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Dev\EnergyAnalysis\Dependencies\llvm\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <SubSystem>Console</SubSystem>
@@ -183,7 +183,7 @@
       <ConformanceMode>false</ConformanceMode>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\llvm\include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Dev\EnergyAnalysis\Dependencies\llvm\include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat />
       <PreprocessorDefinitions>WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;GTEST_HAS_RTTI=0;_LARGEFILE_SOURCE;_FILE_OFFSET_BITS=64;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;UNICODE;_UNICODE;__STDC_CONSTANT_MACROS;__STDC_FORMAT_MACROS;__STDC_LIMIT_MACROS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -199,7 +199,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\llvm\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Dev\EnergyAnalysis\Dependencies\llvm\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>LLVMCodeGen.lib;LLVMTransformUtils.lib;LLVMAnalysis.lib;LLVMAsmParser.lib;LLVMBitReader.lib;LLVMIRReader.lib;LLVMCore.lib;LLVMBinaryFormat.lib;LLVMSupport.lib;psapi.lib;shell32.lib;ole32.lib;uuid.lib;advapi32.lib;LLVMDemangle.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;oleaut32.lib;comdlg32.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -225,7 +225,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\llvm\include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Dev\EnergyAnalysis\Dependencies\llvm\include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat />
       <PreprocessorDefinitions>WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;GTEST_HAS_RTTI=0;_LARGEFILE_SOURCE;_FILE_OFFSET_BITS=64;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;UNICODE;_UNICODE;__STDC_CONSTANT_MACROS;__STDC_FORMAT_MACROS;__STDC_LIMIT_MACROS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -241,7 +241,7 @@
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\llvm\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Dev\EnergyAnalysis\Dependencies\llvm\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>LLVMCodeGen.lib;LLVMTransformUtils.lib;LLVMAnalysis.lib;LLVMAsmParser.lib;LLVMBitReader.lib;LLVMIRReader.lib;LLVMCore.lib;LLVMBinaryFormat.lib;LLVMSupport.lib;psapi.lib;shell32.lib;ole32.lib;uuid.lib;advapi32.lib;LLVMDemangle.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;oleaut32.lib;comdlg32.lib</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -257,23 +257,11 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\EnergyAnalysis\CostInstructionModel.cpp" />
-    <ClCompile Include="src\EnergyAnalysis\Logging.cpp" />
-    <ClCompile Include="src\EnergyAnalysis\CallGraphVisitor.cpp" />
-    <ClCompile Include="src\EnergyAnalysis\EnergyAnalysis.cpp" />
-    <ClCompile Include="src\EnergyAnalysis\EnergyModule.cpp" />
-    <ClCompile Include="src\EnergyAnalysis\AnnotationVisitor.cpp" />
-    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="CostAnalysis.cpp" />
+    <ClCompile Include="CostModelAnalysisDummy.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\EnergyAnalysis\CostInstructionModel.h" />
-    <ClInclude Include="src\EnergyAnalysis\Constants.h" />
-    <ClInclude Include="src\EnergyAnalysis\Logging.h" />
-    <ClInclude Include="src\EnergyAnalysis\CallGraphVisitor.h" />
-    <ClInclude Include="src\EnergyAnalysis\AnalysisVisitor.h" />
-    <ClInclude Include="src\EnergyAnalysis\AnnotationVisitor.h" />
-    <ClInclude Include="src\EnergyAnalysis\EnergyAnalysis.h" />
-    <ClInclude Include="src\EnergyAnalysis\EnergyModule.h" />
+    <ClInclude Include="CostModelAnalysisDummy.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

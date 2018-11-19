@@ -21,8 +21,10 @@ void CallGraphVisitor::visit(EnergyModule& em)
 	
 	//Print(bbs);
 	//PrintAllLoops();
-
-	IterateFunction(entryPointBBs, true);
+	IterateFunction(entryPointBBs);
+	//C:\Dev\LLVM-BUILD\Release\bin\opt.exe -analyze -targetlibinfo -cost-model C:\Dev\EnergyAnalysis\examples\plateCutter.bc
+	
+	
 
 }
 
@@ -99,28 +101,39 @@ bool CallGraphVisitor::HasEnergyAnnotation(const llvm::Function& F) const
 }
 
 
-void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
+
+//This methods is the main iterator. It uses all collected data
+// and traverses the ordered set of basic blocks of each function that it 
+// it takes as parameter
+// first run should be true on firstrun after that it is no longer required
+void CallGraphVisitor::IterateFunction(OrderedBB& OBB)
 {
+	
+	CostInstructionModel costAnalysis;
+	llvm::Function* parentFunction = OBB[0]->getParent();
+	costAnalysis.runOnFunction(*parentFunction);
+
+
 	for (llvm::BasicBlock* BB : OBB)
 	{
 
-		log.LogDebug("========================================"  + getSimpleNodeLabel(BB) + "========================================");
+		log.LogDebug("========================================"  + getSimpleNodeLabel(BB) + "========================================\n");
 		for (llvm::Instruction& inst : *BB)
 		{
 			if (log.GetLevel() == log.DEBUG)
 				inst.dump();
-
+			
 			//retrieve call instruction
 			llvm::Function* fn = IsFunction(inst);
 		
 			//First run means we can ignore the non energy functions
-			if (firstRun && fn == nullptr) {
+			if (m_firstRun && fn == nullptr) {
 				log.LogDebug(" (first run: ignored) \n\n");
 				continue; //no need to calc instruction cost
 			}
 
 		
-			if (firstRun && fn != nullptr)
+			if (m_firstRun && fn != nullptr)
 			{
 				//Check for Energy  Functions
 				if (HasEnergyAnnotation(*fn))
@@ -128,7 +141,7 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 				
 					log.LogDebug(" (First Energy Function) \n\n");
 					//calc the first energy function
-					firstRun = false;
+					m_firstRun = false;
 
 					continue;
 				}
@@ -137,13 +150,13 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 				//calc cost of tail call first
 				// then traverse function
 				log.LogDebug(" (Normal function needs traversing \n\n");
-				IterateFunction(OrderedF[fn], firstRun);
+				IterateFunction(OrderedF[fn]);
 			}
 			else
 			{
 
 				//In case of first run, continue until a function is found
-				if (firstRun) {
+				if (m_firstRun) {
 					log.LogDebug(" (first run: ignored) \n\n");
 					continue;
 				}
@@ -155,7 +168,7 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 					{
 						log.LogDebug(" (Follow-up Energy Function) \n\n");
 						//calc the first energy function
-						firstRun = false;
+						m_firstRun = false;
 					
 					
 						continue;
@@ -166,14 +179,21 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 					//calc cost of tail call first
 					// then traverse function
 					log.LogDebug(" (Normal function needs traversing \n\n");
-					IterateFunction(OrderedF[fn], firstRun);
+					IterateFunction(OrderedF[fn]);
 					
 				}
 				else
 				{
 					log.LogDebug(" (normal instruction) \n\n");
 					//normal instruction need to calc cost
+					unsigned int cost = costAnalysis.getInstructionCost(&inst);
+					if (cost == 0)
+					{
+						inst.dump();
+						log.LogInfo("     cost: " + std::to_string(cost) + "\n");
+					}
 
+					
 					//The last instruction of a basic Block is always of type br meaning it is a normal instruction
 					//check if the current instruction is the last instruction of the basic block
 					//also check if it is a loop
@@ -186,7 +206,7 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB, bool firstRun)
 						if (currentLoop.tripCount >= currentLoop.currentTrip)
 						{
 							log.LogDebug("COUNTER: " + std::to_string(currentLoop.currentTrip) + " / " + std::to_string(currentLoop.tripCount) + "\n");
-							IterateFunction(currentLoop.loop, firstRun);
+							IterateFunction(currentLoop.loop);
 						}
 						else
 						{
@@ -380,7 +400,7 @@ int CallGraphVisitor::GetLoopTripCount(llvm::Instruction& I) const
 	BELOW THIS POINT ARE TEST FUNCTIONS. SHOULD BE REMOVED
 
 =======================================================================================================================*/
-
+/*
 //LoopOrderedSet GetNestedLoop(LoopOrderedSet& stack, const llvm::BasicBlock& BB)
 //{
 //	LoopOrderedSet newLNestedLoop;
@@ -593,7 +613,7 @@ void CallGraphVisitor::PostOrderTraversal(llvm::Module& M)
 	{
 		llvm::outs() << " " << getSimpleNodeLabel(B) << "\n";
 	}*/
-
+/*
 }
 
 void CallGraphVisitor::PrintAllLoops()

@@ -1,11 +1,10 @@
 #pragma once
-#include "llvm/Analysis/CallGraph.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Function.h"
-#include "llvm/IR/BasicBlock.h"
-#include "llvm/IR/Instruction.h"
-#include "llvm/IR/Instructions.h"
+#include "EnergyAnalysis.h"
+#include "AnalysisVisitor.h"
 #include "llvm/ADT/SCCIterator.h"
+#include "CostInstructionModel.h"
+
+//======================TODO: REMOVE THIS===========================//
 //#include "llvm/IR/InstrTypes.h"
 //#include "llvm/IR/InstIterator.h"
 //#include "llvm/IR/Instructions.h"
@@ -17,18 +16,13 @@
 //#include "llvm/IR/CFG.h"
 //#include <utility>
 
-#include "llvm/IR/InstIterator.h"
-#include "llvm/Analysis/LoopInfo.h"
-#include "llvm/IR/Dominators.h"
-#include "llvm/ADT/PostOrderIterator.h"
-#include "llvm/Support/raw_ostream.h"
-#include "llvm/Analysis/ScalarEvolution.h"
-
-
-#include "EnergyAnalysis.h"
-#include "AnalysisVisitor.h"
-#include <iostream>
-#include <algorithm>
+//#include "llvm/IR/InstIterator.h"
+//#include "llvm/Analysis/LoopInfo.h"
+//#include "llvm/IR/Dominators.h"
+//#include "llvm/ADT/PostOrderIterator.h"
+//#include "llvm/Support/raw_ostream.h"
+//#include "llvm/Analysis/ScalarEvolution.h"
+//==========================================================//
 
 
 // This struct is used to define loops
@@ -60,6 +54,9 @@ private:
 	OrderedFunctions OrderedF; //Declaration of OrderedFunctions
 	SCCs LoopSet; // Declaration of entire set of loops
 
+	bool m_firstRun = true;
+
+
 	
 public:
 	// Inherited via AnalysisVisitor
@@ -88,9 +85,9 @@ private:
 	// Energy annotated function is called. 
 	// This methods traverses loops through each iteration of each Basic Blocks,
 	// iterates nested functions and iterates loops (including nested loops) defined in LoopSet
-	void IterateFunction(OrderedBB& OBB, bool firstRun);
+	void IterateFunction(OrderedBB& OBB);
 	
-
+	
 /* ========================== HELPER METHODS ================================*/
 public:
 	//Check if the instruction passed is a function call
@@ -135,13 +132,14 @@ private:
 	bool IsLoopStart(llvm::BasicBlock& BB);
 	
 
-	// BELOW SHOULD BE REMOVED WHEN READY
-	void PostOrderTraversal(llvm::Module& M);
-	void TraverseFunction(llvm::Function& F);
-	void TraverseInstructions(llvm::BasicBlock& BB);
-	void LoopCountTest(llvm::Function& M);
-	void Print(OrderedBB& F);
-	void PrintAllLoops();
+	// TODO: Remove methods
+	//void PostOrderTraversal(llvm::Module& M);
+	//void TraverseFunction(llvm::Function& F);
+	//void TraverseInstructions(llvm::BasicBlock& BB);
+	//void LoopCountTest(llvm::Function& M);
+	//void Print(OrderedBB& F);
+	//void PrintAllLoops();
+
 
 	std::map<llvm::StringRef, llvm::StringRef> m_eFunctions; //temp store
 
