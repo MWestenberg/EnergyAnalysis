@@ -2,7 +2,9 @@
 #include "EnergyAnalysis.h"
 #include "AnalysisVisitor.h"
 #include "llvm/ADT/SCCIterator.h"
-#include "CostInstructionModel.h"
+#include <list>
+#include <algorithm>
+#include "WCETCostModelAnalysis.h"
 
 //======================TODO: REMOVE THIS===========================//
 //#include "llvm/IR/InstrTypes.h"
@@ -46,13 +48,24 @@ private:
 	typedef std::vector<llvm::BasicBlock*> OrderedBB;
 	// A map of functions with a vector of Basic Blocks. This map is sorted in topological order
 	typedef llvm::DenseMap<llvm::Function*, OrderedBB> OrderedFunctions;
+	// A map of functions with a LoopOrderedSet struct
+	typedef llvm::DenseMap<llvm::BasicBlock*, LoopOrderedSet> SCCs;
+	// Simple list to keep track of StringRefs
+	typedef llvm::DenseMap<llvm::Function*, unsigned int> EnergyFunction;
+	
+
+	// Contains a set of functions with their a set of basic blocks that are topological ordered
+	OrderedFunctions OrderedF; 
+	
 	// A map of Loops (or Strongly Connectected Components).
 	// They key is a pointer to the last Basic Block of the loop. 
 	// The value is the struct LoopOrderedSet and contains all information regarding the loop.
-	typedef llvm::DenseMap<llvm::BasicBlock*, LoopOrderedSet> SCCs;
+	SCCs LoopSet;
 	
-	OrderedFunctions OrderedF; //Declaration of OrderedFunctions
-	SCCs LoopSet; // Declaration of entire set of loops
+	// A list ot keep track of Energy annotation Functions 
+	// When a function name appears for the second time this means it 
+	// is an end of a powerdraw in case the power draw is 0
+	EnergyFunction EnergyFunctionList;
 
 	bool m_firstRun = true;
 
@@ -97,12 +110,15 @@ public:
 	//overloaded method that requires a function reference instead of an Instruction reference
 	bool HasEnergyAnnotation(const llvm::Function& F) const;
 
+
+
 private:
 	//check if the instruction that was passed has an Energy Annotation
 	//It does this by calling IsFunction first and then the overloaded method
 	// HasEnergyAnnotation that requires a function reference
 	bool HasEnergyAnnotation(llvm::Instruction& I) const;
 
+	bool IsFirstEncounter(const llvm::Function& F);
 
 	//Method that returns true if the given name is given to the function referenced
 	bool HasFunctionName(const llvm::Function& F, const llvm::StringRef& name) const;
@@ -131,6 +147,10 @@ private:
 	// and was added to the LoopSet
 	bool IsLoopStart(llvm::BasicBlock& BB);
 	
+	void SetInstructionCost(const llvm::Instruction& I);
+	bool SetEnergyFunctionCost(llvm::Function& F);
+
+
 
 	// TODO: Remove methods
 	//void PostOrderTraversal(llvm::Module& M);

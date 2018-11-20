@@ -33,7 +33,7 @@
     <ClCompile Include="src\EnergyAnalysis\Logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\EnergyAnalysis\CostInstructionModel.cpp">
+    <ClCompile Include="src\EnergyAnalysis\WCETCostModelAnalysis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,7 +59,7 @@
     <ClInclude Include="src\EnergyAnalysis\Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\EnergyAnalysis\CostInstructionModel.h">
+    <ClInclude Include="src\EnergyAnalysis\WCETCostModelAnalysis.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

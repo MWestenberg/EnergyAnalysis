@@ -2,6 +2,8 @@
 #include "EnergyAnalysis.h"
 
 
+
+
 struct MeasureMents
 {
     float tlx, tly; //top left position
@@ -27,7 +29,6 @@ struct CuttingLine
     Powerdraw (pd) can be negative to indicate a decrease of powerdraw. Normally this should be equal to the initial draw.
 
 */
-
 ENERGY(start_assembly_line, bool, "AssemblyLine,0,100,2");                  // ec = 100J, t = 2
 ENERGY(start_sensor, bool, "PlateSensor,5,5,1");                            // pd = 5J, ec = 5J, t = 1
 ENERGY(sensor_read, bool, "PlateSensorRead,0,5,2");                         //  ec = 5J, t = 1
@@ -76,12 +77,12 @@ void startController()
                     struct CuttingLine line = CalculateLine(m);
                     bool laser_busy = fire_laser(line);
                 
-					int x = 0;
-                    do 
+                    do
                     {
+                    	LOOP_TRIPCOUNT(5);
                         delay(5);
                         laser_busy = laser_firing();
-						
+                    
                     } while(laser_busy);
                     stop_laser();
             
@@ -100,13 +101,12 @@ int main(int argc, const char * argv[]) {
 	if (argc < 1)
         return 0;
 
-    int  number_of_plates = (int)argv[1];
-	do{
+    int number_of_plates = (int)argv[1];
+    do{
+    	LOOP_TRIPCOUNT(10);
 		startController();
         number_of_plates--;
         delay(5);
-		
-
 	} while (number_of_plates> 0);
 	
     return 0;

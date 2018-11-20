@@ -38,6 +38,22 @@ void CostInstructionModel::getAnalysisUsage(llvm::AnalysisUsage &AU) const {
 	AU.setPreservesAll();
 }
 
+//static llvm::cl::opt<llvm::TargetTransformInfo::TargetCostKind> CostKind(
+//	"cost-kind", llvm::cl::desc("Target cost kind"),
+//	llvm::cl::init(llvm::TargetTransformInfo::TCK_RecipThroughput),
+//	llvm::cl::values(clEnumValN(llvm::TargetTransformInfo::TCK_RecipThroughput,
+//		"throughput", "Reciprocal throughput"),
+//		clEnumValN(llvm::TargetTransformInfo::TCK_Latency,
+//			"latency", "Instruction latency"),
+//		clEnumValN(llvm::TargetTransformInfo::TCK_CodeSize,
+//			"code-size", "Code size")));
+
+unsigned CostInstructionModel::GetNewInstructionCost(const llvm::Instruction* I) const
+{
+	return TTI->getInstructionCost(I, llvm::TargetTransformInfo::TCK_RecipThroughput);
+}
+
+
 
 unsigned CostInstructionModel::getInstructionCost(const llvm::Instruction* I) const
 {
@@ -76,30 +92,30 @@ unsigned CostInstructionModel::getInstructionCost(const llvm::Instruction* I) co
 		llvm::TargetTransformInfo::OperandValueKind Op2VK =	getOperandInfo(I->getOperand(1));
 		llvm::SmallVector<const llvm::Value*, 2> Operands(I->operand_values());
 		return TTI->getArithmeticInstrCost(I->getOpcode(), I->getType(), Op1VK,	Op2VK, llvm::TargetTransformInfo::OP_None,	llvm::TargetTransformInfo::OP_None,	Operands);
-		}
+	}
 	case llvm::Instruction::Select: {
 		const llvm::SelectInst *SI = llvm::cast<llvm::SelectInst>(I);
 		llvm::Type *CondTy = SI->getCondition()->getType();
 		return TTI->getCmpSelInstrCost(I->getOpcode(), I->getType(), CondTy);
-		}
+	}
 	case llvm::Instruction::ICmp:
 	case llvm::Instruction::FCmp: {
 		llvm::Type *ValTy = I->getOperand(0)->getType();
 		return TTI->getCmpSelInstrCost(I->getOpcode(), ValTy);
-		}
+	}
 	case llvm::Instruction::Store: {
 		const llvm::StoreInst *SI = llvm::cast<llvm::StoreInst>(I);
 		llvm::Type *ValTy = SI->getValueOperand()->getType();
 		return TTI->getMemoryOpCost(I->getOpcode(), ValTy,
 			SI->getAlignment(),
 			SI->getPointerAddressSpace());
-		}
+	}
 	case llvm::Instruction::Load: {
 		const llvm::LoadInst *LI = llvm::cast<llvm::LoadInst>(I);
 		return TTI->getMemoryOpCost(I->getOpcode(), I->getType(),
 			LI->getAlignment(),
 			LI->getPointerAddressSpace());
-		}
+	}
 	case llvm::Instruction::ZExt:
 	case llvm::Instruction::SExt:
 	case llvm::Instruction::FPToUI:
@@ -115,7 +131,7 @@ unsigned CostInstructionModel::getInstructionCost(const llvm::Instruction* I) co
 	case llvm::Instruction::AddrSpaceCast: {
 		llvm::Type *SrcTy = I->getOperand(0)->getType();
 		return TTI->getCastInstrCost(I->getOpcode(), I->getType(), SrcTy);
-		}
+	}
 	case llvm::Instruction::ExtractElement: {
 		const llvm::ExtractElementInst * EEI = llvm::cast<llvm::ExtractElementInst>(I);
 		llvm::ConstantInt *CI = llvm::dyn_cast<llvm::ConstantInt>(I->getOperand(1));
@@ -135,9 +151,8 @@ unsigned CostInstructionModel::getInstructionCost(const llvm::Instruction* I) co
 			return TTI->getArithmeticReductionCost(ReduxOpCode, ReduxType, true);
 		//	//return TTI->getReductionCost(ReduxOpCode, ReduxType, true);*/
 
-		return TTI->getVectorInstrCost(I->getOpcode(),
-			EEI->getOperand(0)->getType(), Idx);
-		}
+		return TTI->getVectorInstrCost(I->getOpcode(), EEI->getOperand(0)->getType(), Idx);
+	}
 	case llvm::Instruction::InsertElement: {
 		const llvm::InsertElementInst * IE = llvm::cast<llvm::InsertElementInst>(I);
 		llvm::ConstantInt *CI = llvm::dyn_cast<llvm::ConstantInt>(IE->getOperand(2));
@@ -217,7 +232,7 @@ llvm::TargetTransformInfo::OperandValueKind CostInstructionModel::getOperandInfo
 	return OpInfo;
 }
 
-static llvm::cl::opt<bool> EnableReduxCost("costmodel-reduxcost-Dummy", llvm::cl::init(false), llvm::cl::Hidden, llvm::cl::desc("Recognize reduction patterns."));
+static llvm::cl::opt<bool> EnableReduxCost("costmodel-reduxcost-energyanalysis", llvm::cl::init(false), llvm::cl::Hidden, llvm::cl::desc("Recognize reduction patterns."));
 
 
 bool CostInstructionModel::matchVectorSplittingReduction(const llvm::ExtractElementInst * ReduxRoot, unsigned & Opcode, llvm::Type *& Ty)

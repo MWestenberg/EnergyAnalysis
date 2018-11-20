@@ -17,6 +17,9 @@ public:
 	bool runOnFunction(llvm::Function& F);
 	unsigned getInstructionCost(const llvm::Instruction* I) const;
 
+	unsigned GetNewInstructionCost(const llvm::Instruction* I) const;
+
+
 private:
 	llvm::Function* m_F;
 	const llvm::TargetTransformInfo *TTI;

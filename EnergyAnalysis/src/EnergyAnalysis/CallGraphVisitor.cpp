@@ -19,11 +19,20 @@ void CallGraphVisitor::visit(EnergyModule& em)
 	// Get the list of basic blocks for the Main function
 	OrderedBB entryPointBBs = OrderedF[mainFunction];
 	
+	//	llvm::raw_ostream *out = &llvm::outs();
+	
+
 	//Print(bbs);
 	//PrintAllLoops();
 	IterateFunction(entryPointBBs);
 	//C:\Dev\LLVM-BUILD\Release\bin\opt.exe -analyze -targetlibinfo -cost-model C:\Dev\EnergyAnalysis\examples\plateCutter.bc
 	
+
+	
+	
+	
+
+
 	
 
 }
@@ -100,7 +109,81 @@ bool CallGraphVisitor::HasEnergyAnnotation(const llvm::Function& F) const
 	return false;
 }
 
+void  CallGraphVisitor::SetInstructionCost(const llvm::Instruction& I)
+{
+	
+	std::unique_ptr<WCETCostModelAnalysis> wcet(new WCETCostModelAnalysis);
 
+	const llvm::BasicBlock* BB = I.getParent();
+	llvm::Function* parentFunction = const_cast<llvm::Function*>(BB->getParent());
+	wcet->runOnFunction(*parentFunction);
+	unsigned int cost = wcet->getInstructionCost(&I);
+	log.LogInfo(" cost: " + std::to_string(cost) + "\n");
+
+}
+
+bool  CallGraphVisitor::IsFirstEncounter(const llvm::Function& F)
+{
+
+	auto found = EnergyFunctionList.find(&F);
+	if (found != EnergyFunctionList.end())
+		return true;
+	return false;
+}
+
+bool  CallGraphVisitor::SetEnergyFunctionCost(llvm::Function& F)
+{
+	if (&F != nullptr && HasEnergyAnnotation(F))
+	{
+		//Set first run to false;
+		if (m_firstRun)
+			m_firstRun = false;
+
+		llvm::StringRef name = "";
+		signed int pd = 0;
+		unsigned int ec = 0;
+		unsigned int t = 0;
+
+		if (F.hasFnAttribute(ENERGY_FUNCTION_NAME)) 
+		{
+			name = F.getFnAttribute(ENERGY_FUNCTION_NAME).getValueAsString();
+			if (F.hasFnAttribute(ENERGY_TEMPORAL_CONSUMPTION))
+			{
+				pd = std::stoi(F.getFnAttribute(ENERGY_TEMPORAL_CONSUMPTION).getValueAsString().str());
+			}
+
+			//TODO: Calculation of energy function powerdraw and single consumption
+
+			// below is not ready please finish.
+			if (IsFirstEncounter(F)) {
+				EnergyFunction ef;
+				ef[&F] = pd;
+				// add the powerdraw to Joules counter and to the powerdraw counter
+			}
+			else
+			{
+				
+					
+			}
+
+		}
+			
+
+		if (F.hasFnAttribute(ENERGY_FUNCTION_NAME))
+			pd = std::stoi(F.getFnAttribute(ENERGY_TEMPORAL_CONSUMPTION).getValueAsString().str());
+
+		if (F.hasFnAttribute(ENERGY_CONSUMPTION))
+			ec = std::stoi(F.getFnAttribute(ENERGY_CONSUMPTION).getValueAsString().str());
+
+		if (F.hasFnAttribute(ENERGY_TIME_UNIT))
+			t = std::stoi(F.getFnAttribute(ENERGY_TIME_UNIT).getValueAsString().str());
+
+		log.LogInfo(F.getName().str() + " has Energy values: Time-dependent consumption=" + std::to_string(pd) + " One-time energy consumption=" + std::to_string(ec) + " Time=" + std::to_string(t) + "!\n");
+
+		return true;
+	}
+	return false;
+}
 
 //This methods is the main iterator. It uses all collected data
 // and traverses the ordered set of basic blocks of each function that it 
@@ -108,16 +191,8 @@ bool CallGraphVisitor::HasEnergyAnnotation(const llvm::Function& F) const
 // first run should be true on firstrun after that it is no longer required
 void CallGraphVisitor::IterateFunction(OrderedBB& OBB)
 {
-	
-	CostInstructionModel costAnalysis;
-	llvm::Function* parentFunction = OBB[0]->getParent();
-	costAnalysis.runOnFunction(*parentFunction);
-
-
 	for (llvm::BasicBlock* BB : OBB)
-	{
-
-		log.LogDebug("========================================"  + getSimpleNodeLabel(BB) + "========================================\n");
+	{		log.LogDebug("========================================"  + getSimpleNodeLabel(BB) + "========================================\n");
 		for (llvm::Instruction& inst : *BB)
 		{
 			if (log.GetLevel() == log.DEBUG)
@@ -126,26 +201,21 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB)
 			//retrieve call instruction
 			llvm::Function* fn = IsFunction(inst);
 		
-			//First run means we can ignore the non energy functions
+					   			 			//First run means we can ignore the non energy functions
 			if (m_firstRun && fn == nullptr) {
 				log.LogDebug(" (first run: ignored) \n\n");
 				continue; //no need to calc instruction cost
 			}
 
-		
+
 			if (m_firstRun && fn != nullptr)
 			{
-				//Check for Energy  Functions
-				if (HasEnergyAnnotation(*fn))
+				if (SetEnergyFunctionCost(*fn))
 				{
-				
 					log.LogDebug(" (First Energy Function) \n\n");
-					//calc the first energy function
-					m_firstRun = false;
-
 					continue;
 				}
-			
+
 				//Normal function so traverse this function recursively
 				//calc cost of tail call first
 				// then traverse function
@@ -160,21 +230,14 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB)
 					log.LogDebug(" (first run: ignored) \n\n");
 					continue;
 				}
-					   
-				if (fn != nullptr)
+				
+				if (SetEnergyFunctionCost(*fn))
 				{
-					//Check for Energy  Functions
-					if (HasEnergyAnnotation(*fn))
-					{
-						log.LogDebug(" (Follow-up Energy Function) \n\n");
-						//calc the first energy function
-						m_firstRun = false;
-					
-					
-						continue;
-					}
-
-					
+					log.LogDebug(" (Follow up Energy Function) \n\n");
+					continue;
+				} 
+				else if (fn != nullptr)
+				{
 					//Normal function so traverse this function recursively
 					//calc cost of tail call first
 					// then traverse function
@@ -184,15 +247,8 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB)
 				}
 				else
 				{
-					log.LogDebug(" (normal instruction) \n\n");
-					//normal instruction need to calc cost
-					unsigned int cost = costAnalysis.getInstructionCost(&inst);
-					if (cost == 0)
-					{
-						inst.dump();
-						log.LogInfo("     cost: " + std::to_string(cost) + "\n");
-					}
-
+					log.LogDebug(" (normal instruction): ");
+					SetInstructionCost(inst);
 					
 					//The last instruction of a basic Block is always of type br meaning it is a normal instruction
 					//check if the current instruction is the last instruction of the basic block
