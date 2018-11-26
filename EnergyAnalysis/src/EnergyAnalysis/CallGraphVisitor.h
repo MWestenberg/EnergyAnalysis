@@ -1,10 +1,26 @@
 #pragma once
+
 #include "EnergyAnalysis.h"
 #include "AnalysisVisitor.h"
 #include "llvm/ADT/SCCIterator.h"
-#include <list>
-#include <algorithm>
-#include "WCETCostModelAnalysis.h"
+#include  "WCETCostModelAnalysis.h"
+#include "llvm/Analysis/InstructionSimplify.h"
+#include "llvm/Analysis/AliasAnalysis.h"
+#include "llvm/IR/PassManager.h"
+#include "llvm/Transforms/Vectorize/LoopVectorize.h"
+#include "LoopAnalysis.h"
+#include "ScalarExpression.h"
+#include "llvm/ADT/PostOrderIterator.h"
+#include "llvm/Analysis/CallGraph.h"
+
+
+
+
+
+//#include "llvm/IR/PassManager.h"
+//#include "LoopAnalysis.h"
+
+
 
 //======================TODO: REMOVE THIS===========================//
 //#include "llvm/IR/InstrTypes.h"
@@ -25,7 +41,6 @@
 //#include "llvm/Support/raw_ostream.h"
 //#include "llvm/Analysis/ScalarEvolution.h"
 //==========================================================//
-
 
 // This struct is used to define loops
 // It includes a sorted vector of all basic blocks that are part of the loop
@@ -52,11 +67,14 @@ private:
 	typedef llvm::DenseMap<llvm::BasicBlock*, LoopOrderedSet> SCCs;
 	// Simple list to keep track of StringRefs
 	typedef llvm::DenseMap<llvm::Function*, unsigned int> EnergyFunction;
-	
+
+
 
 	// Contains a set of functions with their a set of basic blocks that are topological ordered
 	OrderedFunctions OrderedF; 
-	
+	// contains a list of possible paths
+	OrderedFunctions Paths;
+
 	// A map of Loops (or Strongly Connectected Components).
 	// They key is a pointer to the last Basic Block of the loop. 
 	// The value is the struct LoopOrderedSet and contains all information regarding the loop.
@@ -69,17 +87,16 @@ private:
 
 	bool m_firstRun = true;
 
-
+	
+	
 	
 public:
 	// Inherited via AnalysisVisitor
 	// Vistit method
 	virtual void visit(EnergyModule& em) override;
 
-	//Method to find the entry point
-	//At this point a fixed value in AnalysisVisitor.h
-	//Looks up the main entry point by name and returns a pointer to it.
-	llvm::Function* GetModuleEntryPoint(llvm::Module& M);
+
+
 
 private:
 
@@ -91,7 +108,7 @@ private:
 	// The argument passsed must be an ordered set of Basic Blocks that are a direct result
 	// of the llvm::po_iterator<llvm::BasicBlock*>
 	// This method is called by SortBasicBlocks()
-	void CallGraphVisitor::LoopLookup(OrderedBB& SCCBBs);
+	void LoopLookup(const OrderedBB& SCCBBs);
 		
 	// This methods iterates each functions by requesting a Ordered Set of Basic blocks
 	// The firstrun boolean is required because the first run is not useful until a
@@ -103,52 +120,53 @@ private:
 	
 /* ========================== HELPER METHODS ================================*/
 public:
-	//Check if the instruction passed is a function call
-	llvm::Function* IsFunction(llvm::Instruction& I) const;
+	// Check if the instruction passed is a function call
+	llvm::Function* IsFunction(const llvm::Instruction& I) const;
 
 
-	//overloaded method that requires a function reference instead of an Instruction reference
+	// overloaded method that requires a function reference instead of an Instruction reference
 	bool HasEnergyAnnotation(const llvm::Function& F) const;
 
 
 
 private:
-	//check if the instruction that was passed has an Energy Annotation
-	//It does this by calling IsFunction first and then the overloaded method
+	// check if the instruction that was passed has an Energy Annotation
+	// It does this by calling IsFunction first and then the overloaded method
 	// HasEnergyAnnotation that requires a function reference
-	bool HasEnergyAnnotation(llvm::Instruction& I) const;
+	bool HasEnergyAnnotation(const llvm::Instruction& I) const;
 
 	bool IsFirstEncounter(const llvm::Function& F);
 
 	//Method that returns true if the given name is given to the function referenced
 	bool HasFunctionName(const llvm::Function& F, const llvm::StringRef& name) const;
 
-	//Checks the passed intruction reference and tries to get the first parameter
-	//of the function call. This must be of type integer.
-	//Also this function expects that the instruction is a function call to LOOP_TRIPCOUNT(unsigned int)
+	// Checks the passed intruction reference and tries to get the first parameter
+	// of the function call. This must be of type integer.
+	// Also this function expects that the instruction is a function call to LOOP_TRIPCOUNT(unsigned int)
 	int GetLoopTripCount(llvm::Instruction& I) const;
 
 	// This methods requires a temporary set of a LoopOrderedSet and a reference where the loop should be stored (nestedLoop)
 	// It traverses the basic blocks in the stack from beginning to end
 	// and adds them to the nestedloop reference.
 	// It also sets the size of the loop and retrieves the TripCount which is added to the LoopOrderedSet nestedloop reference
-	void CreateLoopSet(LoopOrderedSet& stack, LoopOrderedSet& nestedLoop, llvm::BasicBlock* BBbegin, llvm::BasicBlock* BBend);
+	void CreateLoopSet(const LoopOrderedSet& stack, LoopOrderedSet& nestedLoop, const llvm::BasicBlock* BBbegin, const llvm::BasicBlock* BBend);
 	
-	//Traverse the LoopOrderedSet that is passed and looks for the LOOP_TRIPCOUNT function
+	// Traverse the LoopOrderedSet that is passed and looks for the LOOP_TRIPCOUNT function
 	// It calls the GetLoopTripCount function and adds the tripCount to the passed reference.
 	// When the LOOP_TRIPCOUNT function is found and the tripCount was added the function is also removed from the Module.
 	void SetLoopTripCount(LoopOrderedSet& ls);
-
 	// Returns the LoopSet that is mapped to the references Basic Block
 	// The Basic Block must be the last of Basic Block of the loop in Topological order.
 	LoopOrderedSet& GetLoop(llvm::BasicBlock& BB);
 
+
+
 	// Returns true when the Basic Block is the last of Basic Block of a loop in topological order 
 	// and was added to the LoopSet
-	bool IsLoopStart(llvm::BasicBlock& BB);
+	bool IsLoopStart(llvm::BasicBlock& BB) const;
 	
-	void SetInstructionCost(const llvm::Instruction& I);
-	bool SetEnergyFunctionCost(llvm::Function& F);
+	void SetInstructionCost(const llvm::Instruction& I, WCETCostModelAnalysis& wcet);
+	bool SetEnergyFunctionCost(llvm::Function& F, WCETCostModelAnalysis& wcet);
 
 
 
@@ -157,11 +175,10 @@ private:
 	//void TraverseFunction(llvm::Function& F);
 	//void TraverseInstructions(llvm::BasicBlock& BB);
 	//void LoopCountTest(llvm::Function& M);
-	//void Print(OrderedBB& F);
-	//void PrintAllLoops();
+	void Print(OrderedBB& F);
+	void PrintAllLoops();
 
-
-	std::map<llvm::StringRef, llvm::StringRef> m_eFunctions; //temp store
+	//std::map<llvm::StringRef, llvm::StringRef> m_eFunctions; //temp store
 
 };
 

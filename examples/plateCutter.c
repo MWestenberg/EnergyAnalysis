@@ -87,13 +87,9 @@ void startController()
                     stop_laser();
             
                 }
-            }
-            
+            }   
         }
     }
-    
-    
-    
 }
 
 

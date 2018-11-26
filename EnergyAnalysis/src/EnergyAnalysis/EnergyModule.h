@@ -4,6 +4,9 @@
 
 class EnergyModule
 {
+private:
+	llvm::Module* m_module;
+
 public:
 	EnergyModule(llvm::Module& module) : m_module(&module) {};
 
@@ -13,9 +16,7 @@ public:
 	{
 		return *m_module;
 	}
+	
+	
 
-
-private:
-	llvm::Module* m_module;
-		
 };

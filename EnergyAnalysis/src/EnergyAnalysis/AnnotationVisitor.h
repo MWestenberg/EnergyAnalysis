@@ -26,7 +26,7 @@ private:
 	// Splits StringRef into separate tokens based on a separator.
 	// All annotations are comma separated in a certain order.
 	// Requires a reference to a vector
-	void Tokenize(std::vector<llvm::StringRef>& tokens, const llvm::StringRef& text, char sep);
+	void Tokenize(std::vector<llvm::StringRef>& tokens, const llvm::StringRef& text, char sep) const;
 
 	// Energy annotated functions start with an ENERGY_FUNCTION_PREFIX (defined in AnalysisVistor.h). 
 	// These functions are declared and defined in the code.
@@ -42,7 +42,7 @@ private:
 
 	//Helper function that removes functions that are passed by reference.
 	//This actually removes the functions from the Module
-	void RemoveUnusedFunctions(llvm::Function&);
+	void RemoveUnusedFunctions(llvm::Function&) const;
 
 	// Retrieves the orignal Energy Annotated function based on a declared function
 	llvm::Function* GetEnergyFunction(const llvm::Function& fn);

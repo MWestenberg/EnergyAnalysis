@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include "EnergyAnalysis.h"
+#include "../EnergyAnalysis.h"
 
 
 ENERGY(start_assembly_line, bool, "AssemblyLine,0,100,2");
@@ -25,7 +25,9 @@ bool method2(int x)
 
 
 void loop(int *arr, size_t size) {
+	start_assembly_line();
     for (int i = 0; i < size; i++) {
+    	LOOP_TRIPCOUNT(5);
 		if (arr[i] % 2 == 0) {
 			if (method1(arr[i])) {
 				printf("branch1");
@@ -45,7 +47,7 @@ void loop(int *arr, size_t size) {
 
 
 int main(int argc, const char * argv[]) {
-	start_assembly_line();
+	
     int a[] = { 1 , 2 , 3 , 4  };
     int s = sizeof a / sizeof *a;
     loop(a, s);

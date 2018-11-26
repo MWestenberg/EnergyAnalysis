@@ -9,58 +9,82 @@ void CallGraphVisitor::visit(EnergyModule& em)
 	//llvm::CallGraph cfg = llvm::CallGraph(module);
 	//cfg.dump();
 
+
+
 	// This just gets the main entry point from the Module.
 	llvm::Function *mainFunction = GetModuleEntryPoint(module);
+	if (mainFunction == nullptr)
+	{
+		EnergyAnalysis::ExitProgram(EnergyAnalysis::E_MESSAGE_INVALID_ENTRY_POINT);
+		return;
+	}
+	
 
+	
+	//LoopAnalysis* loopPass = new LoopAnalysis();
+	ScalarExpression* scev = new ScalarExpression();
+	llvm::legacy::FunctionPassManager pass(&module);
+	//pass.add(loopPass);
+	pass.add(scev);
+	pass.run(*mainFunction);
+	
+	
+	//llvm::LoopInfo& LI = loopPass->getLoopInfo();
+
+	//llvm::ScalarEvolution& SE = scev->getSE();
+
+
+
+	
+
+//	for (llvm::LoopInfo::iterator i = LI.begin(), e = LI.end(); i != e; ++i)
+//	{
+//		llvm::Loop* L = *i;
+//
+//		L->dump();
+//		/*unsigned int trip = SE.getSmallConstantMaxTripCount(L);
+//
+//		log.LogDebug("tripcount: " + std::to_string(trip) + "\n");
+//*/
+//		std::vector<llvm::Loop*> subloops = L->getSubLoops();
+//		for (llvm::Loop* loop : subloops)
+//		{
+//			loop->dump();
+//		}
+//	}
+	
+
+	/*
+	//llvm::LoopInfo& loopinfo = getAnalysis<llvm::LoopInfoWrapperPass>().getLoopInfo();
+	*/
+	//llvm::LoopInfo &LI = loopPass->getAnalysis<llvm::LoopInfoWrapperPass>().getLoopInfo();
+	/*/
+	*/
+
+	
 	//Create vector of ordered basic blocks per function
 	//Only on functions that are not external components
-	SortBasicBlocks(module);
+	//SortBasicBlocks(module);
 	
 	// Get the list of basic blocks for the Main function
-	OrderedBB entryPointBBs = OrderedF[mainFunction];
+	//OrderedBB entryPointBBs = OrderedF[mainFunction];
 	
 	//	llvm::raw_ostream *out = &llvm::outs();
 	
-
-	//Print(bbs);
+	
+	//Print(entryPointBBs);
 	//PrintAllLoops();
-	IterateFunction(entryPointBBs);
+	//IterateFunction(entryPointBBs);
 	//C:\Dev\LLVM-BUILD\Release\bin\opt.exe -analyze -targetlibinfo -cost-model C:\Dev\EnergyAnalysis\examples\plateCutter.bc
 	
-
-	
-	
-	
-
-
-	
-
 }
 
 
-
-
-// The main function is a C/C++ entry point. LLVM is not aware of the real module entry point.
-// TODO: allow annotating the entry function 
-// for now look for main function
-llvm::Function* CallGraphVisitor::GetModuleEntryPoint(llvm::Module& M)
-{
-
-	for (llvm::Function& F : M)
-	{
-		if (F.getName().str() == MODULE_ENTRY_POINT)
-		{
-			return &F;
-		}
-	}
-
-	return nullptr;
-}
 
 
 bool CallGraphVisitor::HasFunctionName(const llvm::Function& F, const llvm::StringRef& name) const
 {
-	if (F.getName() == name)
+	if (F.getName().startswith_lower(name))
 		return true;
 
 	return false;
@@ -68,27 +92,30 @@ bool CallGraphVisitor::HasFunctionName(const llvm::Function& F, const llvm::Stri
 
 
 //Check if the instruction is a function. return nullptr in case it is not a function else a function pointer
-llvm::Function* CallGraphVisitor::IsFunction(llvm::Instruction& I) const
+llvm::Function* CallGraphVisitor::IsFunction(const llvm::Instruction& I) const
 {
 
-	llvm::CallInst * callInst = llvm::dyn_cast<llvm::CallInst>(&I);
+	llvm::CallInst * callInst = llvm::dyn_cast<llvm::CallInst>(const_cast<llvm::Instruction*>(&I));
 	if (callInst == nullptr)
 		return nullptr;
 
+	//check if it can be casted to a function pointer
 	if (llvm::Function *tailCall = llvm::dyn_cast<llvm::Function>(callInst->getCalledValue()->stripPointerCasts()))
 	{
-		// log.LogDebug("   ===> Call to Function => " +  tailCall->getName().str() + "\n")
-		return tailCall;
+		// Energy Functions and LOOP_TRIP_COUNT are exceptions that are not declared
+		if (HasEnergyAnnotation(*tailCall) || HasFunctionName(*tailCall, LOOP_TRIPCOUNT))
+			return tailCall;
+		else if (!tailCall->doesNotAccessMemory() && !tailCall->isDeclaration()) // all undeclared methods can be ignored (= external)
+			return tailCall;
+		
 	}
 		
-
 	return nullptr;
-
 }
 
 
 //Check if an instruction is a Function call and has energy annotation
-bool CallGraphVisitor::HasEnergyAnnotation(llvm::Instruction& I) const
+bool CallGraphVisitor::HasEnergyAnnotation(const llvm::Instruction& I) const
 {
 
 	const llvm::Function* fn = IsFunction(I);
@@ -109,15 +136,10 @@ bool CallGraphVisitor::HasEnergyAnnotation(const llvm::Function& F) const
 	return false;
 }
 
-void  CallGraphVisitor::SetInstructionCost(const llvm::Instruction& I)
+void  CallGraphVisitor::SetInstructionCost(const llvm::Instruction& I, WCETCostModelAnalysis& wcet)
 {
 	
-	std::unique_ptr<WCETCostModelAnalysis> wcet(new WCETCostModelAnalysis);
-
-	const llvm::BasicBlock* BB = I.getParent();
-	llvm::Function* parentFunction = const_cast<llvm::Function*>(BB->getParent());
-	wcet->runOnFunction(*parentFunction);
-	unsigned int cost = wcet->getInstructionCost(&I);
+	unsigned int cost = wcet.getInstructionCost(&I);
 	log.LogInfo(" cost: " + std::to_string(cost) + "\n");
 
 }
@@ -131,7 +153,7 @@ bool  CallGraphVisitor::IsFirstEncounter(const llvm::Function& F)
 	return false;
 }
 
-bool  CallGraphVisitor::SetEnergyFunctionCost(llvm::Function& F)
+bool  CallGraphVisitor::SetEnergyFunctionCost(llvm::Function& F, WCETCostModelAnalysis& wcet)
 {
 	if (&F != nullptr && HasEnergyAnnotation(F))
 	{
@@ -185,12 +207,17 @@ bool  CallGraphVisitor::SetEnergyFunctionCost(llvm::Function& F)
 	return false;
 }
 
+
 //This methods is the main iterator. It uses all collected data
 // and traverses the ordered set of basic blocks of each function that it 
 // it takes as parameter
 // first run should be true on firstrun after that it is no longer required
 void CallGraphVisitor::IterateFunction(OrderedBB& OBB)
 {
+	WCETCostModelAnalysis wcet;
+	llvm::Function* parentfunction = OBB[0]->getParent();
+	wcet.runOnFunction(*parentfunction);
+
 	for (llvm::BasicBlock* BB : OBB)
 	{		log.LogDebug("========================================"  + getSimpleNodeLabel(BB) + "========================================\n");
 		for (llvm::Instruction& inst : *BB)
@@ -203,6 +230,7 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB)
 		
 					   			 			//First run means we can ignore the non energy functions
 			if (m_firstRun && fn == nullptr) {
+				SetInstructionCost(inst, wcet);
 				log.LogDebug(" (first run: ignored) \n\n");
 				continue; //no need to calc instruction cost
 			}
@@ -210,7 +238,9 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB)
 
 			if (m_firstRun && fn != nullptr)
 			{
-				if (SetEnergyFunctionCost(*fn))
+				
+				//if (HasEnergyAnnotation(*fn))
+				if (SetEnergyFunctionCost(*fn, wcet))
 				{
 					log.LogDebug(" (First Energy Function) \n\n");
 					continue;
@@ -231,7 +261,8 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB)
 					continue;
 				}
 				
-				if (SetEnergyFunctionCost(*fn))
+				//if (HasEnergyAnnotation(*fn))
+				if (SetEnergyFunctionCost(*fn, wcet))
 				{
 					log.LogDebug(" (Follow up Energy Function) \n\n");
 					continue;
@@ -248,7 +279,7 @@ void CallGraphVisitor::IterateFunction(OrderedBB& OBB)
 				else
 				{
 					log.LogDebug(" (normal instruction): ");
-					SetInstructionCost(inst);
+					SetInstructionCost(inst, wcet);
 					
 					//The last instruction of a basic Block is always of type br meaning it is a normal instruction
 					//check if the current instruction is the last instruction of the basic block
@@ -291,7 +322,7 @@ void  CallGraphVisitor::SortBasicBlocks(llvm::Module& M)
 		
 		//Energy Functions are not traversed. 
 		//Functions that cannot be accessed can be ignored
-		if (HasEnergyAnnotation(F) || F.doesNotAccessMemory())
+		if (HasEnergyAnnotation(F) || F.doesNotAccessMemory() || F.isDeclaration())
 			continue;
 				
 		//TODO: this is now hardcoded must be dynamic
@@ -305,6 +336,7 @@ void  CallGraphVisitor::SortBasicBlocks(llvm::Module& M)
 		for (llvm::po_iterator<llvm::BasicBlock*> I = llvm::po_begin(&F.getEntryBlock()),
 			IE = llvm::po_end(&F.getEntryBlock()); I != IE; I++)
 		{
+			
 			orderedBB.push_back(*I);
 		}
 
@@ -315,24 +347,21 @@ void  CallGraphVisitor::SortBasicBlocks(llvm::Module& M)
 		OrderedF[&F] = orderedBB;
 
 		//Handle Loops using SCC iterator
-		for (llvm::scc_iterator<llvm::Function *> I = llvm::scc_begin(&F),
-			IE = llvm::scc_end(&F);
-			I != IE; ++I)
-		{
-			OrderedBB &SCCBBs = const_cast<OrderedBB&>(*I); //cast to non const
-			std::reverse(SCCBBs.begin(), SCCBBs.end());
-			//if (SCCBBs.size() == 1)
-			//	log.LogDebug("Not part of a loop: "+ getSimpleNodeLabel(SCCBBs[0]) + "\n");
-			
-			LoopLookup(SCCBBs);
+		//for (llvm::scc_iterator<llvm::Function *> I = llvm::scc_begin(&F),
+		//	IE = llvm::scc_end(&F);
+		//	I != IE; ++I)
+		//{
+		//	OrderedBB &SCCBBs = const_cast<OrderedBB&>(*I); //cast to non const
+		//	std::reverse(SCCBBs.begin(), SCCBBs.end());			
+		//	LoopLookup(SCCBBs);
 	
-		}
+		//}
 
 	}
 
 }
 
-void CallGraphVisitor::LoopLookup(OrderedBB& SCCBBs)
+void CallGraphVisitor::LoopLookup(const OrderedBB& SCCBBs)
 {
 	//Create temporary Set
 	LoopOrderedSet los;
@@ -376,7 +405,7 @@ LoopOrderedSet& CallGraphVisitor::GetLoop(llvm::BasicBlock& BB)
 
 }
 
-bool CallGraphVisitor::IsLoopStart(llvm::BasicBlock& BB)
+bool CallGraphVisitor::IsLoopStart(llvm::BasicBlock& BB) const
 {
 	auto found = LoopSet.find(&BB);
 	if (found != LoopSet.end())
@@ -390,6 +419,7 @@ bool CallGraphVisitor::IsLoopStart(llvm::BasicBlock& BB)
 
 void CallGraphVisitor::SetLoopTripCount(LoopOrderedSet& ls)
 {
+	bool loopCountDetected = false;
 
 	for (llvm::BasicBlock* BB : ls.loop)
 	{
@@ -401,16 +431,105 @@ void CallGraphVisitor::SetLoopTripCount(LoopOrderedSet& ls)
 				int tripCount = GetLoopTripCount(inst);
 				ls.tripCount = tripCount;
 				inst.eraseFromParent();
+				loopCountDetected = true;
 				break;
 			}
+			
 		}
 	}
+	if (loopCountDetected)
+		return;
+
+	log.LogDebug("=================Undefined loop detected=================\n");
+	
+	if (ls.loop.size() <= 0)
+		return;
+
+	llvm::Function* parentFunction = ls.loop[0]->getParent();
+
+	if (parentFunction == nullptr)
+		return;
+
+	
+	
+
+	/*std::unique_ptr<llvm::FunctionAnalysisManager> AM(new llvm::FunctionAnalysisManager());
+
+	std::unique_ptr<llvm::LoopVectorizePass> LVP(new llvm::LoopVectorizePass());
+	
+
+
+	LVP->run(*parentFunction, *AM);
+
+	llvm::LoopInfo* LI = LVP->LI;
+
+	if (LI == nullptr)
+		return;
+
+	
+	log.LogDebug("We got here\n");
+*/
+	/*std::unique_ptr<ScalarExpression> SCEV(new ScalarExpression());
+	SCEV->runOnFunction(*parentFunction);
+	llvm::ScalarEvolution* SE = &SCEV->getSE();
+	if (SE == nullptr)
+		return;*/
+
+	//llvm::LoopInfo* LI = SE.l
+
+	//if (loopInfo == nullptr)
+	//	return;
+
+	//log.LogDebug("We got here\n");
+	//int loopCounter = 0;
+	//for (llvm::LoopInfo::iterator i = loopInfo->begin(), e = loopInfo->end(); i != e; ++i)
+	//{
+	//	const llvm::Loop* L = *i;
+	//	if (L == nullptr)
+	//		log.LogDebug("geen loopje :(\n");
+
+	//	unsigned int tc = SE->getSmallConstantMaxTripCount(L);
+	//	log.LogDebug("We got here: " + std::to_string(tc) + "\n");
+	//}
+	
+	
+	
+
+	
+	
+
+	//
+
+	//
+
+	//if this point is reached the loop is not defined by LOOP_TRIPCOUNT
+	
+	
+	// TODO: implement ScalarEvolutionWrapperPass like loop
+	/*
+	class ScalarEvolutionWrapperPass : public FunctionPass {
+		std::unique_ptr<ScalarEvolution> SE;
+
+		public:
+			static char ID;
+			ScalarEvolutionWrapperPass();
+
+			ScalarEvolution &getSE() { return *SE; }
+			const ScalarEvolution &getSE() const { return *SE; }
+
+			bool runOnFunction(Function &F) override;
+			void releaseMemory() override;
+			void getAnalysisUsage(AnalysisUsage &AU) const override;
+			void print(raw_ostream &OS, const Module * = nullptr) const override;
+			void verifyAnalysis() const override;
+	};
+		*/
 
 }
 
-void CallGraphVisitor::CreateLoopSet(LoopOrderedSet& stack, LoopOrderedSet& nestedLoop, llvm::BasicBlock* BBbegin, llvm::BasicBlock* BBend)
+void CallGraphVisitor::CreateLoopSet(const LoopOrderedSet& stack, LoopOrderedSet& nestedLoop, const llvm::BasicBlock* BBbegin, const llvm::BasicBlock* BBend)
 {
-	log.LogDebug(" LOOP: " + getSimpleNodeLabel(BBbegin) + "\n");
+	log.LogDebug(" LOOP: " + getSimpleNodeLabel(const_cast<llvm::BasicBlock*>(BBbegin)) + "\n");
 	int i = 0;
 	for (llvm::BasicBlock* BB : stack.loop)
 	{
@@ -671,7 +790,7 @@ void CallGraphVisitor::PostOrderTraversal(llvm::Module& M)
 	}*/
 /*
 }
-
+*/
 void CallGraphVisitor::PrintAllLoops()
 {
 	
@@ -693,11 +812,12 @@ void CallGraphVisitor::PrintAllLoops()
 
 }
 
+
 void CallGraphVisitor::Print(OrderedBB & F)
 {
 	for (llvm::BasicBlock* bb : F)
 	{
-		log.LogDebug(getSimpleNodeLabel(bb));
+		log.LogDebug(getSimpleNodeLabel(bb) + ": ");
 		auto x = LoopSet.find(bb);
 		if (x != LoopSet.end())
 		{
@@ -714,7 +834,7 @@ void CallGraphVisitor::Print(OrderedBB & F)
 	}
 }
 
-
+/*
 
 //llvm::SmallVector<llvm::CallGraphNode *, 16> Nodes;
 	//Nodes.reserve(FunctionMap.size());

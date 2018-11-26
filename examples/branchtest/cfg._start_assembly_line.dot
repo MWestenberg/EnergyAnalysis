@@ -1,0 +1,5 @@
+digraph "CFG for '_start_assembly_line' function" {
+	label="CFG for '_start_assembly_line' function";
+
+	Node0x63c8a0 [shape=record,label="{%0:\l  ret void\l}"];
+}

@@ -18,13 +18,15 @@ int EnergyAnalysis::ExitProgram(int Error)
 		case E_USAGE: return ExitProgram(Error, ErrorMessages::USAGE); break;
 		case E_MESSAGE_MISSING_IRFILE: return ExitProgram(Error, ErrorMessages::MESSAGE_MISSING_IRFILE); break;
 		case E_MESSAGE_INVALID_PASS:  return ExitProgram(Error, ErrorMessages::MESSAGE_INVALID_PASS); break;
-		default: break;
+		case E_MESSAGE_INVALID_ENTRY_POINT:  return ExitProgram(Error, std::string(ErrorMessages::MESSAGE_INVALID_ENTRY_POINT) + MODULE_ENTRY_POINT); break;
+
+		default: return 0; break;
 	}
 	std::cin.get();
 	return 0;
 }
 
-int EnergyAnalysis::ExitProgram(int Error, const char* message)
+int EnergyAnalysis::ExitProgram(int Error, const std::string& message)
 {
 
 	std::cout << std::endl;
@@ -129,17 +131,23 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	
 	//Run the Analysis
 	log.LogInfo("=============================== Starting Energy Analysis ===============================\n\n");
+	log.LogInfo("LLVM IR FILE: " + std::string(m_inputFile) + "\n\n");
 	std::unique_ptr<EnergyModule> energy(new EnergyModule(*Mod));
 
 	log.LogInfo("Reading Energy Annotations...\n");
 	AnnotationVisitor annotate;
 	energy->accept(annotate);
 
-	log.LogInfo("Traversing CFG...\n");
-	CallGraphVisitor cfg;
-	energy->accept(cfg);
+	log.LogInfo("Analysing Paths in CFG...\n");
+	PathAnalysisVisitor pathAnalysis;
+	energy->accept(pathAnalysis);
 
-	
+	log.LogInfo("Analysing Loops...\n");
+	// The heap object will be deleted by the LLVM PassManager clean up
+	LoopAnalysisVisitor loopAnalysis;
+	energy->accept(loopAnalysis);
+	loopAnalysis.Print();
+
 	return NO_ERRORS;
 }
 

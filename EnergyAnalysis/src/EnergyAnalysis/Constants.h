@@ -4,6 +4,7 @@
 
 // LLVM global annotation function
 #define LLVM_GLOBAL_ANNOTATIONS "llvm.global.annotations"
+#define LLVM_LIFETIME_FUNCTION "llvm.lifetime"
 // The name given to functions that control external hardware components and are energy annotated
 #define ENERGY_ATTR "Energy"
 // External hardware functions are prefixed with _ and are removed after annotation
@@ -18,7 +19,7 @@
 #define ENERGY_TIME_UNIT "t"
 // Function name of the main entry point
 #define MODULE_ENTRY_POINT "main"
-//function name to retrieve loop trip counts from undefined loops.
+// function name to retrieve loop trip counts from undefined loops.
 #define LOOP_TRIPCOUNT "LOOP_TRIPCOUNT"
-//Log level: ERROR, WARNING, INFO, DEBUG
-#define LOGLEVEL Logging::DEBUG
+// Log level: ERROR, WARNING, INFO, DEBUG
+#define LOGLEVEL Logging::INFO

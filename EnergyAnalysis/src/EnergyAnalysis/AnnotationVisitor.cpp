@@ -63,7 +63,7 @@ void AnnotationVisitor::AddAnnotation(llvm::Module &M) {
 // Splits StringRef into separate tokens based on a separator.
 // All annotations are comma separated in a certain order.
 // Requires a reference to a vector
-void AnnotationVisitor::Tokenize(std::vector<llvm::StringRef>& tokens, const llvm::StringRef& text, char sep)
+void AnnotationVisitor::Tokenize(std::vector<llvm::StringRef>& tokens, const llvm::StringRef& text, char sep) const
 {
 	std::size_t start = 0, end = 0;
 	while ((end = text.find(sep, start)) != llvm::StringRef::npos) {
@@ -86,11 +86,12 @@ void AnnotationVisitor::SetEnergyFunctions(llvm::Module &M)
 		{
 			m_filteredFunctions[fn.getName()] = &fn;
 		}
+		
 
 	}
 }
 
-void AnnotationVisitor::RemoveUnusedFunctions(llvm::Function& fn)
+void AnnotationVisitor::RemoveUnusedFunctions(llvm::Function& fn) const
 {
 	fn.replaceAllUsesWith(llvm::UndefValue::get((llvm::Type*)fn.getType()));
 	fn.eraseFromParent();

@@ -27,13 +27,16 @@
     <ClCompile Include="src\EnergyAnalysis\AnnotationVisitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\EnergyAnalysis\CallGraphVisitor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\EnergyAnalysis\Logging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\EnergyAnalysis\WCETCostModelAnalysis.cpp">
+    <ClCompile Include="src\EnergyAnalysis\PathAnalysisVisitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EnergyAnalysis\LoopAnalysisPass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EnergyAnalysis\LoopAnalysisVisitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,16 +53,19 @@
     <ClInclude Include="src\EnergyAnalysis\AnnotationVisitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\EnergyAnalysis\CallGraphVisitor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\EnergyAnalysis\Logging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\EnergyAnalysis\Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\EnergyAnalysis\WCETCostModelAnalysis.h">
+    <ClInclude Include="src\EnergyAnalysis\PathAnalysisVisitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EnergyAnalysis\LoopAnalysisPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EnergyAnalysis\LoopAnalysisVisitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

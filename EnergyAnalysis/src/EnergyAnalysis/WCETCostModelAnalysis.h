@@ -1,9 +1,17 @@
 #pragma once
-#include "Constants.h"
-#include "EnergyAnalysis.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/Analysis/Passes.h"
+#include "llvm/Analysis/TargetTransformInfo.h"
+#include "llvm/IR/Function.h"
+#include "llvm/Pass.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/Debug.h"
+#include "llvm/Support/raw_ostream.h"
+
 #include "llvm/Analysis/TargetTransformInfo.h"
 #include "llvm/Analysis/TargetTransformInfoImpl.h"
 #include "llvm/IR/LegacyPassManagers.h"
+
 
 
 class WCETCostModelAnalysis : public llvm::FunctionPass, public llvm::PMDataManager, public llvm::PMTopLevelManager
@@ -27,7 +35,7 @@ public:
 		return llvm::PMT_BasicBlockPassManager;
 	}
 
-
+	
 private:
 
 	void getAnalysisUsage(llvm::AnalysisUsage &AU) const override;

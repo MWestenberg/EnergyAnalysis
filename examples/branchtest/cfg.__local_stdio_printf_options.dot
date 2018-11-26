@@ -1,0 +1,5 @@
+digraph "CFG for '__local_stdio_printf_options' function" {
+	label="CFG for '__local_stdio_printf_options' function";
+
+	Node0x6573b0 [shape=record,label="{%0:\l  ret i64* @__local_stdio_printf_options._OptionsStorage\l}"];
+}
