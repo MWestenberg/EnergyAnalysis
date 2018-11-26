@@ -11,29 +11,9 @@ void PathAnalysisVisitor::visit(EnergyModule & em)
 		return;
 	}*/
 
-
-	//LoopAnalysis* loopAnalysis = new LoopAnalysis();
-	//llvm::legacy::FunctionPassManager pass(&module);
-	////pass.add(loopPass);
-	//pass.add(loopAnalysis);
-
-	//for (llvm::Function& fn : module)
-	//{
-	//	pass.run(fn);
-		
-		/*std::vector<Edge> le = loopAnalysis->GetLoopEdges();
-		for (Edge& e : le)
-		{
-			log.LogInfo(fn.getName().str() + " From " + getSimpleNodeLabel(e.from) + " => " + getSimpleNodeLabel(e.to) + ": aantal trips: "+ std::to_string(e.loopTripCount)+ "\n");
-		}*/
-
 	for (llvm::Function& fn : module) {
 		ProfilePath(fn);
 	}
-
-	PrintPaths();
-
-
 
 }
 
@@ -152,7 +132,7 @@ examples:
 */
 void PathAnalysisVisitor::SetBackEdges(const llvm::Function& F)
 {
-		llvm::SmallVector< std::pair<const llvm::BasicBlock *, const llvm::BasicBlock *>, 32> result;
+	llvm::SmallVector< std::pair<const llvm::BasicBlock *, const llvm::BasicBlock *>, 32> result;
 	llvm::FindFunctionBackedges(F, result);
 
 	typedef std::pair<const llvm::BasicBlock *, const llvm::BasicBlock *> BlockPair;
