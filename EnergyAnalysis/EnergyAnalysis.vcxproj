@@ -257,7 +257,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Analysis\AnalysisVIsitor.cpp" />
+    <ClCompile Include="src\Analysis\AnalysisVisitor.cpp" />
     <ClCompile Include="src\Analysis\LoopAnalysisVisitor.cpp" />
     <ClCompile Include="src\Passes\LoopAnalysisPass.cpp" />
     <ClCompile Include="src\Analysis\PathAnalysisVisitor.cpp" />

@@ -49,9 +49,6 @@ public:
 	unsigned getInstructionCost(const llvm::Instruction *I) const;
 
 	void print(llvm::raw_ostream &OS, const llvm::Module*) const;
-	~WCETAnalysisPass() {
-		std::cout << "GODVERDOMME!!!!!!" << std::endl;
-	}
 
 private:
 

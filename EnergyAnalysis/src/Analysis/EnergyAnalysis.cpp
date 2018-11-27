@@ -151,7 +151,7 @@ int EnergyAnalysis::StartEnergyAnalysis()
 
 	WCETAnalysisVisitor  wcetAnalysis;
 	energy->accept(wcetAnalysis);
-
+	wcetAnalysis.Print();
 
 	return NO_ERRORS;
 }

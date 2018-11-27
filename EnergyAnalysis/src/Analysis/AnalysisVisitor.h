@@ -127,3 +127,48 @@ struct Edge : public Analysis
 
 	}
 };
+
+
+struct InstructionCost
+{
+	llvm::Instruction* instruction;
+	llvm::BasicBlock* parentBB;
+	
+	unsigned InstrCost = 0;
+
+	unsigned cummulativeCost = 0;
+	//Default Constructor
+	InstructionCost() : instruction(nullptr), parentBB(nullptr) {};
+
+	//Overloaded Constructor
+	InstructionCost(llvm::Instruction* inst) { SetIntruction(inst); }
+
+	//Overloaded Constructor
+	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent) { SetIntruction(inst); SetParentBasicBlock(parent); }
+
+	//Overloaded Constructor
+	InstructionCost(llvm::Instruction* inst, unsigned cost) { SetIntruction(inst); SetInstructionCost(cost); }
+
+	//Overloaded Constructor
+	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, unsigned cost) {
+		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost);
+	}
+
+	//Copy Constructor
+	InstructionCost(const InstructionCost& rhs) {
+		SetIntruction(rhs.instruction);	SetInstructionCost(rhs.InstrCost); SetParentBasicBlock(rhs.parentBB);
+	}
+
+	//Set the Instruction pointer
+	void SetIntruction(llvm::Instruction* inst) { instruction = inst; }
+
+	//Set the Instruction Cost
+	void SetInstructionCost(unsigned cost) { InstrCost = cost; }
+
+	//Set the parent Basic block
+	void SetParentBasicBlock(llvm::BasicBlock* BB) { parentBB = BB; }
+
+	// Calling this method will add the cummulative costs
+	// this will be the max cost of a basic block for the last instruction
+	void AddCumulativeCost(unsigned cost) {	cummulativeCost = cost;}
+};
