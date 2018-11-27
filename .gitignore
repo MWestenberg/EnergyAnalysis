@@ -1,5 +1,6 @@
 .vs
 bin/
+CostAnalysis/
 EnergyAnalysis/EnergyAnalysis.vcxproj.user
 Dependencies/llvm/lib/
 EnergyAnalysis/src/EnergyAnalysis/TopoSorter.h
