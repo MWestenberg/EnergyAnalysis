@@ -2,6 +2,7 @@
 
 void LoopAnalysisVisitor::visit(EnergyModule & em)
 {
+	log.LogConsole("Analysing Loops...");
 	llvm::Module& module = em.GetLLVMModule();
 
 	llvm::legacy::FunctionPassManager pass(&module);
@@ -14,15 +15,14 @@ void LoopAnalysisVisitor::visit(EnergyModule & em)
 	}
 
 	loopEdges = loopAnalysis->GetLoopEdges();
+	log.LogConsole("Ok\n");
 }
 
 void LoopAnalysisVisitor::Print()
 {
-
-	
 	for (Edge& e : loopEdges)
 	{
-		log.LogInfo(" From " + getSimpleNodeLabel(e.from) + " => " + getSimpleNodeLabel(e.to) + ": aantal trips: " + std::to_string(e.loopTripCount) + "\n");
+		log.LogConsole(" From " + getSimpleNodeLabel(e.from) + " => " + getSimpleNodeLabel(e.to) + ": aantal trips: " + std::to_string(e.loopTripCount) + "\n");
 	}
 
 }

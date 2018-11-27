@@ -1,6 +1,6 @@
 #include "LoopAnalysisPass.h"
 
-char LoopAnalysisPass::ID = 1;
+char LoopAnalysisPass::ID = 0;
 
 void LoopAnalysisPass::getAnalysisUsage(llvm::AnalysisUsage & AU) const
 {
@@ -41,14 +41,9 @@ unsigned LoopAnalysisPass::FindNestedLoops(llvm::Loop & L)
 	// Estimate the tripcount
 	unsigned int tripCount = SE->getSmallConstantMaxTripCount(&L);
 	
-
+	tripCount = GetAnnotatedLoopTripCount(L);
 	// Can we estimate the number of iterations on this loop?
-	if (tripCount == 0)
-	{
-		// Check if the loop is annotated
-		tripCount = GetAnnotatedLoopTripCount(L);
-	}
-
+	
 	Edge edge(L.getHeader(), L.getLoopLatch());
 	edge.isLoop = true;
 	edge.loopTripCount = tripCount;
@@ -82,60 +77,6 @@ unsigned LoopAnalysisPass::GetAnnotatedLoopTripCount(llvm::Loop & L)
 	}
 
 	return tripCount;
-}
-
-bool LoopAnalysisPass::HasFunctionName(const llvm::Function& F, const llvm::StringRef& name) const
-{
-	if (F.getName().startswith_lower(name))
-		return true;
-
-	return false;
-}
-
-
-//Check if the instruction is a function. return nullptr in case it is not a function else a function pointer
-llvm::Function* LoopAnalysisPass::IsFunction(const llvm::Instruction& I) const
-{
-
-	llvm::CallInst * callInst = llvm::dyn_cast<llvm::CallInst>(const_cast<llvm::Instruction*>(&I));
-	if (callInst == nullptr)
-		return nullptr;
-
-	//check if it can be casted to a function pointer
-	if (llvm::Function *tailCall = llvm::dyn_cast<llvm::Function>(callInst->getCalledValue()->stripPointerCasts()))
-	{
-		// Energy Functions and LOOP_TRIP_COUNT are exceptions that are not declared
-		if (HasEnergyAnnotation(*tailCall) || HasFunctionName(*tailCall, LOOP_TRIPCOUNT))
-			return tailCall;
-		else if (!tailCall->doesNotAccessMemory() && !tailCall->isDeclaration()) // all undeclared methods can be ignored (= external)
-			return tailCall;
-
-	}
-
-	return nullptr;
-}
-
-
-//Check if an instruction is a Function call and has energy annotation
-bool LoopAnalysisPass::HasEnergyAnnotation(const llvm::Instruction& I) const
-{
-
-	const llvm::Function* fn = IsFunction(I);
-	if (fn == nullptr)
-		return false;
-
-	return HasEnergyAnnotation(*fn);
-}
-
-
-//Check if a Function has energy annotation
-//overloaded function of instruction
-bool LoopAnalysisPass::HasEnergyAnnotation(const llvm::Function& F) const
-{
-	if (F.hasFnAttribute(ENERGY_ATTR))
-		return true;
-
-	return false;
 }
 
 

@@ -130,23 +130,28 @@ int EnergyAnalysis::StartEnergyAnalysis()
 		return E_MESSAGE_ERROR_IRFILE;
 	
 	//Run the Analysis
-	log.LogInfo("=============================== Starting Energy Analysis ===============================\n\n");
-	log.LogInfo("LLVM IR FILE: " + std::string(m_inputFile) + "\n\n");
+	log.LogConsole("=============================== Starting Energy Analysis ===============================\n\n");
+	log.LogConsole("LLVM IR FILE: " + std::string(m_inputFile) + "\n\n");
 	std::unique_ptr<EnergyModule> energy(new EnergyModule(*Mod));
 
-	log.LogInfo("Reading Energy Annotations...\n");
+	
 	AnnotationVisitor annotate;
 	energy->accept(annotate);
 
-	log.LogInfo("Analysing Paths in CFG...\n");
+	
 	PathAnalysisVisitor pathAnalysis;
 	energy->accept(pathAnalysis);
-
-	log.LogInfo("Analysing Loops...\n");
+	//pathAnalysis.Print();
+	
+	
 	// The heap object will be deleted by the LLVM PassManager clean up
 	LoopAnalysisVisitor loopAnalysis;
 	energy->accept(loopAnalysis);
-	loopAnalysis.Print();
+	//loopAnalysis.Print();
+
+	WCETAnalysisVisitor  wcetAnalysis;
+	energy->accept(wcetAnalysis);
+
 
 	return NO_ERRORS;
 }

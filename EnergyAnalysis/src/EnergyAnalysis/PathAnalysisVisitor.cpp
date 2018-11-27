@@ -2,6 +2,7 @@
 
 void PathAnalysisVisitor::visit(EnergyModule & em)
 {
+	log.LogConsole("Analysing Paths in CFG...");
 	llvm::Module& module = em.GetLLVMModule();
 	// This just gets the main entry point from the Module.
 	/*llvm::Function *mainFunction = GetModuleEntryPoint(module);
@@ -14,6 +15,8 @@ void PathAnalysisVisitor::visit(EnergyModule & em)
 	for (llvm::Function& fn : module) {
 		ProfilePath(fn);
 	}
+
+	log.LogConsole("Ok\n");
 
 }
 
@@ -178,12 +181,11 @@ void PathAnalysisVisitor::printPath(const OrderedBBSet& path)
 }
 
 
-void PathAnalysisVisitor::PrintPaths()
+void PathAnalysisVisitor::Print()
 {
-	assert(log.GetLevel() >= log.INFO && "This methods requires the log level to be set at minimal to INFO. See constants to set the log level.");
-
+	
 	if (fp.size() == 0) {
-		log.LogInfo("There are no PathMaps. Did you run the visit method?");
+		log.LogConsole("There are no PathMaps. Did you run the visit method?");
 		return;
 	}
 
@@ -191,19 +193,19 @@ void PathAnalysisVisitor::PrintPaths()
 	{
 		llvm::Function& fn = *I->first;
 		PathMap& pm = I->second;
-		log.LogInfo("Function: " + fn.getName().str() + "\n");
+		log.LogConsole("Function: " + fn.getName().str() + "\n");
 		for (auto PI = pm.begin(), PIE = pm.end(); PI != PIE; ++PI)
 		{
-			log.LogInfo(" Path " + std::to_string(PI->first) + ":\n");
+			log.LogConsole(" Path " + std::to_string(PI->first) + ":\n");
 			OrderedBBSet bbSet = PI->second;
 			for (auto sb : bbSet)
 			{
-				log.LogInfo("  " + getSimpleNodeLabel(sb) + "\n");
+				log.LogConsole("  " + getSimpleNodeLabel(sb) + "\n");
 			}
-			log.LogInfo("\n");
+			log.LogConsole("\n");
 
 		}
-		log.LogInfo("\n");
+		log.LogConsole("\n");
 	}
 
 }

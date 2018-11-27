@@ -1,29 +1,13 @@
 #pragma once
-#include <iostream>
-#include <string>
-#include <fstream>
-
-//LLVM framework
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Function.h"
-#include "llvm/IR/BasicBlock.h"
-#include "llvm/IR/Instruction.h"
-#include "llvm/IR/Instructions.h"
-#include "llvm/IR/LegacyPassManager.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IRReader/IRReader.h"
-#include "llvm/Pass.h"
-#include "llvm/Support/SourceMgr.h"
-#include "llvm/support/raw_os_ostream.h"
-#include <string>
-
 //EnergyClasses
 #include "AnalysisVisitor.h"
 #include "AnnotationVisitor.h"
 #include "EnergyModule.h"
 #include "PathAnalysisVisitor.h"
 #include "LoopAnalysisVisitor.h"
+#include "WCETAnalysisVisitor.h"
 #include "Logging.h"
+
 
 
 

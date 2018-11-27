@@ -39,6 +39,15 @@
     <ClCompile Include="src\EnergyAnalysis\LoopAnalysisVisitor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\EnergyAnalysis\WCETAnalysisPass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EnergyAnalysis\WCETAnalysisVisitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EnergyAnalysis\AnalysisVIsitor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\EnergyAnalysis\EnergyAnalysis.h">
@@ -66,6 +75,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\EnergyAnalysis\LoopAnalysisVisitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EnergyAnalysis\WCETAnalysisPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EnergyAnalysis\WCETAnalysisVisitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

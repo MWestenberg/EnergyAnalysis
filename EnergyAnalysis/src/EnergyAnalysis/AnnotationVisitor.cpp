@@ -2,10 +2,12 @@
 
 void AnnotationVisitor::visit(EnergyModule & em)
 {
+	log.LogConsole("Reading Energy Annotations...");
 	llvm::Module& module = em.GetLLVMModule();
 	// Get the real functions
 	SetEnergyFunctions(module);
 	AddAnnotation(module);
+	log.LogConsole("Ok\n");
 	//PrintAnnotations(module);
 }
 

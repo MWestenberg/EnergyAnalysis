@@ -40,3 +40,8 @@ void Logging::LogDebug(const std::string& message)
 	if (m_loglevel >= DEBUG)
 		std::cout << message;
 }
+
+void Logging::LogConsole(const std::string & message)
+{
+	std::cout << message;
+}

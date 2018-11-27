@@ -13,7 +13,7 @@ public:
 	bool ProfilePath(llvm::Function& F);
 
 	//Printer
-	void PrintPaths();
+	void Print();
 
 private:
 	// A path consist of an ordered set of BasicBlocks

@@ -257,6 +257,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\EnergyAnalysis\AnalysisVIsitor.cpp" />
     <ClCompile Include="src\EnergyAnalysis\LoopAnalysisVisitor.cpp" />
     <ClCompile Include="src\EnergyAnalysis\LoopAnalysisPass.cpp" />
     <ClCompile Include="src\EnergyAnalysis\PathAnalysisVisitor.cpp" />
@@ -265,6 +266,8 @@
     <ClCompile Include="src\EnergyAnalysis\EnergyModule.cpp" />
     <ClCompile Include="src\EnergyAnalysis\AnnotationVisitor.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\EnergyAnalysis\WCETAnalysisPass.cpp" />
+    <ClCompile Include="src\EnergyAnalysis\WCETAnalysisVisitor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\EnergyAnalysis\LoopAnalysisVisitor.h" />
@@ -276,6 +279,8 @@
     <ClInclude Include="src\EnergyAnalysis\AnnotationVisitor.h" />
     <ClInclude Include="src\EnergyAnalysis\EnergyAnalysis.h" />
     <ClInclude Include="src\EnergyAnalysis\EnergyModule.h" />
+    <ClInclude Include="src\EnergyAnalysis\WCETAnalysisPass.h" />
+    <ClInclude Include="src\EnergyAnalysis\WCETAnalysisVisitor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
