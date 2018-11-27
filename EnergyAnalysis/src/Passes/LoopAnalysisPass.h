@@ -1,12 +1,12 @@
 #pragma once
 
-
-#include "EnergyAnalysis.h"
+#include "../Analysis/AnalysisVisitor.h"
+#include "../Analysis/EnergyAnalysis.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/IR/LegacyPassManagers.h"
 #include "llvm/IR/Dominators.h"
-#include "AnalysisVisitor.h"
+
 
 class LoopAnalysisPass : public llvm::FunctionPass, public llvm::PMDataManager, public llvm::PMTopLevelManager, public Analysis
 {

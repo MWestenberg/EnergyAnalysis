@@ -1,4 +1,4 @@
-#include "EnergyAnalysis/EnergyAnalysis.h"
+#include "Analysis/EnergyAnalysis.h"
 
 
 int main(int argc, char** argv)

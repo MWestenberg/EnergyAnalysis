@@ -1,7 +1,7 @@
 #pragma once
 
-#include "EnergyAnalysis.h"
-#include "Constants.h"
+#include "../Analysis/EnergyAnalysis.h"
+#include "../Constants.h"
 
 #include "llvm/IR/LegacyPassManagers.h"
 #include "llvm/Analysis/Passes.h"

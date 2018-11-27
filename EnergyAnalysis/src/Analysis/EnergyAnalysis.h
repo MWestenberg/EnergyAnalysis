@@ -6,7 +6,7 @@
 #include "PathAnalysisVisitor.h"
 #include "LoopAnalysisVisitor.h"
 #include "WCETAnalysisVisitor.h"
-#include "Logging.h"
+#include "../Logging.h"
 
 
 

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "EnergyAnalysis.h"
-#include "Constants.h"
-#include "WCETAnalysisPass.h"
+#include "../Constants.h"
+#include "../Passes/WCETAnalysisPass.h"
 
 class WCETAnalysisVisitor : public AnalysisVisitor
 {

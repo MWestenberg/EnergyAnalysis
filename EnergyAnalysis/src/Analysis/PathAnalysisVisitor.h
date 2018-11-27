@@ -1,6 +1,6 @@
 #pragma once
 #include "EnergyAnalysis.h"
-#include "Constants.h"
+#include "../Constants.h"
 #include "llvm/Analysis/CFG.h"
 
 

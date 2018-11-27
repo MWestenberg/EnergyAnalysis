@@ -1,8 +1,8 @@
 #pragma once
 
 #include "EnergyAnalysis.h"
-#include "Constants.h"
-#include "LoopAnalysisPass.h"
+#include "../Constants.h"
+#include "../Passes/LoopAnalysisPass.h"
 
 class LoopAnalysisVisitor: public AnalysisVisitor
 {
