@@ -4,13 +4,6 @@ int PathAnalysisVisitor::visit(EnergyModule & em)
 {
 	log.LogConsole("Analysing Paths in CFG...");
 	llvm::Module& module = em.GetLLVMModule();
-	// This just gets the main entry point from the Module.
-	/*llvm::Function *mainFunction = GetModuleEntryPoint(module);
-	if (mainFunction == nullptr)
-	{
-		EnergyAnalysis::ExitProgram(EnergyAnalysis::E_MESSAGE_INVALID_ENTRY_POINT);
-		return;
-	}*/
 
 	for (llvm::Function& fn : module) {
 		ProfilePath(fn);
@@ -83,14 +76,10 @@ void PathAnalysisVisitor::CreatePath(llvm::BasicBlock& bb)
 
 	}
 
-	int NSucc = TInst->getNumSuccessors();
-	//if (NSucc == 1)
-	//	CreatePath(*TInst->getSuccessor(0));
-
 	bool firstEdgeIsLoop = false;
 
 	//Iterate over all successors of the Basic block
-	for (int i = 0; i < NSucc; i++)
+	for (unsigned i = 0; i < TInst->getNumSuccessors(); i++)
 	{
 		log.LogDebug("\n====Loop of root bb: " + getSimpleNodeLabel(&bb) + "===\n");
 
@@ -116,6 +105,7 @@ void PathAnalysisVisitor::CreatePath(llvm::BasicBlock& bb)
 				
 		}
 
+		//Set history bb's
 		OrderedBBSet vertices = paths[pathID];
 
 		if (!firstEdgeIsLoop)
@@ -155,7 +145,6 @@ void PathAnalysisVisitor::SetBackEdges(const llvm::Function& F)
 	llvm::SmallVector< std::pair<const llvm::BasicBlock *, const llvm::BasicBlock *>, 32> result;
 	llvm::FindFunctionBackedges(F, result);
 
-	typedef std::pair<const llvm::BasicBlock *, const llvm::BasicBlock *> BlockPair;
 	for (llvm::SmallVectorImpl<std::pair<const llvm::BasicBlock *, const llvm::BasicBlock *> >::iterator I = result.begin(),
 		IE = result.end(); I != IE; ++I)
 	{

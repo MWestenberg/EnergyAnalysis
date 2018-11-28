@@ -20,56 +20,63 @@ int AnnotationVisitor::visit(EnergyModule & em)
 bool AnnotationVisitor::AddAnnotation(llvm::Module &M) {
 	auto global_annos = M.getNamedGlobal(LLVM_GLOBAL_ANNOTATIONS);
 
-	if (global_annos) {
-		auto a = llvm::cast< llvm::ConstantArray>(global_annos->getOperand(0));
-		for (unsigned int i = 0; i < a->getNumOperands(); i++) {
-			auto e = llvm::cast< llvm::ConstantStruct>(a->getOperand(i));
+	if (!global_annos)
+		return true;
 
-			if (auto fn = llvm::dyn_cast<llvm::Function>(e->getOperand(0)->getOperand(0))) {
-				llvm::StringRef anno = llvm::cast< llvm::ConstantDataArray>(llvm::cast< llvm::GlobalVariable>(e->getOperand(1)->getOperand(0))->getOperand(0))->getAsCString();
-				std::vector<llvm::StringRef> tokens;
-				Tokenize(tokens, anno, ',');
+	auto a = llvm::cast< llvm::ConstantArray>(global_annos->getOperand(0));
+	for (unsigned int i = 0; i < a->getNumOperands(); i++) {
+		auto e = llvm::cast< llvm::ConstantStruct>(a->getOperand(i));
 
-				if (tokens.size() == EnergyAnalysis::NUM_OF_TOKENS) {
-					if (tokens.size() < 4) {
-						log.LogError("Program halted");
-						m_result =  EnergyAnalysis::E_MESSAGE_INVALID_TOKENS;
-						return false;
-					}
+		if (auto fn = llvm::dyn_cast<llvm::Function>(e->getOperand(0)->getOperand(0))) {
+			llvm::StringRef anno = llvm::cast< llvm::ConstantDataArray>(llvm::cast< llvm::GlobalVariable>(e->getOperand(1)->getOperand(0))->getOperand(0))->getAsCString();
+			std::vector<llvm::StringRef> tokens;
+			Tokenize(tokens, anno, ',');
 
-					assert(tokens.size() >= 4 && "Need at least 4 tokens in the Energy Annotation");
-					llvm::Function* realFN = GetEnergyFunction(*fn);
-					if (realFN)
-					{
-						//llvm::errs() << "Real:" << realFN->getName() << "\n";
-						realFN->addFnAttr(ENERGY_ATTR);
-						int count = 1;
-
-						for (llvm::StringRef token : tokens) {
-							llvm::StringRef kind;
-							switch (count) {
-							case 1: kind = llvm::StringRef(ENERGY_FUNCTION_NAME); break;
-							case 2: kind = llvm::StringRef(ENERGY_TEMPORAL_CONSUMPTION); break;
-							case 3: kind = llvm::StringRef(ENERGY_CONSUMPTION); break;
-							case 4: kind = llvm::StringRef(ENERGY_TIME_UNIT); break;
-							}
-
-							realFN->addFnAttr(kind, token.str());
-							count++;
-						}
-
-						//remove dummy function
-						RemoveUnusedFunctions(*fn);
-
-					}
-				}
+			if (tokens.size() == EnergyAnalysis::NUM_OF_TOKENS) 
+			{
+				assert(tokens.size() >= 4 && "Need at least 4 tokens in the Energy Annotation");
+				llvm::Function* realEnergyFn = GetEnergyFunction(*fn);
+				if (AddEnergyAttribute(*realEnergyFn, tokens))
+					RemoveUnusedFunctions(*fn); //remove dummy function
+			}
+			else 
+			{
+				log.LogError("Program halted");
+				m_result = EnergyAnalysis::E_MESSAGE_INVALID_TOKENS;
+				return false;
 			}
 		}
-		m_annotationedAdded = true; //for printing
 	}
+	
+	
 	return true;
 }
 
+bool AnnotationVisitor::AddEnergyAttribute(llvm::Function& F, const std::vector<llvm::StringRef>& tokens)
+{
+	if (&F)
+	{
+		//llvm::errs() << "Real:" << realFN->getName() << "\n";
+		F.addFnAttr(ENERGY_ATTR);
+		int count = 1;
+
+		for (llvm::StringRef token : tokens) {
+			llvm::StringRef kind;
+			switch (count) {
+			case 1: kind = llvm::StringRef(ENERGY_FUNCTION_NAME); break;
+			case 2: kind = llvm::StringRef(ENERGY_TEMPORAL_CONSUMPTION); break;
+			case 3: kind = llvm::StringRef(ENERGY_CONSUMPTION); break;
+			case 4: kind = llvm::StringRef(ENERGY_TIME_UNIT); break;
+			}
+
+			F.addFnAttr(kind, token.str());
+			count++;
+		}
+		m_annotationedAdded = true; //for printing
+		return true;
+	}
+	return false;
+}
 
 // Splits StringRef into separate tokens based on a separator.
 // All annotations are comma separated in a certain order.
@@ -131,7 +138,7 @@ llvm::Function* AnnotationVisitor::GetEnergyFunction(const llvm::Function& fn)
 void AnnotationVisitor::Print(llvm::Module& M) 
 {
 	if (!m_annotationedAdded) { // the annotation was not added no use in running this function
-		log.LogWarning("You cannot print the annotations before calling the visit method\n");
+		log.LogWarning("You cannot print the annotations before calling the visit method.\nIt might also be that the program you are trying to analyse doesn contain any annotations.\n");
 		return;
 	}
 

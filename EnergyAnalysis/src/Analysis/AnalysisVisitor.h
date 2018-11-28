@@ -113,16 +113,23 @@ struct Edge : public Analysis
 		return from == rhs.from && to == rhs.to;
 	}
 
-	// Can be used to compare an edge with a basic block
-	// Returns true of the from basic block of the edge is equal to the passed basic block
-	bool operator^=(const llvm::BasicBlock& rhs) {
+	// Check if RHS Block is equal the Edge.from block
+	// Edge << BB
+	bool operator<<(const llvm::BasicBlock& rhs) {
 		return from == &rhs;
 	}
 
-	//Returns true if it is marked as a loop
-	bool IsLoop() const {
-		return isLoop;
+	// Check if RHS Block is equal the Edge.to block
+	// Edge >> BB
+	bool operator>>(const llvm::BasicBlock& rhs) {
+		return to == &rhs;
 	}
+
+	//Returns true if it is marked as a loop
+	bool IsLoop() const {	return isLoop;	}
+
+	//Returns true if it is marked as a loop
+	bool IsSubLoop() const { return isSubLoop;}
 
 	//Prints the edge to the console
 	void Print()
@@ -160,9 +167,18 @@ struct InstructionCost
 		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost);
 	}
 
+	//Overloaded Constructor
+	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, unsigned cost, unsigned cummulativeCost) {
+		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost);
+		SetCumulativeCost(cummulativeCost);
+	}
+
 	//Copy Constructor
 	InstructionCost(const InstructionCost& rhs) {
-		SetIntruction(rhs.instruction);	SetInstructionCost(rhs.InstrCost); SetParentBasicBlock(rhs.parentBB);
+		SetIntruction(rhs.instruction);	
+		SetInstructionCost(rhs.InstrCost); 
+		SetParentBasicBlock(rhs.parentBB);
+		SetCumulativeCost(rhs.cummulativeCost);
 	}
 
 	//Set the Instruction pointer
@@ -176,7 +192,7 @@ struct InstructionCost
 
 	// Calling this method will add the cummulative costs
 	// this will be the max cost of a basic block for the last instruction
-	void AddCumulativeCost(unsigned cost) {	cummulativeCost = cost;}
+	void SetCumulativeCost(unsigned cost) {	cummulativeCost = cost;}
 };
 
 

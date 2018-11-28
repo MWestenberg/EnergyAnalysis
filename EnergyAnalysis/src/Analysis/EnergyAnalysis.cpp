@@ -158,14 +158,14 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	Error = energy->accept(loopAnalysis);
 	if (Error)
 		return ExitProgram(Error);
-	loopAnalysis.Print();
+	//loopAnalysis.Print();
 
 	// Calculates and stores all cost per instruction in a FunctionMap
 	WCETAnalysisVisitor  wcetAnalysis;
 	Error = energy->accept(wcetAnalysis);
 	if (Error)
 		return ExitProgram(Error);
-	//wcetAnalysis.Print();
+	wcetAnalysis.Print();
 
 	return Error;
 }

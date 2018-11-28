@@ -38,6 +38,10 @@ private:
 	// The definined dummy functions with prefix are removed
 	bool AddAnnotation(llvm::Module &M);
 
+
+	//Sets the attributes to the function as defined in the tokens
+	// returns true of succesfull, false in case the function is a nullptr
+	bool AddEnergyAttribute(llvm::Function& F, const std::vector<llvm::StringRef>& tokens);
 	// The EnergyAnalysis header implements dummy functions with  ENERGY_FUNCTION_PREFIX (defined in AnalysisVistor.h). 
 	// this functions filters out those functions and assign the "real" functions to the map m_EnergyFunctions
 	void SetEnergyFunctions(llvm::Module&);

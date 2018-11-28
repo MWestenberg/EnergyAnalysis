@@ -29,8 +29,9 @@ int WCETAnalysisVisitor::visit(EnergyModule & em)
 				if (cost >= INT_MAX)
 					cost = 1;
 				bbCost += cost;
-				InstructionCost IC(&Inst, &B, cost);
-				IC.AddCumulativeCost(bbCost);
+
+				//TODO: cummulative cost not working properly
+				InstructionCost IC(&Inst, &B, cost, bbCost);
 				ICV.push_back(IC);
 			}
 			fnCost += bbCost;
