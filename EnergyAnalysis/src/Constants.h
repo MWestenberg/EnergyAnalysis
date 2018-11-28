@@ -7,7 +7,10 @@
 #define LLVM_LIFETIME_FUNCTION "llvm.lifetime"
 // The name given to functions that control external hardware components and are energy annotated
 #define ENERGY_ATTR "Energy"
-#define ENERGY_ANNOTATED "ContainsEnergyAnnotation"
+
+#define PRINT_BEGIN "\n=====Printer Start====\n"
+#define PRINT_END "====Printer End====\n\n"
+
 // External hardware functions are prefixed with _ and are removed after annotation
 #define ENERGY_FUNCTION_PREFIX "_";
 // the name of the energy function as defined by the user
@@ -23,4 +26,4 @@
 // function name to retrieve loop trip counts from undefined loops.
 #define LOOP_TRIPCOUNT "LOOP_TRIPCOUNT"
 // Log level: ERROR, WARNING, INFO, DEBUG
-#define LOGLEVEL Logging::ERROR
+#define LOGLEVEL Logging::DEBUG

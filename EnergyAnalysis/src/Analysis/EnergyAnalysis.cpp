@@ -20,6 +20,7 @@ int EnergyAnalysis::ExitProgram(int Error)
 		case E_MESSAGE_INVALID_PASS:  return ExitProgram(Error, ErrorMessages::MESSAGE_INVALID_PASS); break;
 		case E_MESSAGE_INVALID_ENTRY_POINT:  return ExitProgram(Error, std::string(ErrorMessages::MESSAGE_INVALID_ENTRY_POINT) + MODULE_ENTRY_POINT); break;
 		case E_MESSAGE_INVALID_TOKENS:  return ExitProgram(Error, ErrorMessages::MESSAGE_INVALID_TOKENS); break;
+		case E_MESSAGE_UNDEFINED_LOOP: return ExitProgram(Error, ErrorMessages::MESSAGE_UNDEFINED_LOOP); break;
 		default: return 0;  break;
 	}
 
@@ -157,7 +158,7 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	Error = energy->accept(loopAnalysis);
 	if (Error)
 		return ExitProgram(Error);
-	//loopAnalysis.Print();
+	loopAnalysis.Print();
 
 	// Calculates and stores all cost per instruction in a FunctionMap
 	WCETAnalysisVisitor  wcetAnalysis;

@@ -6,4 +6,6 @@ The focus is not on energy consumption in terms of CPU or memory usage but rathe
 
 Loops must be defined either by using a defined iterator or by adding a call to the LOOP_TRIPCOUNT function defining the number of iterations in its argument. Som examples are given iin the examples directory. 
 
+The tool is being build in Visual Studio but a cmake file will be made available for compiling it on Linux and MacOS.
+
 This project and this tool are still a work in progress and is not available for commercial use at this point.

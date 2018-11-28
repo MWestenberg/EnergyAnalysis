@@ -14,7 +14,10 @@ int LoopAnalysisVisitor::visit(EnergyModule & em)
 
 	for (llvm::Function& fn : module)
 	{
-		if (pass.run(fn))
+		if (IsNotTraversable(fn))
+			continue;
+		
+		if (!pass.run(fn))
 			return loopAnalysis->GetPassResult();
 	}
 
@@ -25,9 +28,13 @@ int LoopAnalysisVisitor::visit(EnergyModule & em)
 
 void LoopAnalysisVisitor::Print()
 {
+	log.LogConsole(PRINT_BEGIN);
 	for (Edge& e : loopEdges)
 	{
-		log.LogConsole(" From " + getSimpleNodeLabel(e.from) + " => " + getSimpleNodeLabel(e.to) + ": aantal trips: " + std::to_string(e.loopTripCount) + "\n");
+		if (e.isSubLoop)
+			log.LogConsole(" Subloop: ");
+		log.LogConsole(" From " + getSimpleNodeLabel(e.from) + " => " + getSimpleNodeLabel(e.to) + ": aantal trips: " + std::to_string(e.loopTripCount) + "\n\n");
 	}
+	log.LogConsole(PRINT_END);
 
 }

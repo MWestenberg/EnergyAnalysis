@@ -62,7 +62,7 @@ public:
 	int GetPassResult() {	return m_result;	}
 
 private:
-	unsigned FindNestedLoops(llvm::Loop & L);
+	unsigned FindNestedLoops(llvm::Loop & L, bool isSubloop = false);
 
 	// LLVM Anaysis usage method to preserve pass data
 	void getAnalysisUsage(llvm::AnalysisUsage &AU) const override;

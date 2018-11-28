@@ -57,6 +57,9 @@ protected:
 
 	llvm::Function* GetModuleEntryPoint(llvm::Module& M) const;
 
+
+	bool IsNotTraversable(llvm::Function& F) const;
+
 protected:
 
 	//Main Log function
@@ -88,6 +91,8 @@ struct Edge : public Analysis
 	Edge(llvm::BasicBlock* lhs, llvm::BasicBlock* rhs) : from(lhs), to(rhs) {};
 
 	bool isLoop = false;
+	bool isSubLoop = false;
+
 	unsigned int loopTripCount = 0;
 
 	//Copy constructor
@@ -97,6 +102,7 @@ struct Edge : public Analysis
 		to = other.to;
 		isLoop = other.isLoop;
 		loopTripCount = other.loopTripCount;
+		isSubLoop = other.isSubLoop;
 	}
 
 	// Compares two edges based on the edge

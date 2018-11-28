@@ -23,19 +23,11 @@ int PathAnalysisVisitor::visit(EnergyModule & em)
 bool PathAnalysisVisitor::ProfilePath(llvm::Function & F)
 {
 
-	// When the following conditions are met we can skip since these are exceptions
-	// Energy functions are always external, LOOP_TRIPCOUNT is a special loop annotation
-	// other functions that are nullptr or are only declared must be skipped as well to prevent errors
-	// and cludding of the paths.
-	if (&F == nullptr 
-		|| HasEnergyAnnotation(F) 
-		|| F.doesNotAccessMemory() 
-		|| F.isDeclaration() 
-		|| HasFunctionName(F, LOOP_TRIPCOUNT)
-	)
+	// Energy functions, LOOP_TRIPCOUNT and undeclared functions should be ignored
+	if (IsNotTraversable(F))
 		return false;
 
-	log.LogDebug("================== Analysis of Function: " + F.getName().str() + "===================\n");
+	log.LogDebug("\n================== Analysis of Function: " + F.getName().str() + "===================\n");
 
 	// Find backedges that initiate a loop
 	SetBackEdges(F);
@@ -59,7 +51,7 @@ bool PathAnalysisVisitor::ProfilePath(llvm::Function & F)
 
 void PathAnalysisVisitor::CreatePath(llvm::BasicBlock& bb)
 {
-	log.LogDebug(" add: " + getSimpleNodeLabel(&bb) + "\n");
+	log.LogDebug("PathID: " + std::to_string(pathID) +" add: " + getSimpleNodeLabel(&bb) + "\n");
 
 	//what is the current path? pathID
 	// get the pathmap
@@ -91,25 +83,45 @@ void PathAnalysisVisitor::CreatePath(llvm::BasicBlock& bb)
 
 	}
 
+	int NSucc = TInst->getNumSuccessors();
+	//if (NSucc == 1)
+	//	CreatePath(*TInst->getSuccessor(0));
+
+	bool firstEdgeIsLoop = false;
+
 	//Iterate over all successors of the Basic block
-	for (unsigned i = 0, NSucc = TInst->getNumSuccessors(); i < NSucc; i++)
+	for (int i = 0; i < NSucc; i++)
 	{
-		log.LogDebug("====Loop of root bb: " + getSimpleNodeLabel(&bb) + "===\n");
+		log.LogDebug("\n====Loop of root bb: " + getSimpleNodeLabel(&bb) + "===\n");
 
 		llvm::BasicBlock *Succ = TInst->getSuccessor(i);
 		if (std::find(paths[pathID].begin(), paths[pathID].end(), Succ) != paths[pathID].end())
 		{
 			Edge edge(&bb, Succ);
-			if (log.GetLevel() == log.DEBUG)
-				edge.Print();
+			
+			auto foundEdge = std::find(loopEdges.begin(), loopEdges.end(), edge);
+			if (foundEdge != loopEdges.end())
+			{
+				Edge e = *foundEdge;
+				if (log.GetLevel() == log.DEBUG)
+					e.Print();
 
-			if (std::find(loopEdges.begin(), loopEdges.end(), edge) != loopEdges.end())
+				// BB's always have max 2 branches, True and False
+				// in case a Loop was found in the first branch (true)
+				// the second must be followed and added to the same path.
+				if (i == 0)
+					firstEdgeIsLoop = true;
 				continue;
+			}
+				
 		}
 
 		OrderedBBSet vertices = paths[pathID];
-		pathID += i;
-		if (i > 0) {
+
+		if (!firstEdgeIsLoop)
+			pathID += i;
+		
+		if (i > 0 && !firstEdgeIsLoop) {
 			for (llvm::BasicBlock* hbb : vertices)
 			{
 				if (hbb == &bb)
@@ -150,6 +162,7 @@ void PathAnalysisVisitor::SetBackEdges(const llvm::Function& F)
 		Edge edge;
 		edge.from = const_cast<llvm::BasicBlock*>(I->first);
 		edge.to = const_cast<llvm::BasicBlock*>(I->second);
+		edge.isLoop = true;
 		loopEdges.push_back(edge);
 
 		log.LogDebug(getSimpleNodeLabel(I->first) + " =>  " + getSimpleNodeLabel(I->second) + "\n");
@@ -172,6 +185,8 @@ void PathAnalysisVisitor::printPath(const OrderedBBSet& path)
 
 void PathAnalysisVisitor::Print()
 {
+
+	log.LogConsole(PRINT_BEGIN);
 	
 	if (fp.size() == 0) {
 		log.LogConsole("There are no PathMaps. Did you run the visit method?");
@@ -196,5 +211,5 @@ void PathAnalysisVisitor::Print()
 		}
 		log.LogConsole("\n");
 	}
-
+	log.LogConsole(PRINT_END);
 }

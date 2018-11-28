@@ -46,6 +46,8 @@ int WCETAnalysisVisitor::visit(EnergyModule & em)
 
 void WCETAnalysisVisitor::Print()
 {
+
+	log.LogConsole(PRINT_BEGIN);
 	for (FunctionCostMap::iterator I = FCM->begin(), IE = FCM->end(); I != IE; ++I)
 	{
 		llvm::Function& F = *I->first;
@@ -84,6 +86,7 @@ void WCETAnalysisVisitor::Print()
 		
 		
 	}
+	log.LogConsole(PRINT_END);
 
 
 }

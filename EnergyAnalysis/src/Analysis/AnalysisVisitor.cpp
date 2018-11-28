@@ -32,6 +32,23 @@ llvm::Function* Analysis::IsFunction(const llvm::Instruction& I) const
 }
 
 
+// Returns true when function has an Energy Annotation, is not delcared, 
+// does not access any memory or has the name defined in LOOP_TRIPCOUNT
+// otherwise false
+bool Analysis::IsNotTraversable(llvm::Function& F) const
+{
+	if (&F == nullptr
+		|| HasEnergyAnnotation(F)
+		|| F.doesNotAccessMemory()
+		|| F.isDeclaration()
+		|| HasFunctionName(F, LOOP_TRIPCOUNT)
+		)
+		return true;
+	
+	return false;
+}
+
+
 //Check if an instruction is a Function call and has energy annotation
 bool Analysis::HasEnergyAnnotation(const llvm::Instruction& I) const
 {

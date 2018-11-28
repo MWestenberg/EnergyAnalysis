@@ -130,13 +130,12 @@ llvm::Function* AnnotationVisitor::GetEnergyFunction(const llvm::Function& fn)
 // functions
 void AnnotationVisitor::Print(llvm::Module& M) 
 {
-
 	if (!m_annotationedAdded) { // the annotation was not added no use in running this function
 		log.LogWarning("You cannot print the annotations before calling the visit method\n");
 		return;
 	}
 
-
+	log.LogConsole(PRINT_BEGIN);
 	for (llvm::Function &fn : M) {
 
 		if (fn.hasFnAttribute(ENERGY_ATTR)) {
@@ -157,8 +156,9 @@ void AnnotationVisitor::Print(llvm::Module& M)
 			if (fn.hasFnAttribute(ENERGY_TIME_UNIT)) 
 				t = std::stoi(fn.getFnAttribute(ENERGY_TIME_UNIT).getValueAsString().str());
 			
-			log.LogConsole(fn.getName().str() + " has Energy values: Time-dependent consumption=" + std::to_string(pd) + " One-time energy consumption=" + std::to_string(ec) + " Time=" + std::to_string(t) + "!\n");
+			log.LogConsole(fn.getName().str() + " has Energy values: Time-dependent consumption=" + std::to_string(pd) + " One-time energy consumption=" + std::to_string(ec) + " Time=" + std::to_string(t) + "\n");
 
 		}
 	}
+	log.LogConsole(PRINT_END);
 }

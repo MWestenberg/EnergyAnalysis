@@ -2,6 +2,7 @@
 
 char LoopAnalysisPass::ID = 0;
 
+
 void LoopAnalysisPass::getAnalysisUsage(llvm::AnalysisUsage & AU) const
 {
 	AU.addRequired<llvm::DominatorTreeWrapperPass>();
@@ -37,26 +38,36 @@ bool LoopAnalysisPass::runOnFunction(llvm::Function & F)
 }
 
 // This function finds nested loops in a function. 
-unsigned LoopAnalysisPass::FindNestedLoops(llvm::Loop & L)
+unsigned LoopAnalysisPass::FindNestedLoops(llvm::Loop & L, bool isSubloop)
 {
 	// Estimate the tripcount
-	unsigned int tripCount = SE->getSmallConstantMaxTripCount(&L);
-	
+	//const llvm::SCEV* scev = SE->getMaxBackedgeTakenCount(&L);
+	//scev->dump();
+	unsigned int tripCount = 0;
+
+	//Check if loop is annotated
 	tripCount = GetAnnotatedLoopTripCount(L);
-	// Can we estimate the number of iterations on this loop?
+
+	//if no annotation was found try to use the scalarEvolution pass to retrieve the tripcount
+	if (tripCount==0)
+		tripCount = SE->getSmallConstantMaxTripCount(&L);
+
 	
 	Edge edge(L.getHeader(), L.getLoopLatch());
 	edge.isLoop = true;
+	edge.isSubLoop = isSubloop;
 	edge.loopTripCount = tripCount;
+	
 	loopEdges.push_back(edge);
 
+	std::string isASubLoop = (isSubloop ? "Yes" : "No");
 	log.LogDebug("   Estimated Tripcount: " + std::to_string(edge.loopTripCount) + "\n");
 	log.LogDebug("      From: " + getSimpleNodeLabel(L.getHeader()) + " => " + getSimpleNodeLabel(L.getLoopLatch()) + "\n");
-
+	log.LogDebug("      Is a Nested Loop: " + isASubLoop + "\n");
 	for (llvm::Loop* subLoop : L.getSubLoops())
 	{
 		log.LogDebug("    Subloop:\n");
-		FindNestedLoops(*subLoop);
+		FindNestedLoops(*subLoop, true);
 	}
 
 	return tripCount;
