@@ -19,9 +19,10 @@ int EnergyAnalysis::ExitProgram(int Error)
 		case E_MESSAGE_MISSING_IRFILE: return ExitProgram(Error, ErrorMessages::MESSAGE_MISSING_IRFILE); break;
 		case E_MESSAGE_INVALID_PASS:  return ExitProgram(Error, ErrorMessages::MESSAGE_INVALID_PASS); break;
 		case E_MESSAGE_INVALID_ENTRY_POINT:  return ExitProgram(Error, std::string(ErrorMessages::MESSAGE_INVALID_ENTRY_POINT) + MODULE_ENTRY_POINT); break;
-
-		default: return 0; break;
+		case E_MESSAGE_INVALID_TOKENS:  return ExitProgram(Error, ErrorMessages::MESSAGE_INVALID_TOKENS); break;
+		default: return 0;  break;
 	}
+
 	std::cin.get();
 	return 0;
 }
@@ -37,6 +38,7 @@ int EnergyAnalysis::ExitProgram(int Error, const std::string& message)
 	std::cout << " " << message << std::endl;
 	std::cout << "====================================================================================" << std::endl;
 	std::cout << std::endl;
+
 	return Error;
 }
 
@@ -122,6 +124,8 @@ int EnergyAnalysis::SetInputFile()
 
 int EnergyAnalysis::StartEnergyAnalysis()
 {
+	int Error = NO_ERRORS;
+
 	//Prepare Module 
 	llvm::SMDiagnostic Err;
 	llvm::LLVMContext Context;
@@ -134,26 +138,35 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	log.LogConsole("LLVM IR FILE: " + std::string(m_inputFile) + "\n\n");
 	std::unique_ptr<EnergyModule> energy(new EnergyModule(*Mod));
 
-	
+	// Handles Energy Annotations implemented by the EnergyAnalysis.h header file
 	AnnotationVisitor annotate;
-	energy->accept(annotate);
+	Error = energy->accept(annotate);
+	if (Error)
+		return ExitProgram(Error);
+	//annotate.Print(*Mod);
 
-	
+	// Finds and stores all possible paths as edges of Basic Blocks
 	PathAnalysisVisitor pathAnalysis;
-	energy->accept(pathAnalysis);
+	Error = energy->accept(pathAnalysis);
+	if (Error)
+		return ExitProgram(Error);
 	//pathAnalysis.Print();
 	
-	
-	// The heap object will be deleted by the LLVM PassManager clean up
+	//Locates Loops and stores them as backedges (latch -> header)
 	LoopAnalysisVisitor loopAnalysis;
-	energy->accept(loopAnalysis);
+	Error = energy->accept(loopAnalysis);
+	if (Error)
+		return ExitProgram(Error);
 	//loopAnalysis.Print();
 
+	// Calculates and stores all cost per instruction in a FunctionMap
 	WCETAnalysisVisitor  wcetAnalysis;
-	energy->accept(wcetAnalysis);
-	wcetAnalysis.Print();
+	Error = energy->accept(wcetAnalysis);
+	if (Error)
+		return ExitProgram(Error);
+	//wcetAnalysis.Print();
 
-	return NO_ERRORS;
+	return Error;
 }
 
 bool EnergyAnalysis::IsValidBitcodeFile(const char * filename)

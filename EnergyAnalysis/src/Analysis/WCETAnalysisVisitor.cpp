@@ -1,6 +1,6 @@
 #include "WCETAnalysisVisitor.h"
 
-void WCETAnalysisVisitor::visit(EnergyModule & em)
+int WCETAnalysisVisitor::visit(EnergyModule & em)
 {
 	log.LogConsole("Calculating Costs...");
 	
@@ -21,8 +21,12 @@ void WCETAnalysisVisitor::visit(EnergyModule & em)
 			unsigned bbCost = 0;
 			for (llvm::Instruction &Inst : B)
 			{
+
+				if (IsFunction(Inst))
+					continue;
+				
 				unsigned cost = wcetAnalysis->getInstructionCost(&Inst);
-				if (cost == ULONG_MAX)
+				if (cost >= INT_MAX)
 					cost = 1;
 				bbCost += cost;
 				InstructionCost IC(&Inst, &B, cost);
@@ -30,18 +34,19 @@ void WCETAnalysisVisitor::visit(EnergyModule & em)
 				ICV.push_back(IC);
 			}
 			fnCost += bbCost;
-			FCM[&fn][&B] = ICV;
+			SetFunctionCost(fn, B, ICV);
 		}
 
 		
 	}
 	
 	log.LogConsole("Ok\n");
+	return 0;
 }
 
 void WCETAnalysisVisitor::Print()
 {
-	for (FunctionCostMap::iterator I = FCM.begin(), IE = FCM.end(); I != IE; ++I)
+	for (FunctionCostMap::iterator I = FCM->begin(), IE = FCM->end(); I != IE; ++I)
 	{
 		llvm::Function& F = *I->first;
 		BBCostMap& bbCostMap = I->second;
@@ -63,20 +68,11 @@ void WCETAnalysisVisitor::Print()
 				std::string fnName = "";
 				if (instr->getOpcode() == llvm::Instruction::Call)
 				{
-					if (llvm::Function* call = IsFunction(*instr)) {
-						fnName = call->getName().str();
-						if (HasEnergyAnnotation(*call))
-						{
-							fnName += " (Energy Function)";
-						}
-						if (HasFunctionName(*call, LOOP_TRIPCOUNT))
-						{
-							fnName += " (Loop Annotation)";
-						}
-					}
+					if (llvm::Function* call = IsFunction(*instr))
+						fnName = " (function call: " +  call->getName().str() + ")";
 						
 				}
-				log.LogConsole("   Instr: " + std::string(instr->getOpcodeName()) + " " + fnName + "\n");
+				log.LogConsole("   Instr: " + std::string(instr->getOpcodeName()) +  fnName + "\n");
 				log.LogConsole("   Cost: " + std::to_string(IC.InstrCost) + "\n");
 				log.LogConsole("   Cumulative Cost: " + std::to_string(totalBBCost) + "\n");
 				
@@ -90,4 +86,10 @@ void WCETAnalysisVisitor::Print()
 	}
 
 
+}
+
+void WCETAnalysisVisitor::SetFunctionCost(llvm::Function& F, llvm::BasicBlock & B, InstructionCostVec ICV)
+{
+	FunctionCostMap& FCMRef = *FCM;
+	FCMRef[&F][&B] = ICV;
 }

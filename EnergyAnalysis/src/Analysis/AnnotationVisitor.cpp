@@ -1,21 +1,23 @@
 #include "AnnotationVisitor.h"
 
-void AnnotationVisitor::visit(EnergyModule & em)
+int AnnotationVisitor::visit(EnergyModule & em)
 {
 	log.LogConsole("Reading Energy Annotations...");
 	llvm::Module& module = em.GetLLVMModule();
 	// Get the real functions
 	SetEnergyFunctions(module);
-	AddAnnotation(module);
+	if (!AddAnnotation(module))
+		return m_result;	
 	log.LogConsole("Ok\n");
-	//PrintAnnotations(module);
+	
+	return 0;
 }
 
 
 // Finds all global Energy Annotations and adds them to the real functions
 // Due to limitations the Energy annotations are annoted to all functions by adding a underscore in front of the function names
 // This methods reattaches those annotations to the correct functions to make use easier in a later stage.
-void AnnotationVisitor::AddAnnotation(llvm::Module &M) {
+bool AnnotationVisitor::AddAnnotation(llvm::Module &M) {
 	auto global_annos = M.getNamedGlobal(LLVM_GLOBAL_ANNOTATIONS);
 
 	if (global_annos) {
@@ -29,6 +31,12 @@ void AnnotationVisitor::AddAnnotation(llvm::Module &M) {
 				Tokenize(tokens, anno, ',');
 
 				if (tokens.size() == EnergyAnalysis::NUM_OF_TOKENS) {
+					if (tokens.size() < 4) {
+						log.LogError("Program halted");
+						m_result =  EnergyAnalysis::E_MESSAGE_INVALID_TOKENS;
+						return false;
+					}
+
 					assert(tokens.size() >= 4 && "Need at least 4 tokens in the Energy Annotation");
 					llvm::Function* realFN = GetEnergyFunction(*fn);
 					if (realFN)
@@ -59,6 +67,7 @@ void AnnotationVisitor::AddAnnotation(llvm::Module &M) {
 		}
 		m_annotationedAdded = true; //for printing
 	}
+	return true;
 }
 
 
@@ -119,11 +128,14 @@ llvm::Function* AnnotationVisitor::GetEnergyFunction(const llvm::Function& fn)
 
 // To test if the annotations are there this functions prints them to the console for all global annotated
 // functions
-void AnnotationVisitor::PrintAnnotations(llvm::Module& M) 
+void AnnotationVisitor::Print(llvm::Module& M) 
 {
 
-	if (!m_annotationedAdded) // the annotation was not added no use in running this function
+	if (!m_annotationedAdded) { // the annotation was not added no use in running this function
+		log.LogWarning("You cannot print the annotations before calling the visit method\n");
 		return;
+	}
+
 
 	for (llvm::Function &fn : M) {
 
@@ -145,7 +157,7 @@ void AnnotationVisitor::PrintAnnotations(llvm::Module& M)
 			if (fn.hasFnAttribute(ENERGY_TIME_UNIT)) 
 				t = std::stoi(fn.getFnAttribute(ENERGY_TIME_UNIT).getValueAsString().str());
 			
-			log.LogInfo(fn.getName().str() + " has Energy values: Time-dependent consumption=" + std::to_string(pd) + " One-time energy consumption=" + std::to_string(ec) + " Time=" + std::to_string(t) + "!\n");
+			log.LogConsole(fn.getName().str() + " has Energy values: Time-dependent consumption=" + std::to_string(pd) + " One-time energy consumption=" + std::to_string(ec) + " Time=" + std::to_string(t) + "!\n");
 
 		}
 	}

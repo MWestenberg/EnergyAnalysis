@@ -17,8 +17,6 @@ int main(int argc, char** argv)
 	
 
 
-	int result = energy.StartEnergyAnalysis();
-	return EnergyAnalysis::ExitProgram(result);
+	return energy.StartEnergyAnalysis();
 	
-
 }

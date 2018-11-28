@@ -18,13 +18,13 @@ void Logging::SetLevel(Level level)
 void Logging::LogError(const std::string& message)
 {
 	if (m_loglevel >= ERROR)
-		std::cout << "[ERROR]: " << message;
+		std::cout << "ERROR: " << message << "\n";
 }
 
 void Logging::LogWarning(const std::string& message)
 {
 	if (m_loglevel >= WARNING)
-		std::cout << "[WARNING]: " << message;
+		std::cout << "WARNING: " << message << "\n";
 }
 
 void Logging::LogInfo(const std::string& message)

@@ -28,11 +28,12 @@ bool LoopAnalysisPass::runOnFunction(llvm::Function & F)
 		unsigned int tripCount = FindNestedLoops(*loop);
 		if (tripCount == 0)
 		{
-			EnergyAnalysis::ExitProgram(EnergyAnalysis::E_MESSAGE_UNDEFINED_LOOP);
+			log.LogError("Program halted");
+			m_result = EnergyAnalysis::E_MESSAGE_UNDEFINED_LOOP;
 			return false;
 		}
 	}
-	return false;
+	return true;
 }
 
 // This function finds nested loops in a function. 

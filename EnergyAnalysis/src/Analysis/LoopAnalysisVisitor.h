@@ -12,7 +12,7 @@ private:
 
 public:
 	// Visitor method override from AnalysisVisitor
-	virtual void visit(EnergyModule & em) override;
+	virtual int visit(EnergyModule & em) override;
 
 	Edges GetLoopEdges() const {
 		return loopEdges;

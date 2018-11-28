@@ -8,7 +8,7 @@ class PathAnalysisVisitor: public AnalysisVisitor
 {
 public:
 	// Visitor method override from AnalysisVisitor
-	virtual void visit(EnergyModule & em) override;
+	virtual int visit(EnergyModule & em) override;
 
 	bool ProfilePath(llvm::Function& F);
 
@@ -48,9 +48,6 @@ private:
 	// Defines all possible paths and stores these in PathMap
 	// The map in turn is stored per function
 	void CreatePath(llvm::BasicBlock& bb);
-
-	bool HasEnergyAnnotation(const llvm::Function& F) const;
-	bool HasFunctionName(const llvm::Function& F, const llvm::StringRef& name) const;
 
 	// Helper method to test printing of a set used for debugging purposes only
 	void printPath(const OrderedBBSet& path);

@@ -10,7 +10,7 @@ private:
 public:
 	EnergyModule(llvm::Module& module) : m_module(&module) {};
 
-	void accept(AnalysisVisitor& a);
+	int accept(AnalysisVisitor& a);
 
 	llvm::Module& GetLLVMModule()
 	{

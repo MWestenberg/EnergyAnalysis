@@ -1,6 +1,6 @@
 #include "PathAnalysisVisitor.h"
 
-void PathAnalysisVisitor::visit(EnergyModule & em)
+int PathAnalysisVisitor::visit(EnergyModule & em)
 {
 	log.LogConsole("Analysing Paths in CFG...");
 	llvm::Module& module = em.GetLLVMModule();
@@ -17,11 +17,16 @@ void PathAnalysisVisitor::visit(EnergyModule & em)
 	}
 
 	log.LogConsole("Ok\n");
-
+	return 0;
 }
 
 bool PathAnalysisVisitor::ProfilePath(llvm::Function & F)
 {
+
+	// When the following conditions are met we can skip since these are exceptions
+	// Energy functions are always external, LOOP_TRIPCOUNT is a special loop annotation
+	// other functions that are nullptr or are only declared must be skipped as well to prevent errors
+	// and cludding of the paths.
 	if (&F == nullptr 
 		|| HasEnergyAnnotation(F) 
 		|| F.doesNotAccessMemory() 
@@ -153,27 +158,11 @@ void PathAnalysisVisitor::SetBackEdges(const llvm::Function& F)
 }
 
 
-//Check if a Function has energy annotation
-//overloaded function of instruction
-bool PathAnalysisVisitor::HasEnergyAnnotation(const llvm::Function& F) const
-{
-	if (F.hasFnAttribute(ENERGY_ATTR))
-		return true;
-
-	return false;
-}
-
-bool PathAnalysisVisitor::HasFunctionName(const llvm::Function& F, const llvm::StringRef& name) const
-{
-	if (F.getName().startswith_lower(name))
-		return true;
-
-	return false;
-}
-
-
 void PathAnalysisVisitor::printPath(const OrderedBBSet& path)
 {
+	if (log.GetLevel() != log.DEBUG)
+		return;
+
 	for (llvm::BasicBlock* b : path)
 	{
 		log.LogDebug(" add: " + getSimpleNodeLabel(b) + "(backtrace) \n");

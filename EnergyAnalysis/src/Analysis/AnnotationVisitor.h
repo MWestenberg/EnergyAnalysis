@@ -12,15 +12,17 @@ private:
 	std::map<llvm::StringRef, llvm::Function*> m_filteredFunctions;
 	//helper boolean for assiting the Print method.
 	bool m_annotationedAdded = false; 
+
+	int m_result = 0;
 public:
 
 	// Inherited via AnalysisVisitor
-	virtual void visit(EnergyModule & em) override;
+	virtual int visit(EnergyModule & em) override;
 	
 	//function to print all annotations for the entire module. 
 	//This is purely for debugging purposes
 	// Annotation must be added. This is checked by the m_annotationedAdded boolean
-	void PrintAnnotations(llvm::Module& M);
+	void Print(llvm::Module& M);
 
 private:
 	// Splits StringRef into separate tokens based on a separator.
@@ -34,7 +36,7 @@ private:
 	// This methods retrieves all global annotations and applies them to the correct functions (without prefix)
 	// such that these functions have no definition just a declaration.
 	// The definined dummy functions with prefix are removed
-	void AddAnnotation(llvm::Module &M);
+	bool AddAnnotation(llvm::Module &M);
 
 	// The EnergyAnalysis header implements dummy functions with  ENERGY_FUNCTION_PREFIX (defined in AnalysisVistor.h). 
 	// this functions filters out those functions and assign the "real" functions to the map m_EnergyFunctions

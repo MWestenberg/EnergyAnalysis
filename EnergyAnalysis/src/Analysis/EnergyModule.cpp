@@ -1,8 +1,8 @@
 #include "EnergyModule.h"
 
-void EnergyModule::accept(AnalysisVisitor & a)
+int EnergyModule::accept(AnalysisVisitor & a)
 {
-	a.visit(*this);
+	return a.visit(*this);
 }
 
 

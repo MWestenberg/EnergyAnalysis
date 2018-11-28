@@ -7,6 +7,7 @@
 #define LLVM_LIFETIME_FUNCTION "llvm.lifetime"
 // The name given to functions that control external hardware components and are energy annotated
 #define ENERGY_ATTR "Energy"
+#define ENERGY_ANNOTATED "ContainsEnergyAnnotation"
 // External hardware functions are prefixed with _ and are removed after annotation
 #define ENERGY_FUNCTION_PREFIX "_";
 // the name of the energy function as defined by the user

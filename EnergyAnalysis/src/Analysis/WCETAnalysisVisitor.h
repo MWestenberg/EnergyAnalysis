@@ -3,7 +3,7 @@
 #include "EnergyAnalysis.h"
 #include "../Constants.h"
 #include "../Passes/WCETAnalysisPass.h"
-
+#include <limits.h>
 
 
 
@@ -11,23 +11,30 @@ class WCETAnalysisVisitor : public AnalysisVisitor
 {
 private:
 	
-	typedef std::vector<InstructionCost> InstructionCostVec;
-	typedef llvm::DenseMap<llvm::BasicBlock*, InstructionCostVec> BBCostMap;
-	typedef llvm::DenseMap<llvm::Function*, BBCostMap> FunctionCostMap;
-
-	FunctionCostMap FCM;
+	// A heap allocated Cost map per function of type FunctionCostMap
+	FunctionCostMap* FCM = new FunctionCostMap();
 
 public:
 	
 	// Inherited via AnalysisVisitor
-	virtual void visit(EnergyModule & em) override;
+	virtual int visit(EnergyModule & em) override;
 
-	//Print out all costs
+	FunctionCostMap& GetFunctionCostMap() const {
+		return *FCM;
+	}
+	
+	//Print out all costs to the console
 	void Print();
+
+	// Destructor deleting heap allocated FCM
+	~WCETAnalysisVisitor() {
+		delete(FCM);
+	}
+
 private:
 
+	void SetFunctionCost(llvm::Function& F, llvm::BasicBlock& B, InstructionCostVec BCM);
 
 
-	
 };
 

@@ -23,8 +23,9 @@ private:
 	typedef std::vector<Edge> Edges;
 	Edges loopEdges;
 
-public:
+	int m_result = 0;
 
+public:
 	
 	static char ID; // Class identification, replacement for typeinfo
 	
@@ -57,6 +58,8 @@ public:
 		return loopEdges;
 	}
 
+
+	int GetPassResult() {	return m_result;	}
 
 private:
 	unsigned FindNestedLoops(llvm::Loop & L);

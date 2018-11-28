@@ -69,7 +69,7 @@ class AnalysisVisitor: public Analysis
 public:
 	AnalysisVisitor() { log.SetLevel(LOGLEVEL); };
 	virtual ~AnalysisVisitor() {};
-	virtual void visit(class EnergyModule& em) = 0;
+	virtual int visit(class EnergyModule& em) = 0;
 
 };
 
@@ -172,3 +172,11 @@ struct InstructionCost
 	// this will be the max cost of a basic block for the last instruction
 	void AddCumulativeCost(unsigned cost) {	cummulativeCost = cost;}
 };
+
+
+// A vector containing InstuctionCost Objects
+typedef std::vector<InstructionCost> InstructionCostVec;
+// A dense map containing Pointers to Basic Blocks as key with an a vector of instructions as value
+typedef llvm::DenseMap<llvm::BasicBlock*, InstructionCostVec> BBCostMap;
+// A map dense map of function pointers with a BBCostMap as value (check BBCostMap for more info).
+typedef llvm::DenseMap<llvm::Function*, BBCostMap> FunctionCostMap;
