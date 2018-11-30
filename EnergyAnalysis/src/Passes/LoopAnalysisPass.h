@@ -1,7 +1,6 @@
 #pragma once
-
-#include "../Analysis/AnalysisVisitor.h"
 #include "../Analysis/EnergyAnalysis.h"
+#include "../Analysis/AnalysisVisitor.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/IR/LegacyPassManagers.h"

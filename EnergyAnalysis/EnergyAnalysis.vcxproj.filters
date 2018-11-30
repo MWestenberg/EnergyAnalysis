@@ -25,6 +25,12 @@
     <Filter Include="Source Files\Visitors">
       <UniqueIdentifier>{96e99e21-85d3-41cd-80fc-76d309971c2c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Calulcator">
+      <UniqueIdentifier>{cfd31a94-7ab9-4015-a08d-db9bd12914ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Calculator">
+      <UniqueIdentifier>{4c57d617-df6b-4b42-aaf2-8b4f9587bd61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -60,6 +66,9 @@
     <ClCompile Include="src\Analysis\AnalysisVisitor.cpp">
       <Filter>Source Files\Visitors</Filter>
     </ClCompile>
+    <ClCompile Include="src\Analysis\EnergyCalculator.cpp">
+      <Filter>Source Files\Calculator</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Analysis\EnergyAnalysis.h">
@@ -94,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="src\Analysis\WCETAnalysisVisitor.h">
       <Filter>Header Files\Visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Analysis\EnergyCalculator.h">
+      <Filter>Header Files\Calulcator</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

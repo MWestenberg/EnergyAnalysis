@@ -64,17 +64,9 @@ void PathAnalysisVisitor::CreatePath(llvm::BasicBlock& bb)
 	//retrieve the terminating instruction of the current basic block
 	const llvm::TerminatorInst *TInst = bb.getTerminator();
 
-	if (TInst->getNumSuccessors() == 0) {
-		log.LogDebug("===== End of path " + std::to_string(pathID) + "==========\n");
-		log.LogDebug("Path Summary: ");
-		for (auto sb : paths[pathID])
-		{
-			log.LogDebug(getSimpleNodeLabel(sb) + " ");
-		}
-
-		log.LogDebug("\n=======================================================\n");
-
-	}
+	// Print Path Summary in case of DEBUG mode
+	if (log.GetLevel() == log.DEBUG && TInst->getNumSuccessors() == 0)
+		PrintPathSummary(pathID);
 
 	bool firstEdgeIsLoop = false;
 
@@ -84,26 +76,27 @@ void PathAnalysisVisitor::CreatePath(llvm::BasicBlock& bb)
 		log.LogDebug("\n====Loop of root bb: " + getSimpleNodeLabel(&bb) + "===\n");
 
 		llvm::BasicBlock *Succ = TInst->getSuccessor(i);
-		if (std::find(paths[pathID].begin(), paths[pathID].end(), Succ) != paths[pathID].end())
-		{
-			Edge edge(&bb, Succ);
-			
-			auto foundEdge = std::find(loopEdges.begin(), loopEdges.end(), edge);
-			if (foundEdge != loopEdges.end())
-			{
-				Edge e = *foundEdge;
-				if (log.GetLevel() == log.DEBUG)
-					e.Print();
 
-				// BB's always have max 2 branches, True and False
-				// in case a Loop was found in the first branch (true)
-				// the second must be followed and added to the same path.
-				if (i == 0)
-					firstEdgeIsLoop = true;
-				continue;
-			}
+		Edge edge(&bb, Succ);
+		//Check if the Successor basic block is part of the current path.
+		//When this is the case we have found a loop	
+		auto foundEdge = std::find(loopEdges.begin(), loopEdges.end(), edge);
+		if (foundEdge != loopEdges.end())
+		{
 				
+			if (log.GetLevel() == log.DEBUG) 
+				((Edge)*foundEdge).Print();
+
+			// BB's always have max 2 branches, True and False
+			// in case a Loop was found in the first branch (true)
+			// the second must be followed and added to the same path.
+			if (i == 0)
+				firstEdgeIsLoop = true;
+			continue;
 		}
+		// alternative traverselmethod
+		//if (std::find(paths[pathID].begin(), paths[pathID].end(), Succ) != paths[pathID].end())		
+		//}
 
 		//Set history bb's
 		OrderedBBSet vertices = paths[pathID];
@@ -119,7 +112,10 @@ void PathAnalysisVisitor::CreatePath(llvm::BasicBlock& bb)
 				else
 					paths[pathID].push_back(hbb);
 			}
-			printPath(paths[pathID]);
+			
+			if (log.GetLevel() == log.DEBUG)
+				printPath(paths[pathID]);
+
 			paths[pathID].push_back(&bb);
 			log.LogDebug(" add: " + getSimpleNodeLabel(&bb) + "\n");
 		}
@@ -129,6 +125,7 @@ void PathAnalysisVisitor::CreatePath(llvm::BasicBlock& bb)
 
 
 }
+
 
 /*
 Location of backedges, these are basically the loops that should be ignored for now.
@@ -162,13 +159,12 @@ void PathAnalysisVisitor::SetBackEdges(const llvm::Function& F)
 
 void PathAnalysisVisitor::printPath(const OrderedBBSet& path)
 {
-	if (log.GetLevel() != log.DEBUG)
-		return;
-
 	for (llvm::BasicBlock* b : path)
 	{
-		log.LogDebug(" add: " + getSimpleNodeLabel(b) + "(backtrace) \n");
+		log.LogConsole("\nNode: " + getSimpleNodeLabel(b));
 	}
+
+	log.LogConsole("\n");
 }
 
 
@@ -201,4 +197,17 @@ void PathAnalysisVisitor::Print()
 		log.LogConsole("\n");
 	}
 	log.LogConsole(PRINT_END);
+}
+
+// Helper method for printing path summary.
+// Only works in case Log level is set to DEBUG
+void PathAnalysisVisitor::PrintPathSummary(unsigned pathID)
+{
+	log.LogDebug("===== End of path " + std::to_string(pathID) + "==========\n");
+	log.LogDebug("Path Summary: ");
+	for (auto sb : paths[pathID])
+	{
+		log.LogDebug(getSimpleNodeLabel(sb) + " ");
+	}
+	log.LogDebug("\n=======================================================\n");
 }

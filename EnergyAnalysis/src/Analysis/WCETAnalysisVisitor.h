@@ -1,7 +1,7 @@
 #pragma once
 
 #include "EnergyAnalysis.h"
-#include "../Constants.h"
+#include "AnalysisVisitor.h"
 #include "../Passes/WCETAnalysisPass.h"
 #include <limits.h>
 
@@ -10,7 +10,7 @@
 class WCETAnalysisVisitor : public AnalysisVisitor
 {
 private:
-	
+	friend class EnergyCalculator;
 	// A heap allocated Cost map per function of type FunctionCostMap
 	FunctionCostMap* FCM = new FunctionCostMap();
 
@@ -35,6 +35,7 @@ private:
 
 	void SetFunctionCost(llvm::Function& F, llvm::BasicBlock& B, InstructionCostVec BCM);
 
+	InstructionCost GetInstructionCost(llvm::Function& F, llvm::BasicBlock& BB,  llvm::Instruction& I);
 
 };
 

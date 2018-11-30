@@ -1,6 +1,6 @@
 #pragma once
 #include "EnergyAnalysis.h"
-#include "../Constants.h"
+#include "AnalysisVisitor.h"
 #include "llvm/Analysis/CFG.h"
 
 
@@ -16,21 +16,16 @@ public:
 	void Print();
 
 private:
-	// A path consist of an ordered set of BasicBlocks
-	typedef std::vector<llvm::BasicBlock*> OrderedBBSet;
+	friend class EnergyCalculator;
 
 	// The current pathID
 	unsigned int pathID = 0;
 
-	// Each Path will get a unique ID and is stored in a map
-	typedef llvm::DenseMap<unsigned, OrderedBBSet> PathMap;
+	//llvm::DenseMap<unsigned, OrderedBBSet>
 	PathMap paths;
 
-	typedef llvm::DenseMap<llvm::Function*, PathMap> FunctionPaths;
+	//llvm::DenseMap<llvm::Function*, PathMap> 
 	FunctionPaths fp;
-
-	// An edge between 2 basic blocks A -> B where A is the entry and B the successor
-	typedef std::vector<Edge> Edges;
 
 	//Edges are a map of paths between 2 basic blocks
 	// this is used to search and create possible paths which 
@@ -48,6 +43,22 @@ private:
 	// Defines all possible paths and stores these in PathMap
 	// The map in turn is stored per function
 	void CreatePath(llvm::BasicBlock& bb);
+
+
+	//Returns FunctionPaths (Map: <llvm::Function*, PathMap>
+	// Where PathMap is a Map on it's own consisting of a path identifier (unsigned)
+	// and a OrderedBBSet which is an ordered vector of Basic Blocks;
+	FunctionPaths& GetFunctionPaths() {
+		return fp;
+	}
+	// Returns a PathMap of a function. These are all possible paths a function has
+	// The return map is has as key an unsigned int and a OrderedBBSet as value;
+	PathMap& GetFunctionPaths(llvm::Function& F) {
+		return fp[&F];
+	}
+
+	//Printing of path summary. Made for debugging purposes
+	void PrintPathSummary(unsigned pathID);
 
 	// Helper method to test printing of a set used for debugging purposes only
 	void printPath(const OrderedBBSet& path);

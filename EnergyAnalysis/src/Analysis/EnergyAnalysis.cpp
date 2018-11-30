@@ -140,8 +140,8 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	std::unique_ptr<EnergyModule> energy(new EnergyModule(*Mod));
 
 	// Handles Energy Annotations implemented by the EnergyAnalysis.h header file
-	AnnotationVisitor annotate;
-	Error = energy->accept(annotate);
+	std::unique_ptr<AnnotationVisitor> annotate(new AnnotationVisitor);
+	Error = energy->accept(*annotate);
 	if (Error)
 		return ExitProgram(Error);
 	//annotate.Print(*Mod);
@@ -151,7 +151,7 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	Error = energy->accept(pathAnalysis);
 	if (Error)
 		return ExitProgram(Error);
-	//pathAnalysis.Print();
+	pathAnalysis.Print();
 	
 	//Locates Loops and stores them as backedges (latch -> header)
 	LoopAnalysisVisitor loopAnalysis;
@@ -165,7 +165,12 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	Error = energy->accept(wcetAnalysis);
 	if (Error)
 		return ExitProgram(Error);
-	wcetAnalysis.Print();
+	//wcetAnalysis.Print();
+
+	EnergyCalculator energyCalculator(pathAnalysis, loopAnalysis, wcetAnalysis);
+	Error = energy->accept(energyCalculator);
+	if (Error)
+		return ExitProgram(Error);
 
 	return Error;
 }

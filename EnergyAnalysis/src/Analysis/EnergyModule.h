@@ -2,6 +2,7 @@
 #include "llvm/IR/Module.h"
 #include "AnalysisVisitor.h"
 
+
 class EnergyModule
 {
 private:

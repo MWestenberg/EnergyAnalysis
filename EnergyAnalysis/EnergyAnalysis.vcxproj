@@ -259,6 +259,7 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Analysis\EnergyCalculator.cpp" />
     <ClCompile Include="src\Analysis\AnalysisVisitor.cpp" />
     <ClCompile Include="src\Analysis\LoopAnalysisVisitor.cpp" />
     <ClCompile Include="src\Passes\LoopAnalysisPass.cpp" />
@@ -272,6 +273,7 @@
     <ClCompile Include="src\Analysis\WCETAnalysisVisitor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Analysis\EnergyCalculator.h" />
     <ClInclude Include="src\Analysis\LoopAnalysisVisitor.h" />
     <ClInclude Include="src\Passes\LoopAnalysisPass.h" />
     <ClInclude Include="src\Analysis\PathAnalysisVisitor.h" />

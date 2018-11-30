@@ -42,13 +42,10 @@ unsigned WCETAnalysisPass::getInstructionCost(const llvm::Instruction * I) const
 	}
 	case llvm::Instruction::Add:
 	case llvm::Instruction::FAdd:
-		return 2;
 	case llvm::Instruction::Sub:
 	case llvm::Instruction::FSub:
-		return 2;
 	case llvm::Instruction::Mul:
 	case llvm::Instruction::FMul:
-		return 2;
 	case llvm::Instruction::UDiv:
 	case llvm::Instruction::SDiv:
 	case llvm::Instruction::FDiv:

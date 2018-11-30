@@ -97,3 +97,20 @@ void WCETAnalysisVisitor::SetFunctionCost(llvm::Function& F, llvm::BasicBlock & 
 	FunctionCostMap& FCMRef = *FCM;
 	FCMRef[&F][&B] = ICV;
 }
+
+
+InstructionCost WCETAnalysisVisitor::GetInstructionCost(llvm::Function& F, llvm::BasicBlock& BB, llvm::Instruction& I)
+{
+	FunctionCostMap& FCMRef = *FCM;
+	InstructionCostVec ICV = FCMRef[&F][&BB];
+
+	for (InstructionCost IC : ICV)
+	{
+		if (IC.parentBB == &BB && IC.instruction == &I)
+		{
+			return IC;
+		}
+	}
+	InstructionCost* IC = nullptr;
+	return *IC;
+}

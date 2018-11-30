@@ -1,9 +1,6 @@
 #pragma once
 #include "EnergyAnalysis.h"
 #include "AnalysisVisitor.h"
-#include "llvm/IR/Constants.h"
-
-
 
 class AnnotationVisitor : public AnalysisVisitor
 {

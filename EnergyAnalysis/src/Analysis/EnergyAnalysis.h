@@ -1,14 +1,13 @@
 #pragma once
 //EnergyClasses
-#include "AnalysisVisitor.h"
 #include "AnnotationVisitor.h"
 #include "EnergyModule.h"
 #include "PathAnalysisVisitor.h"
 #include "LoopAnalysisVisitor.h"
 #include "WCETAnalysisVisitor.h"
+#include "EnergyCalculator.h"
+
 #include "../Logging.h"
-
-
 
 
 class EnergyAnalysis: public Analysis

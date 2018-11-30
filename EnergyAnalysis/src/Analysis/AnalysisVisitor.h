@@ -13,6 +13,7 @@
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IR/Constants.h"
 #include "llvm/IRReader/IRReader.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/SourceMgr.h"
@@ -73,6 +74,15 @@ public:
 	AnalysisVisitor() { log.SetLevel(LOGLEVEL); };
 	virtual ~AnalysisVisitor() {};
 	virtual int visit(class EnergyModule& em) = 0;
+
+	// A path consist of an ordered set of BasicBlocks
+	typedef std::vector<llvm::BasicBlock*> OrderedBBSet;
+
+	// Each Path will get a unique ID and is stored in a map
+	typedef llvm::DenseMap<unsigned, OrderedBBSet> PathMap;
+	
+	typedef llvm::DenseMap<llvm::Function*, PathMap> FunctionPaths;
+	
 
 };
 
@@ -202,3 +212,6 @@ typedef std::vector<InstructionCost> InstructionCostVec;
 typedef llvm::DenseMap<llvm::BasicBlock*, InstructionCostVec> BBCostMap;
 // A map dense map of function pointers with a BBCostMap as value (check BBCostMap for more info).
 typedef llvm::DenseMap<llvm::Function*, BBCostMap> FunctionCostMap;
+// An edge between 2 basic blocks A -> B where A is the entry and B the successor
+typedef std::vector<Edge> Edges;
+
