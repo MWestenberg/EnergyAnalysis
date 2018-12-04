@@ -14,6 +14,7 @@ private:
 	// A heap allocated Cost map per function of type FunctionCostMap
 	FunctionCostMap* FCM = new FunctionCostMap();
 
+
 public:
 	
 	// Inherited via AnalysisVisitor

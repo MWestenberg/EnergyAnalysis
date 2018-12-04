@@ -9,51 +9,62 @@ class LoopAnalysisVisitor: public AnalysisVisitor
 private:
 	friend class EnergyCalculator;
 
-	Edges loopEdges;
+	EdgeCollection loopEdges;
 
 public:
 	// Visitor method override from AnalysisVisitor
 	virtual int visit(EnergyModule & em) override;
 
-	Edges GetLoopEdges() const {
+	EdgeCollection& GetLoopEdges() {
 		return loopEdges;
 	}
+	
 
+	//Returns true if the basic block is the latch /terminator block of a loop
 	bool IsLoopStart(llvm::BasicBlock* BB)
 	{
-		for (Edge e : loopEdges)
-		{
-			if (e >> *BB)
-				return true;
-		}
-		return false;
+		return loopEdges.IsLoopStart(BB);
 	}
 
-	Edges GetLoopEdge(llvm::Function* F) {
-		Edges loopsInF;
+	//Returns true if the basic block is the latch /terminator block of a loop
+	bool IsLoopEnd(llvm::BasicBlock* BB)
+	{
+		return loopEdges.IsLoopEnd(BB);
+	}
 
-		for (auto& BB : *F)
+	Edge* GetLoopEdge(llvm::BasicBlock* BB)
+	{
+		return loopEdges.GetLoopEdge(BB);
+	}
+
+	//
+	OrderedBBSet GetLoopOrderedBBSet(const Edge& loopEdge, const OrderedBBSet& path )
+	{
+		OrderedBBSet loopSet;
+		bool loopBegan = false;
+		for (llvm::BasicBlock* BB : path)
 		{
-			for (Edge e : loopEdges)
-			{
-				if (e << BB)
-					loopsInF.push_back(e);
+			if (loopEdge.from == BB) {
+				loopBegan = true;
+				loopSet.push_back(BB);
 			}
+			else if (loopBegan)
+				loopSet.push_back(BB);
+
+			if (loopEdge.to == BB) 
+				break;
 		}
-		
-		return loopsInF;
+
+		return loopSet;
+	}
+
+	/*Edges GetLoopEdge(llvm::Function* F) {
+		return loopEdges.GetLoopEdge(F);
 	}
 
 	Edges GetLoopEdge(llvm::BasicBlock* BB) {
-		Edges loopsInBB;
-		
-		for (Edge e : loopEdges)
-		{
-			if (e << *BB)
-				loopsInBB.push_back(e);
-		}
-		return loopsInBB;
-	}
+		return loopEdges.GetLoopEdge(BB);
+	}*/
 
 	// Prints the loopedges found
 	void Print();

@@ -58,7 +58,9 @@ unsigned LoopAnalysisPass::FindNestedLoops(llvm::Loop & L, bool isSubloop)
 	edge.isSubLoop = isSubloop;
 	edge.loopTripCount = tripCount;
 	
-	loopEdges.push_back(edge);
+	//loopEdges.push_back(edge);
+	edgeCollection.AddEdge(edge);
+
 
 	std::string isASubLoop = (isSubloop ? "Yes" : "No");
 	log.LogDebug("   Estimated Tripcount: " + std::to_string(edge.loopTripCount) + "\n");

@@ -19,8 +19,9 @@ private:
 
 	llvm::LoopInfo* LI;
 
-	typedef std::vector<Edge> Edges;
-	Edges loopEdges;
+	//typedef std::vector<Edge> Edges;
+	//Edges loopEdges;
+	EdgeCollection edgeCollection;
 
 	int m_result = 0;
 
@@ -53,13 +54,18 @@ public:
 	//Override of FunctionPass
 	bool runOnFunction(llvm::Function &F) override;
 	
-	Edges GetLoopEdges() const {
-		return loopEdges;
+	EdgeCollection GetLoopEdges() const {
+		return edgeCollection;
 	}
 
 
 	int GetPassResult() {	return m_result;	}
 
+
+	~LoopAnalysisPass()
+	{
+		std::cout << "LoopAnalysisPass Destroyed" << std::endl;
+	}
 private:
 	unsigned FindNestedLoops(llvm::Loop & L, bool isSubloop = false);
 

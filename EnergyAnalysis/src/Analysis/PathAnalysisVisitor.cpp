@@ -80,12 +80,13 @@ void PathAnalysisVisitor::CreatePath(llvm::BasicBlock& bb)
 		Edge edge(&bb, Succ);
 		//Check if the Successor basic block is part of the current path.
 		//When this is the case we have found a loop	
-		auto foundEdge = std::find(loopEdges.begin(), loopEdges.end(), edge);
-		if (foundEdge != loopEdges.end())
+		//auto foundEdge = std::find(loopEdges.begin(), loopEdges.end(), edge);
+		//if (foundEdge != loopEdges.end())
+		if (std::find(paths[pathID].begin(), paths[pathID].end(), Succ) != paths[pathID].end())		
 		{
 				
-			if (log.GetLevel() == log.DEBUG) 
-				((Edge)*foundEdge).Print();
+			//if (log.GetLevel() == log.DEBUG) 
+			//	(*(Edge*)*foundEdge).Print();
 
 			// BB's always have max 2 branches, True and False
 			// in case a Loop was found in the first branch (true)
@@ -95,8 +96,7 @@ void PathAnalysisVisitor::CreatePath(llvm::BasicBlock& bb)
 			continue;
 		}
 		// alternative traverselmethod
-		//if (std::find(paths[pathID].begin(), paths[pathID].end(), Succ) != paths[pathID].end())		
-		//}
+		
 
 		//Set history bb's
 		OrderedBBSet vertices = paths[pathID];
@@ -145,11 +145,12 @@ void PathAnalysisVisitor::SetBackEdges(const llvm::Function& F)
 	for (llvm::SmallVectorImpl<std::pair<const llvm::BasicBlock *, const llvm::BasicBlock *> >::iterator I = result.begin(),
 		IE = result.end(); I != IE; ++I)
 	{
+		
 		Edge edge;
 		edge.from = const_cast<llvm::BasicBlock*>(I->first);
 		edge.to = const_cast<llvm::BasicBlock*>(I->second);
 		edge.isLoop = true;
-		loopEdges.push_back(edge);
+		loopEdges.push_back(&edge);
 
 		log.LogDebug(getSimpleNodeLabel(I->first) + " =>  " + getSimpleNodeLabel(I->second) + "\n");
 

@@ -86,6 +86,77 @@ public:
 
 };
 
+
+struct InstructionCost
+{
+	llvm::Instruction* instruction;
+	llvm::BasicBlock* parentBB;
+
+	unsigned InstrCost = 0;
+
+	unsigned cummulativeCost = 0;
+	//Default Constructor
+	InstructionCost() : instruction(nullptr), parentBB(nullptr) {};
+
+	//Overloaded Constructor
+	InstructionCost(llvm::Instruction* inst) { SetIntruction(inst); }
+
+	//Overloaded Constructor
+	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent) { SetIntruction(inst); SetParentBasicBlock(parent); }
+
+	//Overloaded Constructor
+	InstructionCost(llvm::Instruction* inst, unsigned cost) { SetIntruction(inst); SetInstructionCost(cost); }
+
+	//Overloaded Constructor
+	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, unsigned cost) {
+		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost);
+	}
+
+	//Overloaded Constructor
+	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, unsigned cost, unsigned cummulativeCost) {
+		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost);
+		SetCumulativeCost(cummulativeCost);
+	}
+
+	//Copy Constructor
+	InstructionCost(const InstructionCost& rhs) {
+		SetIntruction(rhs.instruction);
+		SetInstructionCost(rhs.InstrCost);
+		SetParentBasicBlock(rhs.parentBB);
+		SetCumulativeCost(rhs.cummulativeCost);
+	}
+
+	//Set the Instruction pointer
+	void SetIntruction(llvm::Instruction* inst) { instruction = inst; }
+
+	//Set the Instruction Cost
+	void SetInstructionCost(unsigned cost) { InstrCost = cost; }
+
+	//Set the parent Basic block
+	void SetParentBasicBlock(llvm::BasicBlock* BB) { parentBB = BB; }
+
+	// Calling this method will add the cummulative costs
+	// this will be the max cost of a basic block for the last instruction
+	void SetCumulativeCost(unsigned cost) { cummulativeCost = cost; }
+};
+
+
+// A vector containing InstuctionCost Objects
+typedef std::vector<InstructionCost> InstructionCostVec;
+// A dense map containing Pointers to Basic Blocks as key with an a vector of instructions as value
+typedef llvm::DenseMap<llvm::BasicBlock*, InstructionCostVec> BBCostMap;
+// A map dense map of function pointers with a BBCostMap as value (check BBCostMap for more info).
+typedef llvm::DenseMap<llvm::Function*, BBCostMap> FunctionCostMap;
+// An edge between 2 basic blocks A -> B where A is the entry and B the successor
+//typedef std::vector<Edge> Edges;
+
+
+typedef std::vector<const llvm::Function*> EnergyFunctions;
+
+
+
+
+
 // An Edge is an object that defines the relationship between 2 basic blocks.
 // This relationship can also hold a boolean value in case it is a loop plus a tripcount 
 struct Edge : public Analysis
@@ -102,8 +173,11 @@ struct Edge : public Analysis
 
 	bool isLoop = false;
 	bool isSubLoop = false;
-
 	unsigned int loopTripCount = 0;
+	unsigned int currentTripCount = 1;
+
+	unsigned int totalJoules = 0;
+	unsigned int wcet = 0;
 
 	//Copy constructor
 	Edge(const Edge& other)
@@ -113,6 +187,7 @@ struct Edge : public Analysis
 		isLoop = other.isLoop;
 		loopTripCount = other.loopTripCount;
 		isSubLoop = other.isSubLoop;
+		currentTripCount = other.currentTripCount;
 	}
 
 	// Compares two edges based on the edge
@@ -121,6 +196,11 @@ struct Edge : public Analysis
 	bool operator==(const Edge& rhs)
 	{
 		return from == rhs.from && to == rhs.to;
+	}
+
+	bool operator==(const Edge* rhs)
+	{
+		return from == rhs->from && to == rhs->to;
 	}
 
 	// Check if RHS Block is equal the Edge.from block
@@ -151,67 +231,108 @@ struct Edge : public Analysis
 	}
 };
 
-
-struct InstructionCost
+typedef std::vector<Edge*> Edges;
+class EdgeCollection
 {
-	llvm::Instruction* instruction;
-	llvm::BasicBlock* parentBB;
+private:
+	Edges m_edges;
 	
-	unsigned InstrCost = 0;
+	
+public:
 
-	unsigned cummulativeCost = 0;
-	//Default Constructor
-	InstructionCost() : instruction(nullptr), parentBB(nullptr) {};
+	EdgeCollection() {};
 
-	//Overloaded Constructor
-	InstructionCost(llvm::Instruction* inst) { SetIntruction(inst); }
-
-	//Overloaded Constructor
-	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent) { SetIntruction(inst); SetParentBasicBlock(parent); }
-
-	//Overloaded Constructor
-	InstructionCost(llvm::Instruction* inst, unsigned cost) { SetIntruction(inst); SetInstructionCost(cost); }
-
-	//Overloaded Constructor
-	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, unsigned cost) {
-		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost);
+	//Copy contructor
+	EdgeCollection(const EdgeCollection& ec)
+	{
+		for (Edge* e : ec.GetAllLoopEdges())
+		{
+			this->AddEdge(*e);
+		}
 	}
 
-	//Overloaded Constructor
-	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, unsigned cost, unsigned cummulativeCost) {
-		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost);
-		SetCumulativeCost(cummulativeCost);
+	Edges GetAllLoopEdges() const {
+		return m_edges;
 	}
 
-	//Copy Constructor
-	InstructionCost(const InstructionCost& rhs) {
-		SetIntruction(rhs.instruction);	
-		SetInstructionCost(rhs.InstrCost); 
-		SetParentBasicBlock(rhs.parentBB);
-		SetCumulativeCost(rhs.cummulativeCost);
+	void AddEdge(Edge e)
+	{
+		Edge* newEdge = new Edge(e);
+		m_edges.push_back(newEdge);
+		
 	}
 
-	//Set the Instruction pointer
-	void SetIntruction(llvm::Instruction* inst) { instruction = inst; }
+	bool IsLoopStart(llvm::BasicBlock* BB)
+	{
+		for (Edge* e : m_edges)
+		{
+			if (*e << *BB)
+				return true;
+		}
+		return false;
+	}
 
-	//Set the Instruction Cost
-	void SetInstructionCost(unsigned cost) { InstrCost = cost; }
+	bool IsLoopEnd(llvm::BasicBlock* BB)
+	{
+		for (Edge* e : m_edges)
+		{
+			if (*e >> *BB)
+				return true;
+		}
+		return false;
+	}
 
-	//Set the parent Basic block
-	void SetParentBasicBlock(llvm::BasicBlock* BB) { parentBB = BB; }
 
-	// Calling this method will add the cummulative costs
-	// this will be the max cost of a basic block for the last instruction
-	void SetCumulativeCost(unsigned cost) {	cummulativeCost = cost;}
+	Edge* GetLoopEdge(llvm::BasicBlock* BB)
+	{
+		Edge* loopEdge = nullptr;
+		for (Edge* e : m_edges)
+		{
+			if (*e >> *BB)
+				loopEdge = e;
+		}
+
+		return loopEdge;
+	}
+
+	~EdgeCollection()
+	{
+
+		//std::cout << "EdgeCollection  "<< ID << " will be destroyed" << std::endl;
+		for (Edge* e : m_edges)
+		{
+			if (e != nullptr)
+				delete e;
+		}
+	}
+
+	/*Edges GetLoopEdges(llvm::BasicBlock* BB) {
+		Edges loopsInBB;
+
+		for (Edge* e : m_edges)
+		{
+			if (*e << *BB)
+				loopsInBB.push_back(e);
+		}
+		return loopsInBB;
+	}
+
+	Edges GetLoopEdges(llvm::Function* F) {
+		Edges loopsInF;
+
+		for (auto& BB : *F)
+		{
+			for (Edge* e : m_edges)
+			{
+				if (*e << BB)
+					loopsInF.push_back(e);
+			}
+		}
+
+		return loopsInF;
+	}*/
+
+
+	
 };
-
-
-// A vector containing InstuctionCost Objects
-typedef std::vector<InstructionCost> InstructionCostVec;
-// A dense map containing Pointers to Basic Blocks as key with an a vector of instructions as value
-typedef llvm::DenseMap<llvm::BasicBlock*, InstructionCostVec> BBCostMap;
-// A map dense map of function pointers with a BBCostMap as value (check BBCostMap for more info).
-typedef llvm::DenseMap<llvm::Function*, BBCostMap> FunctionCostMap;
-// An edge between 2 basic blocks A -> B where A is the entry and B the successor
-typedef std::vector<Edge> Edges;
 

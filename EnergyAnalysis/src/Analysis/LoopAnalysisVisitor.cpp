@@ -21,7 +21,15 @@ int LoopAnalysisVisitor::visit(EnergyModule & em)
 			return loopAnalysis->GetPassResult();
 	}
 
-	loopEdges = loopAnalysis->GetLoopEdges();
+	EdgeCollection ec = loopAnalysis->GetLoopEdges();
+
+	for (Edge* e : ec.GetAllLoopEdges())
+	{
+		loopEdges.AddEdge(*e);
+	}
+	
+
+
 	log.LogConsole("Ok\n");
 	return 0;
 }
@@ -29,11 +37,11 @@ int LoopAnalysisVisitor::visit(EnergyModule & em)
 void LoopAnalysisVisitor::Print()
 {
 	log.LogConsole(PRINT_BEGIN);
-	for (Edge& e : loopEdges)
+	for (Edge* e : loopEdges.GetAllLoopEdges())
 	{
-		if (e.isSubLoop)
+		if (e->isSubLoop)
 			log.LogConsole(" Subloop: ");
-		log.LogConsole(" From " + getSimpleNodeLabel(e.from) + " => " + getSimpleNodeLabel(e.to) + ": aantal trips: " + std::to_string(e.loopTripCount) + "\n\n");
+		log.LogConsole(" From " + getSimpleNodeLabel(e->from) + " => " + getSimpleNodeLabel(e->to) + ": aantal trips: " + std::to_string(e->loopTripCount) + "\n\n");
 	}
 	log.LogConsole(PRINT_END);
 
