@@ -58,14 +58,6 @@ public:
 		return loopSet;
 	}
 
-	/*Edges GetLoopEdge(llvm::Function* F) {
-		return loopEdges.GetLoopEdge(F);
-	}
-
-	Edges GetLoopEdge(llvm::BasicBlock* BB) {
-		return loopEdges.GetLoopEdge(BB);
-	}*/
-
 	// Prints the loopedges found
 	void Print();
 

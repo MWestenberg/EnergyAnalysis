@@ -54,18 +54,11 @@ public:
 	//Override of FunctionPass
 	bool runOnFunction(llvm::Function &F) override;
 	
-	EdgeCollection GetLoopEdges() const {
-		return edgeCollection;
-	}
+	EdgeCollection GetLoopEdges() const {	return edgeCollection;	}
 
 
 	int GetPassResult() {	return m_result;	}
 
-
-	~LoopAnalysisPass()
-	{
-		std::cout << "LoopAnalysisPass Destroyed" << std::endl;
-	}
 private:
 	unsigned FindNestedLoops(llvm::Loop & L, bool isSubloop = false);
 

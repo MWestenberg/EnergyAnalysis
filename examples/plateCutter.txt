@@ -1,0 +1,77 @@
+=============================== Starting Energy Analysis ===============================
+
+LLVM IR FILE: C:\Dev\EnergyAnalysis\examples/plateCutter.ll
+
+Reading Energy Annotations...Ok
+
+=====Printer Start====
+AssemblyLine has Energy values: Time-dependent consumption=0 One-time energy consumption=100 Time=2
+PlateSensor has Energy values: Time-dependent consumption=5 One-time energy consumption=5 Time=1
+PlateSensorRead has Energy values: Time-dependent consumption=0 One-time energy consumption=5 Time=2
+PlateSensor has Energy values: Time-dependent consumption=0 One-time energy consumption=5 Time=1
+MeasurePlate has Energy values: Time-dependent consumption=0 One-time energy consumption=5 Time=2
+Laser has Energy values: Time-dependent consumption=1000 One-time energy consumption=2000 Time=180
+Delay has Energy values: Time-dependent consumption=0 One-time energy consumption=0 Time=5
+LaserFiring has Energy values: Time-dependent consumption=0 One-time energy consumption=0 Time=1
+Laser has Energy values: Time-dependent consumption=0 One-time energy consumption=1000 Time=10
+====Printer End====
+
+Analysing Paths in CFG...Ok
+
+=====Printer Start====
+Function: main
+ Path 0:
+  %2
+  %37
+
+ Path 1:
+  %2
+  %4
+  %9
+  %12
+  %14
+  %18
+  %30
+  %32
+  %34
+  %37
+
+
+Function: startController
+ Path 0:
+  %0
+  %2
+  %4
+  %8
+  %20
+  %22
+  %24
+
+
+====Printer End====
+
+Analysing Loops...Ok
+LoopAnalysisPass Destroyed
+
+=====Printer Start====
+ From %20 => %20: aantal trips: 5
+
+ From %9 => %34: aantal trips: 10
+
+ Subloop:  From %30 => %30: aantal trips: 5
+
+====Printer End====
+
+Calculating Costs...Ok
+Calculating Energy Consumption...Ok
+===================MainProgram Path ID: 0=============
+  Nested Level: 0
+  Total WCET: 3
+
+  Total Joules: 0
+
+===================MainProgram Path ID: 1=============
+  Nested Level: 0
+  Total WCET: 2607
+
+  Total Joules: 391.350

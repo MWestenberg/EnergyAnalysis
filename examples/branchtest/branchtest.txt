@@ -1,0 +1,115 @@
+=============================== Starting Energy Analysis ===============================
+
+LLVM IR FILE: C:\Dev\EnergyAnalysis\examples/branchtest/loopbranch.ll
+
+Reading Energy Annotations...Ok
+
+=====Printer Start====
+AssemblyLine has Energy values: Time-dependent consumption=0 One-time energy consumption=100 Time=2
+====Printer End====
+
+Analysing Paths in CFG...Ok
+
+=====Printer Start====
+Function: main
+ Path 0:
+  %2
+
+
+Function: method1
+ Path 0:
+  %1
+
+
+Function: loop
+ Path 0:
+  %2
+  %5
+
+ Path 2:
+  %2
+  %6
+  %12
+  %17
+  %21
+  %25
+  %5
+
+ Path 1:
+  %2
+  %6
+  %12
+  %15
+  %25
+  %5
+
+ Path 3:
+  %2
+  %6
+  %12
+  %17
+  %23
+  %25
+  %5
+
+
+Function: __local_stdio_printf_options
+ Path 0:
+  %0
+
+
+Function: printf
+ Path 0:
+  %1
+
+
+Function: method2
+ Path 0:
+  %1
+
+
+====Printer End====
+
+Analysing Loops...Ok
+LoopAnalysisPass Destroyed
+
+=====Printer Start====
+ From %6 => %25: aantal trips: 5
+
+====Printer End====
+
+Calculating Costs...Ok
+Calculating Energy Consumption...Ok
+===================MainProgram Path ID: 0=============
+  Nested Level: 0
+  Nested Level: 1
+  Total WCET: 9
+
+  Total Joules: 100
+
+===================MainProgram Path ID: 1=============
+  Nested Level: 0
+  Nested Level: 2
+  Nested Level: 1
+  Nested Level: 3
+  Total WCET: 264
+
+  Total Joules: 100
+
+===================MainProgram Path ID: 2=============
+  Nested Level: 0
+  Nested Level: 2
+  Nested Level: 1
+  Nested Level: 3
+  Total WCET: 189
+
+  Total Joules: 100
+
+===================MainProgram Path ID: 3=============
+  Nested Level: 0
+  Nested Level: 2
+  Nested Level: 1
+  Nested Level: 3
+  Total WCET: 266
+
+  Total Joules: 100

@@ -129,7 +129,9 @@ void EnergyCalculator::TraversePaths(OrderedBBSet& OBB)
 				}
 
 			}
-
+			// TODO: now we traverse the loop but we should traverse it once and store the total joules and wcet and multiply that to the 
+			// remaining iterations and store it in the Edge itself.
+			// Next time around we can simply take the wcet and number of joulse from it.
 			// Check if the instruction is branch and a loop
 			if (BB->getTerminator() == &inst && loopAnalysis->IsLoopEnd(BB))
 			{
@@ -232,28 +234,28 @@ void EnergyCalculator::AddJoules(Joules joules)
 		ProgramPathCosts[programPathID].joules[m_nestedLevel] = joules;
 }
 
+// Energy Annotated functions are different
+// At this point we should scan the available EnergyFunctions
+// If for instance there is a function with a powerdraw and a name X
+// we must iterate the EnergyFunctions and search for a function with the same name
+// but has powerdraw set to 0. If this is the case we must not multiply the instruction
+// cost with the powerdraw.
+// If we cannot find we must multiply the current instruction Cost with the powerdraw
+// and add the result to the nested level number of Joules of the current ProgramPath.
+//
+// Special case, when we start a powerdraw with a function and start it again before stopping
+// should we calculate the powerdraw twice or not?
+// I think not, because the name is the same. Stopping a powerdraw that was added twice
+// could cause undefined behaviour. Will it stop the first, the second or both?
+// I assume it would stop both. 
+// The reason is because the energy function should activate an external component
+// We assume that that component cannot be started twice. We assume it has a check that it is
+// already started. If the external function would have a toggle mechanism
+// this could be solved by adding the Energy function twice with the same name where the first would have 
+// a powerdraw > 0 and the second would have a powedraw of 0 canceling it.
+
 void EnergyCalculator::AddPowerdraw(const InstructionCost & IC)
 {
-
-	// Energy Annotated functions are different
-	// At this point we should scan the available EnergyFunctions
-	// If for instance there is a function with a powerdraw and a name X
-	// we must iterate the EnergyFunctions and search for a function with the same name
-	// but has powerdraw set to 0. If this is the case we must not multiply the instruction
-	// cost with the powerdraw.
-	// If we cannot find we must multiply the current instruction Cost with the powerdraw
-	// and add the result to the nested level number of Joules of the current ProgramPath.
-	//
-	// Special case, when we start a powerdraw with a function and start it again before stopping
-	// should we calculate the powerdraw twice or not?
-	// I think not, because the name is the same. Stopping a powerdraw that was added twice
-	// could cause undefined behaviour. Will it stop the first, the second or both?
-	// I assume it would stop both. 
-	// The reason is because the energy function should activate an external component
-	// We assume that that component cannot be started twice. We assume it has a check that it is
-	// already started. If the external function would have a toggle mechanism
-	// this could be solved by adding the Energy function twice with the same name where the first would have 
-	// a powerdraw > 0 and the second would have a powedraw of 0 canceling it.
 
 	// Temporary vector
 	EnergyValueVec evVector;
