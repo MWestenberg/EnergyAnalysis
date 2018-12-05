@@ -20,6 +20,49 @@
 #include "llvm/support/raw_os_ostream.h"
 #include <string>
 
+
+struct EnergyValue
+{
+	llvm::StringRef name;
+	unsigned pd = 0;
+	unsigned ec = 0;
+	unsigned t = 0;
+	
+	EnergyValue() {};
+	EnergyValue(llvm::StringRef newName) : name(newName) {};
+
+
+	EnergyValue(const EnergyValue& other)
+	{
+		name = other.name;
+		pd = other.pd;
+		ec = other.ec;
+		t = other.t;
+	}
+
+	bool HasValues()
+	{
+		if (!name.empty())
+			return true;
+		return false;
+	}
+
+	bool operator==(const EnergyValue& other)
+	{
+		return name == other.name;
+	}
+
+	bool operator!=(const EnergyValue& other)
+	{
+		return name != other.name;
+	}
+
+	bool HasPowerDraw() { return pd > 0; }
+};
+
+
+typedef std::vector<EnergyValue> EnergyValueVec;
+
 class Analysis
 {
 public:
@@ -58,8 +101,10 @@ protected:
 
 	llvm::Function* GetModuleEntryPoint(llvm::Module& M) const;
 
-
 	bool IsNotTraversable(llvm::Function& F) const;
+
+	EnergyValue GetEnergyValue(const llvm::Function&F) const;
+
 
 protected:
 

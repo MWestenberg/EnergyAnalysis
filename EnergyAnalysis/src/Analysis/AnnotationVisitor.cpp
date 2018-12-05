@@ -145,27 +145,10 @@ void AnnotationVisitor::Print(llvm::Module& M)
 	log.LogConsole(PRINT_BEGIN);
 	for (llvm::Function &fn : M) {
 
-		if (fn.hasFnAttribute(ENERGY_ATTR)) {
-			std::string name = "";
-			signed int pd = 0;
-			unsigned int ec = 0;
-			unsigned int t = 0;
+		EnergyValue ev = GetEnergyValue(fn);
 
-			if (fn.hasFnAttribute(ENERGY_FUNCTION_NAME)) 
-				name = std::string(fn.getFnAttribute(ENERGY_FUNCTION_NAME).getValueAsString());
-			
-			if (fn.hasFnAttribute(ENERGY_TEMPORAL_CONSUMPTION)) 
-				pd = std::stoi(fn.getFnAttribute(ENERGY_TEMPORAL_CONSUMPTION).getValueAsString().str());
-			
-			if (fn.hasFnAttribute(ENERGY_CONSUMPTION)) 
-				ec = std::stoi(fn.getFnAttribute(ENERGY_CONSUMPTION).getValueAsString().str());
-			
-			if (fn.hasFnAttribute(ENERGY_TIME_UNIT)) 
-				t = std::stoi(fn.getFnAttribute(ENERGY_TIME_UNIT).getValueAsString().str());
-			
-			log.LogConsole(fn.getName().str() + " has Energy values: Time-dependent consumption=" + std::to_string(pd) + " One-time energy consumption=" + std::to_string(ec) + " Time=" + std::to_string(t) + "\n");
-
-		}
+		if (ev.HasValues())
+			log.LogConsole(ev.name.str() + " has Energy values: Time-dependent consumption=" + std::to_string(ev.pd) + " One-time energy consumption=" + std::to_string(ev.ec) + " Time=" + std::to_string(ev.t) + "\n");
 	}
 	log.LogConsole(PRINT_END);
 }

@@ -144,7 +144,8 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	Error = energy->accept(*annotate);
 	if (Error)
 		return ExitProgram(Error);
-	//annotate.Print(*Mod);
+	annotate->Print(*Mod);
+
 
 	// Finds and stores all possible paths as edges of Basic Blocks
 	PathAnalysisVisitor pathAnalysis;
@@ -171,6 +172,7 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	Error = energy->accept(energyCalculator);
 	if (Error)
 		return ExitProgram(Error);
+	energyCalculator.Print();
 
 	return Error;
 }

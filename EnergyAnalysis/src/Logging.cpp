@@ -45,3 +45,4 @@ void Logging::LogConsole(const std::string & message)
 {
 	std::cout << message;
 }
+

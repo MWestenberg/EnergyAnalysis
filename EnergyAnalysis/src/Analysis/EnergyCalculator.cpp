@@ -21,7 +21,6 @@ int EnergyCalculator::visit(EnergyModule & em)
 	
 	log.LogConsole("Ok\n");
 
-	testPrint();
 	return 0;
 }
 
@@ -34,24 +33,31 @@ void EnergyCalculator::AddPath()
 
 	if (programPathID > 0)
 	{
+		// This means the path was incremented by 1
+		// and we must copy the previous level to the current ProgramPath
+	
+		// get the previous path ID
+		unsigned prevPath = programPathID - 1; 
 
+		// total program wcet
+		WCETperLevel wcetPrevLevel = ProgramPathCosts[prevPath].wcet; 
 
-	//	//this means the path was incremented by 1
-		unsigned prevPath = programPathID - 1; // get the previous path
-		SubPaths sp = ProgramPathCosts[prevPath].subPaths; // get all subpaths of previous ProgramPath
-		//if (sp.size() > 0)
-		//	sp.pop_back(); // remove the last entry from the subpath
-		SubPaths prevSubPaths;
+		// Total numbers of joules per level thus far
+		JoulesPerlevel joulesPrevLevel = ProgramPathCosts[prevPath].joules; 
 
-		for (SubPaths::iterator IT = sp.begin(), ITE = sp.end(); IT != ITE; ++IT)
+		// Loop until the current nested loop (not counting the current level
+		// that is why it is < and not <=
+		for (unsigned i = 0; i < m_nestedLevel; i++)
 		{
-			if (IT->first < m_nestedLevel)
-			{
-				prevSubPaths[IT->first] = IT->second;
-			}
+			
+			if (wcetPrevLevel.find(i) != wcetPrevLevel.end())
+				ProgramPathCosts[programPathID].wcet[i] = wcetPrevLevel[i];
+
+			if (joulesPrevLevel.find(i) != joulesPrevLevel.end())
+				ProgramPathCosts[programPathID].joules[i] = joulesPrevLevel[i];
+
 		}
 
-		ProgramPathCosts[programPathID].subPaths = prevSubPaths; // add the subpaths to the current programpath
 	}
 	
 }
@@ -59,8 +65,6 @@ void EnergyCalculator::AddPath()
 void EnergyCalculator::TraveseFunction(PathMap & pathMap)
 {
 
-
-	//log.SetLevel(Logging::DEBUG);
 	//iterate all possible paths
 	for (PathMap::iterator PI = pathMap.begin(), PIE = pathMap.end(); PI != PIE; ++PI)
 	{
@@ -75,22 +79,10 @@ void EnergyCalculator::TraveseFunction(PathMap & pathMap)
 			AddPath();
 		}
 			
-		
-		
 		log.LogDebug("\n\n=====ProgramPathID: " + std::to_string(programPathID) + "=====\n\n");
-		
 		log.LogDebug("\n\n===========> SubPath " + std::to_string(PI->first) + ":\n\n");
 
-
-		if (ProgramPathCosts[programPathID].subPaths[m_nestedLevel].size() == 0)
-		{
-			InstructionCostVec icv;
-			ProgramPathCosts[programPathID].subPaths[m_nestedLevel] = icv;
-		}
-
-
 		TraversePaths(PI->second);
-		
 	}
 
 }
@@ -98,8 +90,6 @@ void EnergyCalculator::TraveseFunction(PathMap & pathMap)
 void EnergyCalculator::TraversePaths(OrderedBBSet& OBB)
 {
 
-
-	//pathAnalysis->printPath(OBB);
 	for (llvm::BasicBlock* BB : OBB)
 	{
 		llvm::Function* F = BB->getParent();
@@ -115,85 +105,51 @@ void EnergyCalculator::TraversePaths(OrderedBBSet& OBB)
 			//retrieve call instruction
 			llvm::Function* fn = IsFunction(inst);
 
-			//First run means we can ignore the non energy functions
-			if (m_firstRun && fn == nullptr) {
-				log.LogDebug(" (first run: ignored) \n\n");
-				continue; //no need to calc instruction cost
+
+			// if not the first run always set the instruction cost of the instruction in question
+			if (fn == nullptr) {
+				log.LogDebug(" (normal instruction)\n");
+				SetInstructionCost(*F, *BB, inst);
 			}
 
-
-			if (m_firstRun && fn != nullptr)
+			// if fn is function we must traverse
+			if (fn != nullptr)
 			{
-
-				//if (HasEnergyAnnotation(*fn))
-				if (SetEnergyFunctionCost(*fn))
+				//If the function is an energy function the energy attributes will be set
+				if (!SetEnergyFunctionCost(*fn, *BB, inst))
 				{
-					log.LogDebug(" (First Energy Function) \n\n");
-					continue;
-				}
-
-				//Normal function so traverse this function recursively
-				//calc cost of tail call first
-				// then traverse function
-				log.LogDebug("\n========================================" + fn->getName().str() + "========================================\n");
-				log.LogDebug(" (Normal function needs traversing \n\n");
-				PathMap subPaths = pathAnalysis->GetFunctionPaths(*fn);
-				m_nestedLevel++;
-				TraveseFunction(subPaths);
-				m_nestedLevel--;
-			}
-			else
-			{
-				//In case of first run, continue until a function is found
-				if (m_firstRun) {
-					log.LogDebug(" (first run: ignored) \n\n");
-					continue;
-				}
-
-				//if (HasEnergyAnnotation(*fn))
-				if (SetEnergyFunctionCost(*fn))
-				{
-					log.LogDebug(" (Follow up Energy Function) \n\n");
-					continue;
-				}
-				else if (fn != nullptr)
-				{
-					//Normal function so traverse this function recursively
-					//calc cost of tail call first
-					// then traverse function
+					// We found a non energy function and must traverse it.
 					log.LogDebug("\n========================================" + fn->getName().str() + "========================================\n");
 					log.LogDebug(" (Normal function needs traversing \n\n");
+					// if this branch is reached the function is a real function
+					PathMap subPaths = pathAnalysis->GetFunctionPaths(*fn);
 					m_nestedLevel++;
-					TraveseFunction(pathAnalysis->GetFunctionPaths(*fn));
+					TraveseFunction(subPaths);
 					m_nestedLevel--;
+				}
+
+			}
+
+			// Check if the instruction is branch and a loop
+			if (BB->getTerminator() == &inst && loopAnalysis->IsLoopEnd(BB))
+			{
+				log.LogDebug("========================================LOOP START===============================\n");
+				Edge* loopEdge = loopAnalysis->GetLoopEdge(BB);
+				loopEdge->currentTripCount++;
+
+				if (loopEdge->loopTripCount >= loopEdge->currentTripCount)
+				{
+
+					log.LogDebug("COUNTER: " + std::to_string(loopEdge->currentTripCount) + " / " + std::to_string(loopEdge->loopTripCount) + "\n");
+					OrderedBBSet loopSet = loopAnalysis->GetLoopOrderedBBSet(*loopEdge, OBB);
+					TraversePaths(loopSet);
 				}
 				else
 				{
-					log.LogDebug(" (normal instruction): ");
-					SetInstructionCost(*F, *BB, inst);
-	
-					
-					if (BB->getTerminator() == &inst && loopAnalysis->IsLoopEnd(BB))
-					{
-						log.LogDebug("========================================LOOP START===============================\n");
-						Edge* loopEdge = loopAnalysis->GetLoopEdge(BB);
-						loopEdge->currentTripCount++;
-
-						if (loopEdge->loopTripCount >= loopEdge->currentTripCount)
-						{
-
-							log.LogDebug("COUNTER: " + std::to_string(loopEdge->currentTripCount) + " / " + std::to_string(loopEdge->loopTripCount) + "\n");
-							OrderedBBSet loopSet = loopAnalysis->GetLoopOrderedBBSet(*loopEdge, OBB);
-							TraversePaths(loopSet);
-						}
-						else
-						{
-							loopEdge->currentTripCount = 1;
-							log.LogDebug("========================================LOOP END=================================\n");
-						}
-
-					}
+					loopEdge->currentTripCount = 1;
+					log.LogDebug("========================================LOOP END=================================\n");
 				}
+
 			}
 
 		}
@@ -205,106 +161,177 @@ void EnergyCalculator::TraversePaths(OrderedBBSet& OBB)
 
 void EnergyCalculator::SetInstructionCost(llvm::Function& F, llvm::BasicBlock& BB, llvm::Instruction& I)
 {
-	
 	InstructionCost IC = wcetAnalysis->GetInstructionCost(F, BB, I);
-	InstructionCostVec icv;
-	if (ProgramPathCosts[programPathID].subPaths[m_nestedLevel].size() > 0)
-	{
-		icv = ProgramPathCosts[programPathID].subPaths[m_nestedLevel];
-	}
-
-	icv.push_back(IC);
-	ProgramPathCosts[programPathID].subPaths[m_nestedLevel] = icv;
-
-	ProgramPathCosts[programPathID].totalWcet += IC.InstrCost;
-
+	AddWCET(IC.InstrCost);
 	log.LogDebug(" cost: " + std::to_string(IC.InstrCost) + "\n");
+	AddPowerdraw(IC);
+
+	
 
 }
 
-bool  EnergyCalculator::SetEnergyFunctionCost(const llvm::Function& F)
+bool  EnergyCalculator::SetEnergyFunctionCost(const llvm::Function& F, llvm::BasicBlock& BB, llvm::Instruction& I)
 {
 	if (&F != nullptr && HasEnergyAnnotation(F))
 	{
-		//Set first run to false;
-		if (m_firstRun)
-			m_firstRun = false;
+	
+		EnergyValue ev = GetEnergyValue(F);
 
-		if (F.hasFnAttribute(ENERGY_FUNCTION_NAME))
+		log.LogDebug("  EnergyFunction Name = " + ev.name.str() + " pd = " + std::to_string(ev.pd) + " ec = " + std::to_string(ev.ec) + " wcet = " + std::to_string(ev.t)  + "\n");
+
+		if (ev.HasValues())
 		{
+			// We consider Time t in this case equal to a cycle
+			// Add the wcet of the energy function to the total WCET per Level
+			AddWCET(ev.t);
+
+			//Add the non temperal energy consumption to the number of joules per level
+			AddJoules(ev.ec);
+
+			InstructionCost IC = InstructionCost(&I, &BB, ev.t);
 			
-			//TODO: Calculation of energy function powerdraw and single consumption
-			EnergyFunctions ef = ProgramPathCosts[programPathID].energyFunctions;
-			auto energyFunc = std::find(ef.begin(), ef.end(), &F);
-			if (energyFunc != ef.end())
+			// Add the Energy fucntion to the list of current functions of the current NestedLevel
+				// and the current ProgramPath
+
+			// This is a toggle
+			// when the current energy function has a powerdraw the cost of the function itself
+			// should not count as a powerdraw because that is captured by the ec value
+			// When the powerdraw == 0 it is a stop function and must be added first 
+			// before calcuting powerdraw to prevent the stop function itself to be counted 
+			// as powerdraw too
+			if (ev.pd > 0)
 			{
-				const llvm::Function* enf = *energyFunc;
-				//already exists;
-				//is it stacking or should it be removed?
-				
+				AddPowerdraw(IC);
+				ProgramPathCosts[programPathID].energyConsumption[m_nestedLevel].push_back(ev);	
 			}
 			else
 			{
-				//add it
-				ProgramPathCosts[programPathID].energyFunctions.push_back(&F);
+				ProgramPathCosts[programPathID].energyConsumption[m_nestedLevel].push_back(ev);
+				AddPowerdraw(IC);
 			}
-
-
-			//// below is not ready please finish.
-			//if (IsFirstEncounter(F)) {
-			//	EnergyFunction ef;
-			//	ef[&F] = pd;
-			//	// add the powerdraw to Joules counter and to the powerdraw counter
-			//}
-			//else
-			//{
-
-
-			//}
-
 		}
-
-		/*name = F.getFnAttribute(ENERGY_FUNCTION_NAME).getValueAsString();
-			if (F.hasFnAttribute(ENERGY_TEMPORAL_CONSUMPTION))
-			{
-				pd = std::stoi(F.getFnAttribute(ENERGY_TEMPORAL_CONSUMPTION).getValueAsString().str());
-			}*/
-		/*if (F.hasFnAttribute(ENERGY_FUNCTION_NAME))
-			pd = std::stoi(F.getFnAttribute(ENERGY_TEMPORAL_CONSUMPTION).getValueAsString().str());
-
-		if (F.hasFnAttribute(ENERGY_CONSUMPTION))
-			ec = std::stoi(F.getFnAttribute(ENERGY_CONSUMPTION).getValueAsString().str());
-
-		if (F.hasFnAttribute(ENERGY_TIME_UNIT))
-			t = std::stoi(F.getFnAttribute(ENERGY_TIME_UNIT).getValueAsString().str());
-
-		log.LogDebug(F.getName().str() + " has Energy values: Time-dependent consumption=" + std::to_string(pd) + " One-time energy consumption=" + std::to_string(ec) + " Time=" + std::to_string(t) + "!\n");*/
-
 		return true;
 	}
 	return false;
 }
 
 
-void EnergyCalculator::testPrint()
+void EnergyCalculator::AddWCET(WCET executionTime)
 {
+	if (ProgramPathCosts[programPathID].wcet.size() > 0)
+		ProgramPathCosts[programPathID].wcet[m_nestedLevel] += executionTime;
+	else
+		ProgramPathCosts[programPathID].wcet[m_nestedLevel] = executionTime;
+}
+
+void EnergyCalculator::AddJoules(Joules joules)
+{
+	if (ProgramPathCosts[programPathID].joules.size() > 0)
+		ProgramPathCosts[programPathID].joules[m_nestedLevel] += joules;
+	else
+		ProgramPathCosts[programPathID].joules[m_nestedLevel] = joules;
+}
+
+void EnergyCalculator::AddPowerdraw(const InstructionCost & IC)
+{
+
+	// Energy Annotated functions are different
+	// At this point we should scan the available EnergyFunctions
+	// If for instance there is a function with a powerdraw and a name X
+	// we must iterate the EnergyFunctions and search for a function with the same name
+	// but has powerdraw set to 0. If this is the case we must not multiply the instruction
+	// cost with the powerdraw.
+	// If we cannot find we must multiply the current instruction Cost with the powerdraw
+	// and add the result to the nested level number of Joules of the current ProgramPath.
+	//
+	// Special case, when we start a powerdraw with a function and start it again before stopping
+	// should we calculate the powerdraw twice or not?
+	// I think not, because the name is the same. Stopping a powerdraw that was added twice
+	// could cause undefined behaviour. Will it stop the first, the second or both?
+	// I assume it would stop both. 
+	// The reason is because the energy function should activate an external component
+	// We assume that that component cannot be started twice. We assume it has a check that it is
+	// already started. If the external function would have a toggle mechanism
+	// this could be solved by adding the Energy function twice with the same name where the first would have 
+	// a powerdraw > 0 and the second would have a powedraw of 0 canceling it.
+
+	// Temporary vector
+	EnergyValueVec evVector;
+
+	// The energyconsuming function that have been added in this programpath.
+	EnergyConsumptionPerLevel energyPerLevel = ProgramPathCosts[programPathID].energyConsumption;
+
+	//here we must traverse all nestedLevels including the current one
+	for (unsigned i = 0; i <= m_nestedLevel; i++)
+	{
+		if (energyPerLevel.find(i) != energyPerLevel.end())
+		{
+			for (EnergyValue ev : energyPerLevel[i])
+			{
+				auto found = std::find_if(evVector.begin(), evVector.end(), [&ev](const EnergyValue& e) { return e.name == ev.name;  });
+				if (found != evVector.end())
+				{
+					EnergyValue evFound = *found;
+					
+					//case ID:	ev.pd	|	found.pd
+					//	1		0		|	0			we have a powerdraw stop but found a stopper too, do nothing
+					//	2		0		|	1			we have a powerdraw stop and found a powerdraw starter: Stop de powerdraw
+					//  3		1		|	0			we have a started and found a stopper, it is restarted and will be counted
+					//	4		1		|	1			double starter, this should not happen and is ignored.
+					if (ev.pd > 0 && evFound.pd == 0) //case 3
+						evVector.push_back(ev);
+					else if (ev.pd == 0 && evFound.pd > 0)  //case 2
+						evVector.erase(found);
+					
+				}
+				else if (ev.pd > 0) //new powerdraw not found so add
+					evVector.push_back(ev);
+			}
+		}
+
+	}
+
+	for (EnergyValue ev : evVector)
+	{
+		unsigned int powerdraw = ev.pd * IC.InstrCost;
+		log.LogDebug(" ==> Powerdraw: " + ev.name.str() + ": " + std::to_string(ev.pd) + "  * " + std::to_string(IC.InstrCost) + " = " + std::to_string(powerdraw)  + "\n");
+		ProgramPathCosts[programPathID].joules[m_nestedLevel] += powerdraw;
+	}
+
+}
+
+
+
+void EnergyCalculator::Print()
+{
+
+	//iterate each ProgramPath
 	for (PathCosts::iterator IT = ProgramPathCosts.begin(), ITE = ProgramPathCosts.end(); IT != ITE; ++IT)
 	{
 		ProgramPath pp = IT->second;
 		log.LogConsole("===================MainProgram Path ID: " + std::to_string(pp.ID) + "=============\n");
-		for (SubPaths::iterator SPIT = pp.subPaths.begin(), SPIET = pp.subPaths.end(); SPIT != SPIET; ++SPIT)
+
+
+		//iterate per level the WCET
+		unsigned wcet = 0;
+		for (WCETperLevel::iterator WIT = pp.wcet.begin(), WIET = pp.wcet.end(); WIT != WIET; ++WIT)
 		{
-			
-			log.LogConsole("  Nested Level: " + std::to_string(SPIT->first) + "\n");
-			/*InstructionCostVec ICV = SPIT->second;
-			for (InstructionCost IC : ICV)
-			{
-				log.LogConsole("   " + getSimpleNodeLabel(IC.parentBB) + "\n");
-			}
-		*/	
+			log.LogConsole("  Nested Level: " + std::to_string(WIT->first) + "\n");
+			wcet += WIT->second;
 		}
 
-		log.LogConsole("  Total WCET: " + std::to_string(pp.totalWcet) + "\n\n");
+		// iterate per level the Joules
+		unsigned joules = 0;
+		for (WCETperLevel::iterator JIT = pp.joules.begin(), JIET = pp.joules.end(); JIT != JIET; ++JIT)
+		{
+			joules += JIT->second;
+		}
+
+		log.LogConsole("  Total WCET: " + std::to_string(wcet) + "\n\n");
+		//log.LogConsole("  Total PowerdrawMP: " + std::to_string(pdwcet) + "\n\n");
+		log.LogConsole("  Total Joules: ");
+		log.RecursiveCommas(std::cout, joules);
+		log.LogConsole("\n\n");
 
 
 	}

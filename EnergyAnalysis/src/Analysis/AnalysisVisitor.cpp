@@ -87,3 +87,35 @@ llvm::Function* Analysis::GetModuleEntryPoint(llvm::Module& M) const
 
 	return nullptr;
 }
+
+EnergyValue Analysis::GetEnergyValue(const llvm::Function& F) const
+{
+	EnergyValue ev;
+
+	if (F.hasFnAttribute(ENERGY_ATTR)) {
+		llvm::StringRef name = "";
+		signed int pd = 0;
+		unsigned int ec = 0;
+		unsigned int t = 0;
+
+		if (F.hasFnAttribute(ENERGY_FUNCTION_NAME))
+			name = F.getFnAttribute(ENERGY_FUNCTION_NAME).getValueAsString();
+
+		if (F.hasFnAttribute(ENERGY_TEMPORAL_CONSUMPTION))
+			pd = std::stoi(F.getFnAttribute(ENERGY_TEMPORAL_CONSUMPTION).getValueAsString().str());
+
+		if (F.hasFnAttribute(ENERGY_CONSUMPTION))
+			ec = std::stoi(F.getFnAttribute(ENERGY_CONSUMPTION).getValueAsString().str());
+
+		if (F.hasFnAttribute(ENERGY_TIME_UNIT))
+			t = std::stoi(F.getFnAttribute(ENERGY_TIME_UNIT).getValueAsString().str());
+
+		ev.name = name;
+		ev.pd = pd;
+		ev.ec = ec;
+		ev.t = t;
+
+	}
+
+	return ev;
+}

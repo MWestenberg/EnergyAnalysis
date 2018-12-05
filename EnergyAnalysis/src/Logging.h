@@ -2,8 +2,8 @@
 #include <iostream>
 #include <string>
 #include "Constants.h"
-
-
+#include <iomanip>
+#include <locale>
 
 class Logging
 {
@@ -36,8 +36,27 @@ public:
 	//Standard log can be used to print report and other information that needs to be shown to the user.
 	// This will always print no matter what level
 	void LogConsole(const std::string& message);
+
+	template<class T>
+	void RecursiveCommas(std::ostream& os, T n);
+
 private:
 	Level m_loglevel = LOGLEVEL;
 
 };
 
+template<class T>
+inline void Logging::RecursiveCommas(std::ostream & os, T n)
+{
+	T rest = n % 1000; //"last 3 digits"
+	n /= 1000;         //"begining"
+
+	if (n > 0) {
+		RecursiveCommas(os, n); //printing "begining"
+
+		//and last chunk
+		os << '.' << std::setfill('0') << std::setw(3) << rest;
+	}
+	else
+		os << rest; //first chunk of the number
+}
