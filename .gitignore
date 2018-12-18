@@ -1,6 +1,10 @@
 .vs
 bin/
-CostAnalysis/
-EnergyAnalysis/EnergyAnalysis.vcxproj.user
-Dependencies/llvm/lib/
-EnergyAnalysis/src/Old
+Dependencies
+TraceAnalysis/TraceAnalysis/TraceAnalysis.vcxproj.user
+EnergyAnalysis/EnergyAnalysis/EnergyAnalysis.vcxproj.user
+llvm/
+LLVMBaseProject/
+old/
+cfe-7.0.0.src.tar.xz
+EnergyAnalysis.exe

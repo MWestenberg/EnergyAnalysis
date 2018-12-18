@@ -1,0 +1,6 @@
+.vs
+bin/
+Dependencies/
+TraceAnalysis/TraceAnalysis.vcxproj.user
+Dependencies/llvm/lib/
+TraceAnalysis/src/Old

@@ -1,5 +1,0 @@
-digraph "CFG for 'method1' function" {
-	label="CFG for 'method1' function";
-
-	Node0x63c558 [shape=record,label="{%1:\l  %2 = tail call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([8 x i8],\l... [8 x i8]* @\"??_C@_07JJNKOEKP@m1?3?5?$CFd?6?$AA@\", i64 0, i64 0), i32 %0)\l  %3 = icmp sgt i32 %0, 3\l  ret i1 %3\l}"];
-}
