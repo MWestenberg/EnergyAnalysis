@@ -28,4 +28,4 @@
 // function name to retrieve loop trip counts from undefined loops.
 #define LOOP_TRIPCOUNT "LOOP_TRIPCOUNT"
 // Log level: ERROR, WARNING, INFO, DEBUG
-#define LOGLEVEL Logging::INFO
+#define LOGLEVEL Logging::DEBUG

@@ -259,11 +259,8 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Analysis\EnergyCalculator.cpp" />
+    <ClCompile Include="src\Analysis\EnergyCalculation.cpp" />
     <ClCompile Include="src\Analysis\AnalysisVisitor.cpp" />
-    <ClCompile Include="src\Analysis\LoopAnalysisVisitor.cpp" />
-    <ClCompile Include="src\Analysis\PathAnalysisVisitor.cpp" />
-    <ClCompile Include="src\Passes\LoopAnalysisPass.cpp" />
     <ClCompile Include="src\Logging.cpp" />
     <ClCompile Include="src\Analysis\EnergyAnalysis.cpp" />
     <ClCompile Include="src\Analysis\EnergyModule.cpp" />
@@ -273,10 +270,7 @@
     <ClCompile Include="src\Analysis\WCETAnalysisVisitor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Analysis\EnergyCalculator.h" />
-    <ClInclude Include="src\Analysis\LoopAnalysisVisitor.h" />
-    <ClInclude Include="src\Analysis\PathAnalysisVisitor.h" />
-    <ClInclude Include="src\Passes\LoopAnalysisPass.h" />
+    <ClInclude Include="src\Analysis\EnergyCalculation.h" />
     <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\Logging.h" />
     <ClInclude Include="src\Analysis\AnalysisVisitor.h" />

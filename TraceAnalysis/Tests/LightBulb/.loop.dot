@@ -1,16 +1,16 @@
 digraph "CFG for 'loop' function" {
 	label="CFG for 'loop' function";
 
-	Node0x1709d8 [shape=record,label="{%2:\l  %3 = icmp eq i64 %1, 0\l  %4 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15\l... x i8]* @.str2, i32 0, i32 0))\l  br i1 %3, label %5, label %7\l|{<s0>T|<s1>F}}"];
-	Node0x1709d8:s0 -> Node0x170ce8;
-	Node0x1709d8:s1 -> Node0x170af0;
-	Node0x170ce8 [shape=record,label="{%5:\l\l  %6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15\l... x i8]* @.str5, i32 0, i32 0))\l  ret void\l}"];
-	Node0x170af0 [shape=record,label="{%7:\l\l  %8 = phi i64 [ %15, %14 ], [ 0, %2 ]\l  %9 = and i64 %8, 1\l  %10 = icmp eq i64 %9, 0\l  %11 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([15 x i8], [15\l... x i8]* @.str7, i32 0, i32 0))\l  br i1 %10, label %12, label %14\l|{<s0>T|<s1>F}}"];
-	Node0x170af0:s0 -> Node0x170d90;
-	Node0x170af0:s1 -> Node0x170850;
-	Node0x170d90 [shape=record,label="{%12:\l\l  tail call void bitcast (void (...)* @turnOn to void ()*)() #4\l  tail call void bitcast (void (...)* @delay to void ()*)() #4\l  %13 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16\l... x i8]* @.str12, i32 0, i32 0))\l  br label %14\l}"];
-	Node0x170d90 -> Node0x170850;
-	Node0x170850 [shape=record,label="{%14:\l\l  tail call void bitcast (void (...)* @turnOff to void ()*)() #4\l  tail call void bitcast (void (...)* @delay to void ()*)() #4\l  %15 = add nuw i64 %8, 1\l  %16 = icmp eq i64 %15, %1\l  %17 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([16 x i8], [16\l... x i8]* @.str14, i32 0, i32 0))\l  br i1 %16, label %5, label %7\l|{<s0>T|<s1>F}}"];
-	Node0x170850:s0 -> Node0x170ce8;
-	Node0x170850:s1 -> Node0x170af0;
+	Node0xb1b400 [shape=record,label="{%2:\l  %3 = icmp eq i64 %1, 0\l  br i1 %3, label %4, label %5\l|{<s0>T|<s1>F}}"];
+	Node0xb1b400:s0 -> Node0xb1b198;
+	Node0xb1b400:s1 -> Node0xb1ada8;
+	Node0xb1b198 [shape=record,label="{%4:\l\l  ret void\l}"];
+	Node0xb1ada8 [shape=record,label="{%5:\l\l  %6 = phi i64 [ %11, %10 ], [ 0, %2 ]\l  %7 = and i64 %6, 1\l  %8 = icmp eq i64 %7, 0\l  br i1 %8, label %9, label %10\l|{<s0>T|<s1>F}}"];
+	Node0xb1ada8:s0 -> Node0xb1ae50;
+	Node0xb1ada8:s1 -> Node0xb1b208;
+	Node0xb1ae50 [shape=record,label="{%9:\l\l  tail call void bitcast (void (...)* @turnOn to void ()*)() #3\l  tail call void bitcast (void (...)* @delay to void ()*)() #3\l  br label %10\l}"];
+	Node0xb1ae50 -> Node0xb1b208;
+	Node0xb1b208 [shape=record,label="{%10:\l\l  tail call void bitcast (void (...)* @turnOff to void ()*)() #3\l  tail call void bitcast (void (...)* @delay to void ()*)() #3\l  %11 = add nuw i64 %6, 1\l  %12 = icmp eq i64 %11, %1\l  br i1 %12, label %4, label %5\l|{<s0>T|<s1>F}}"];
+	Node0xb1b208:s0 -> Node0xb1b198;
+	Node0xb1b208:s1 -> Node0xb1ada8;
 }

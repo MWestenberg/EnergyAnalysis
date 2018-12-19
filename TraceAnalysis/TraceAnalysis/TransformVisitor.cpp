@@ -27,7 +27,7 @@ void TransformVisitor::Print()
 void TransformVisitor::AddPrintFunction()
 {
 	llvm::LLVMContext& context = module->getContext();
-	llvm::IRBuilder<> builder(context);
+	//llvm::IRBuilder<> builder(context);
 
 
 	llvm::Constant *CalleeF = module->getOrInsertFunction("printf",

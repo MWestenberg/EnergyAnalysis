@@ -1,14 +1,14 @@
 #include "EnergyAnalysis.h"
 
-
-//overloaded operator only for this translation unit
-static bool operator==(std::string& lhs, std::string& rhs)
-{
-	if (lhs.compare(rhs) == 0)
-		return true;
-
-	return false;
-}
+//
+////overloaded operator only for this translation unit
+//static bool operator==(std::string& lhs, std::string& rhs)
+//{
+//	if (lhs.compare(rhs) == 0)
+//		return true;
+//
+//	return false;
+//}
 
 
 int EnergyAnalysis::ExitProgram(int Error)
@@ -18,9 +18,9 @@ int EnergyAnalysis::ExitProgram(int Error)
 		case E_USAGE: return ExitProgram(Error, ErrorMessages::USAGE); break;
 		case E_MESSAGE_MISSING_IRFILE: return ExitProgram(Error, ErrorMessages::MESSAGE_MISSING_IRFILE); break;
 		case E_MESSAGE_INVALID_ARGUMENT:  return ExitProgram(Error, ErrorMessages::MESSAGE_INVALID_ARGUMENT); break;
-		case E_MESSAGE_INVALID_ENTRY_POINT:  return ExitProgram(Error, std::string(ErrorMessages::MESSAGE_INVALID_ENTRY_POINT) + MODULE_ENTRY_POINT); break;
 		case E_MESSAGE_INVALID_TOKENS:  return ExitProgram(Error, ErrorMessages::MESSAGE_INVALID_TOKENS); break;
 		case E_MESSAGE_UNDEFINED_LOOP: return ExitProgram(Error, ErrorMessages::MESSAGE_UNDEFINED_LOOP); break;
+		case E_MESSAGE_ERROR_PARSE_TRACEFILE: return ExitProgram(Error, ErrorMessages::MESSAGE_ERROR_PARSE_TRACEFILE); break;
 		default: return 0;  break;
 	}
 
@@ -50,6 +50,7 @@ int EnergyAnalysis::CheckArguments(int argc, char** argv)
 	m_arg_counter = 0;
 	m_argv = argv;
 	m_argc = argc;
+
 	//Missing Arguments, minimal 1 is required
 	if (argc <= EnergyAnalysis::SHOWHELP)
 	{
@@ -58,44 +59,52 @@ int EnergyAnalysis::CheckArguments(int argc, char** argv)
 
 	//Check the first argument
 	m_arg_counter++;
-	//Check first argument is file and valid
-	if (IsValidFile(const_cast<char*>(argv[m_arg_counter])))
-	{
-		int error = SetArgument(IRFILE, m_argv[m_arg_counter]);
-		if (error)
-			return error;
-		m_arg_counter++;
-	}
-	else
-	{
-		return E_MESSAGE_MISSING_IRFILE;
-	}
+	int error = NO_ERRORS;
 
-	
 	for (; m_arg_counter < argc; m_arg_counter++)
 	{
-		int error = ReadArgument(argv[m_arg_counter]);
+		error = ReadArgument(argv[m_arg_counter]);
 		if (error)
 			return error;	
 	}
 
+	if (m_inputFile && !m_inputFile[0])
+		error = E_MESSAGE_MISSING_IRFILE;
 
-	return EnergyAnalysis::E_USAGE;
+	if (error)
+		return EnergyAnalysis::E_USAGE;
+
+	return NO_ERRORS;
 }
 
 int EnergyAnalysis::ReadArgument(const char* argument)
 {
 	int error = NO_ERRORS;
+
+	//help argument options
 	if (strncmp(argument, "-h", 2) == 0 || strncmp(argument, "-help", 6) == 0)
 		m_action = SHOWHELP;
-
-	if (strncmp(argument, "-trace=", 7) == 0)
+	else if (strncmp(argument, "-trace=", 7) == 0)
 		error = SetArgument(TRACE, std::string(argument).substr(7).c_str());
-
-	if (strncmp(argument, "-o", 2) == 0)
+	else if (strncmp(argument, "-o", 2) == 0)
 	{
+		// output fiule option
 		if (++m_arg_counter < m_argc)
 			error = SetArgument(OUTPUTFILE, m_argv[m_arg_counter]);
+	}
+	else if (m_inputFile &&  !m_inputFile[0])
+	{
+		//input file (llvm IR file)
+		if (IsValidFile(const_cast<char*>(argument))) 
+		{
+			int error = SetArgument(IRFILE, argument);
+			if (error)
+				return error;
+		}
+	}
+	else
+	{
+		//unknown parameter, ignore
 	}
 
 	return error;
@@ -168,14 +177,6 @@ int EnergyAnalysis::ImportTrace()
 			m_traceMap[fName].push_back(bbID);
 	}
 	
-	for (TraceMap::iterator it = m_traceMap.begin(), ie = m_traceMap.end(); it != ie; ++it)
-	{
-		log.LogConsole(it->first.str() + ":\n");
-		for (llvm::StringRef& bb : it->second)
-			log.LogConsole(" " + bb.str());
-		log.LogConsole("\n");
-	}
-
 	return NO_ERRORS;
 }
 
@@ -203,36 +204,24 @@ int EnergyAnalysis::StartEnergyAnalysis()
 		return ExitProgram(Error);
 	annotate->Print(*Mod);
 
-
-	// Finds and stores all possible paths as edges of Basic Blocks
-	PathAnalysisVisitor pathAnalysis;
-	Error = energy->accept(pathAnalysis);
-	if (Error)
-		return ExitProgram(Error);
-	//pathAnalysis.Print();
-	
-	//Locates Loops and stores them as backedges (latch -> header)
-	LoopAnalysisVisitor loopAnalysis;
-	Error = energy->accept(loopAnalysis);
-	if (Error)
-		return ExitProgram(Error);
-	//loopAnalysis.Print();
-
 	// Calculates and stores all cost per instruction in a FunctionMap
 	WCETAnalysisVisitor  wcetAnalysis;
 	Error = energy->accept(wcetAnalysis);
 	if (Error)
 		return ExitProgram(Error);
 	//wcetAnalysis.Print();
-
-	//EnergyCalculator energyCalculator(pathAnalysis, loopAnalysis, wcetAnalysis);
-	//Error = energy->accept(energyCalculator);
-	//if (Error)
-	//	return ExitProgram(Error);
-	//energyCalculator.Print();
+	
+	//Make the final calculation of energy consumption
+	EnergyCalculation energyCalculation(m_traceMap, wcetAnalysis);
+	energyCalculation.PrintTrace();
+	Error = energy->accept(energyCalculation);
+	if (Error)
+		return ExitProgram(Error);
+	energyCalculation.Print();
 
 	return Error;
 }
+
 
 bool EnergyAnalysis::IsValidFile(const char * filename)
 {

@@ -10,10 +10,9 @@
 class WCETAnalysisVisitor : public AnalysisVisitor
 {
 private:
-	friend class EnergyCalculator;
+	friend class EnergyCalculation;
 	// A heap allocated Cost map per function of type FunctionCostMap
 	FunctionCostMap* FCM = new FunctionCostMap();
-
 
 public:
 	

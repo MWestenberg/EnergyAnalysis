@@ -51,23 +51,14 @@
     <ClCompile Include="src\Analysis\WCETAnalysisVisitor.cpp">
       <Filter>Source Files\Visitors</Filter>
     </ClCompile>
-    <ClCompile Include="src\Passes\LoopAnalysisPass.cpp">
-      <Filter>Source Files\Passes</Filter>
-    </ClCompile>
     <ClCompile Include="src\Passes\WCETAnalysisPass.cpp">
       <Filter>Source Files\Passes</Filter>
     </ClCompile>
     <ClCompile Include="src\Analysis\AnalysisVisitor.cpp">
       <Filter>Source Files\Visitors</Filter>
     </ClCompile>
-    <ClCompile Include="src\Analysis\EnergyCalculator.cpp">
+    <ClCompile Include="src\Analysis\EnergyCalculation.cpp">
       <Filter>Source Files\Calculator</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Analysis\LoopAnalysisVisitor.cpp">
-      <Filter>Source Files\Visitors</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Analysis\PathAnalysisVisitor.cpp">
-      <Filter>Source Files\Visitors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -89,23 +80,14 @@
     <ClInclude Include="src\Analysis\AnnotationVisitor.h">
       <Filter>Header Files\Visitors</Filter>
     </ClInclude>
-    <ClInclude Include="src\Passes\LoopAnalysisPass.h">
-      <Filter>Header Files\Passes</Filter>
-    </ClInclude>
     <ClInclude Include="src\Passes\WCETAnalysisPass.h">
       <Filter>Header Files\Passes</Filter>
     </ClInclude>
     <ClInclude Include="src\Analysis\WCETAnalysisVisitor.h">
       <Filter>Header Files\Visitors</Filter>
     </ClInclude>
-    <ClInclude Include="src\Analysis\EnergyCalculator.h">
+    <ClInclude Include="src\Analysis\EnergyCalculation.h">
       <Filter>Header Files\Calulcator</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Analysis\LoopAnalysisVisitor.h">
-      <Filter>Header Files\Visitors</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Analysis\PathAnalysisVisitor.h">
-      <Filter>Header Files\Visitors</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

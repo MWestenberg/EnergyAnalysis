@@ -20,7 +20,8 @@
 #include "llvm/support/raw_os_ostream.h"
 #include <string>
 
-
+// This class hold a value for Energy consumption
+// Consumption can be temperal, non temperal or incidental and has a time in microseconds.
 struct EnergyValue
 {
 	llvm::StringRef name;
@@ -28,10 +29,13 @@ struct EnergyValue
 	unsigned ec = 0;
 	unsigned t = 0;
 	
+	//Default constructor
 	EnergyValue() {};
+
+	//Overloaded Constructor
 	EnergyValue(llvm::StringRef newName) : name(newName) {};
 
-
+	//Copy Constructor
 	EnergyValue(const EnergyValue& other)
 	{
 		name = other.name;
@@ -40,6 +44,8 @@ struct EnergyValue
 		t = other.t;
 	}
 
+	//Returns true if the name was set. 
+	//When the name is set the constructor was called and the name is set to a value
 	bool HasValues()
 	{
 		if (!name.empty())
@@ -47,20 +53,25 @@ struct EnergyValue
 		return false;
 	}
 
+	// Compare this object of LHS with RHS
+	// returns true when names are equal, false otherwise
 	bool operator==(const EnergyValue& other)
 	{
 		return name == other.name;
 	}
-
+	
+	// Compare this object of LHS with RHS
+	// returns true when names are NOT equal, false otherwise
 	bool operator!=(const EnergyValue& other)
 	{
 		return name != other.name;
 	}
 
+	// Returns true if this Energy Value has a temperal power consumption
 	bool HasPowerDraw() { return pd > 0; }
 };
 
-
+// A vector of EnergyValue objects
 typedef std::vector<EnergyValue> EnergyValueVec;
 
 class Analysis
@@ -85,7 +96,7 @@ public:
 
 	void Tokenize(std::vector<llvm::StringRef>& tokens, const llvm::StringRef & text, char sep) const;
 	
-
+	
 protected:
 
 	//// Returns true of the function has the name defined as StringRef
@@ -131,9 +142,9 @@ public:
 	typedef std::vector<llvm::BasicBlock*> OrderedBBSet;
 
 	// Each Path will get a unique ID and is stored in a map
-	typedef llvm::DenseMap<unsigned, OrderedBBSet> PathMap;
-	
-	typedef llvm::DenseMap<llvm::Function*, PathMap> FunctionPaths;
+	//typedef llvm::DenseMap<unsigned, OrderedBBSet> PathMap;
+	//
+	//typedef llvm::DenseMap<llvm::Function*, PathMap> FunctionPaths;
 	
 
 };
@@ -198,18 +209,12 @@ typedef llvm::DenseMap<llvm::StringRef, std::vector<llvm::StringRef>> TraceMap;
 
 // A vector containing InstuctionCost Objects
 typedef std::vector<InstructionCost> InstructionCostVec;
+
 // A dense map containing Pointers to Basic Blocks as key with an a vector of instructions as value
 typedef llvm::DenseMap<llvm::BasicBlock*, InstructionCostVec> BBCostMap;
+
 // A map dense map of function pointers with a BBCostMap as value (check BBCostMap for more info).
 typedef llvm::DenseMap<llvm::Function*, BBCostMap> FunctionCostMap;
-// An edge between 2 basic blocks A -> B where A is the entry and B the successor
-//typedef std::vector<Edge> Edges;
-
-
-//typedef std::vector<const llvm::Function*> EnergyFunctions;
-
-
-
 
 
 // An Edge is an object that defines the relationship between 2 basic blocks.
@@ -291,7 +296,10 @@ struct Edge : public Analysis
 	}
 };
 
+// A vector of Edge object pointers
 typedef std::vector<Edge*> Edges;
+
+// A collection class that holds multiple edges that are part of a hierarchy
 class EdgeCollection
 {
 private:
@@ -310,6 +318,7 @@ public:
 			this->AddEdge(*e);
 		}
 	}
+
 
 	Edges GetAllLoopEdges() const {
 		return m_edges;
@@ -366,33 +375,5 @@ public:
 		}
 	}
 
-	/*Edges GetLoopEdges(llvm::BasicBlock* BB) {
-		Edges loopsInBB;
-
-		for (Edge* e : m_edges)
-		{
-			if (*e << *BB)
-				loopsInBB.push_back(e);
-		}
-		return loopsInBB;
-	}
-
-	Edges GetLoopEdges(llvm::Function* F) {
-		Edges loopsInF;
-
-		for (auto& BB : *F)
-		{
-			for (Edge* e : m_edges)
-			{
-				if (*e << BB)
-					loopsInF.push_back(e);
-			}
-		}
-
-		return loopsInF;
-	}*/
-
-
-	
 };
 

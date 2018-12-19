@@ -3,6 +3,7 @@ bin/
 Dependencies
 TraceAnalysis/TraceAnalysis/TraceAnalysis.vcxproj.user
 EnergyAnalysis/EnergyAnalysis/EnergyAnalysis.vcxproj.user
+EnergyAnalysis/EnergyAnalysis/src/Old
 llvm/
 LLVMBaseProject/
 old/

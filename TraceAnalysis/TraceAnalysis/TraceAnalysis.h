@@ -43,7 +43,6 @@ public:
 	static bool IsValidBitcodeFile(const char* filename);
 
 	int CheckArguments(int argc, char** argv);
-	int SetInputFile();
 	int StartTraceAnalysis();
 	
 private:

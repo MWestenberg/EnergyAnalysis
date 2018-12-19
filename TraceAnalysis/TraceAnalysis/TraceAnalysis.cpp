@@ -52,11 +52,11 @@ int TraceAnalysis::CheckArguments(int argc, char** argv)
 	//Check first argument is file and valid
 	if (valid_file = TraceAnalysis::IsValidBitcodeFile(const_cast<char*>(argv[1])))
 	{
-		//check if the argument is requesting help
+		m_inputFile = m_argv[1];
 		m_arg_counter++;
-
-		//return EnergyAnalysis::ExitProgram(EnergyAnalysis::E_MESSAGE_MISSING_IRFILE);
 	}
+	else
+		return TraceAnalysis::E_MESSAGE_MISSING_IRFILE;
 
 	for (; m_arg_counter < argc; m_arg_counter++)
 	{
@@ -84,35 +84,6 @@ TraceAnalysis::ProgramOptions TraceAnalysis::AssignParam(const char * argument)
 	
 }
 
-int TraceAnalysis::SetInputFile()
-{
-
-	//const char* argument = m_argv[m_arg_counter];
-	m_inputFile = m_argv[1];
-
-	return NO_ERRORS;
-
-	////Check of the argument contains an equal sign
-	//std::string passArg = std::string(argument);
-	//bool containsEqual = passArg.find("=") != std::string::npos;
-	//if (!containsEqual)
-	//{
-	//	return E_MESSAGE_INVALID_PASS;
-
-	//}
-
-
-	//// When we allow multiple parameters we can set them here.
-	////m_EnergyAnalysisPass = nullptr;
-	//std::string modulePass = passArg.substr(passArg.find("=") + 1);
-	//if (modulePass.compare(std::string(AnalysisType::ANNOTATION)) == 0) // returns 0 if equal
-	//{
-	//	return NO_ERRORS;
-	//}
-
-	//return E_MESSAGE_INVALID_PASS;
-
-}
 
 
 int TraceAnalysis::StartTraceAnalysis()
