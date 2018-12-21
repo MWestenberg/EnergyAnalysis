@@ -4,7 +4,7 @@
 
 int AnnotationTransformer::visit(TraceModule & em)
 {
-	log.LogConsole("Reading Energy Annotations...\n");
+	log.LogConsole("Reading Energy Annotations...");
 	module = &em.GetLLVMModule();
 	// Get the real functions
 	SetEnergyFunctions();
@@ -42,7 +42,7 @@ bool AnnotationTransformer::locateAnnotations()
 			std::vector<llvm::StringRef> tokens;
 			Tokenize(tokens, anno, ',');
 
-			if (tokens.size() == TraceAnalysis::NUM_OF_TOKENS)
+			if (tokens.size() == NUM_OF_TOKENS)
 			{
 				assert(tokens.size() >= 4 && "Need at least 4 tokens in the Energy Annotation");
 				llvm::Function* realEnergyFn = GetEnergyFunction(*fn);
@@ -86,7 +86,7 @@ bool AnnotationTransformer::transformEnergyFunctionCalls(llvm::Function* realEne
 				if (func == nullptr)
 					continue;
 
-				log.LogConsole("found func: " + func->getName().str() + " EnergyFunc: " + realEnergyFn->getName().str() +" defined func: " + definedFunction->getName().str() +"\n");
+				log.LogDebug("found func: " + func->getName().str() + " EnergyFunc: " + realEnergyFn->getName().str() +" defined func: " + definedFunction->getName().str() +"\n");
 				//if current callinstruction is pointing to an energyfunction
 				// e.g. call to turnOn() replace that with a call to _turnOn();
 				if (func != nullptr && func == realEnergyFn)

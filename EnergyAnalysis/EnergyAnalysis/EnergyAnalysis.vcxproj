@@ -132,6 +132,9 @@
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
+    <PostBuildEvent>
+      <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -170,6 +173,9 @@
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
+    <PostBuildEvent>
+      <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -212,6 +218,9 @@
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
+    <PostBuildEvent>
+      <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -257,11 +266,14 @@
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
+    <PostBuildEvent>
+      <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Analysis\EnergyCalculation.cpp" />
     <ClCompile Include="src\Analysis\AnalysisVisitor.cpp" />
-    <ClCompile Include="src\Logging.cpp" />
+    <ClCompile Include="src\Log.cpp" />
     <ClCompile Include="src\Analysis\EnergyAnalysis.cpp" />
     <ClCompile Include="src\Analysis\EnergyModule.cpp" />
     <ClCompile Include="src\Analysis\AnnotationVisitor.cpp" />
@@ -272,7 +284,7 @@
   <ItemGroup>
     <ClInclude Include="src\Analysis\EnergyCalculation.h" />
     <ClInclude Include="src\Constants.h" />
-    <ClInclude Include="src\Logging.h" />
+    <ClInclude Include="src\Log.h" />
     <ClInclude Include="src\Analysis\AnalysisVisitor.h" />
     <ClInclude Include="src\Analysis\AnnotationVisitor.h" />
     <ClInclude Include="src\Analysis\EnergyAnalysis.h" />

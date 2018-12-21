@@ -2,20 +2,25 @@
 
 int TransformVisitor::visit(TraceModule & em)
 {
+	log.LogConsole("Transforming code for partial execution...");
 	module = &em.GetLLVMModule();
 	AddPrintFunction();
-	Print();
+	if (log.GetLevel() == Log::DEBUG)
+		Print();
+
+	log.LogConsole("Ok\n");
 	return 0;
 }
 
 
 void TransformVisitor::WriteBitCodeFile(const llvm::StringRef & path)
 {
-
+	log.LogConsole("Writing bitcode file... ");
 	std::error_code EC;
 	llvm::raw_fd_ostream OS(path, EC, llvm::sys::fs::F_None);
 	llvm::WriteBitcodeToFile(*module, OS);
 	OS.flush();
+	log.LogConsole("Ok\n");
 }
 
 void TransformVisitor::Print()

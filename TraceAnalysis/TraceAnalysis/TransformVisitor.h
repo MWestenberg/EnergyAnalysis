@@ -18,6 +18,7 @@ class TransformVisitor : public AnalysisVisitor
 	unsigned NumArgumentsProped;
 public:
 	TransformVisitor() : module(nullptr) {};
+	TransformVisitor(Log::Level level) : module(nullptr) { log.SetLevel(level); };
 	// Inherited via AnalysisVisitor
 	virtual int visit(TraceModule & em) override;
 

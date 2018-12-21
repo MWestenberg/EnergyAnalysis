@@ -8,11 +8,14 @@
 // The name given to functions that control external hardware components and are energy annotated
 #define ENERGY_ATTR "Energy"
 
-#define PRINT_BEGIN "\n=====Printer Start====\n"
-#define PRINT_END "====Printer End====\n\n"
+#ifdef _WIN32
+#define MICROSECONDS "\xE6s"
+#else
+#define MICROSECONDS "\xC2\xB5s"
+#endif
+
 
 #define NUM_OF_TOKENS 4
-
 // External hardware functions are prefixed with _ and are removed after annotation
 #define ENERGY_FUNCTION_PREFIX "_";
 // the name of the energy function as defined by the user
@@ -28,4 +31,4 @@
 // function name to retrieve loop trip counts from undefined loops.
 #define LOOP_TRIPCOUNT "LOOP_TRIPCOUNT"
 // Log level: ERROR, WARNING, INFO, DEBUG
-#define LOGLEVEL Logging::DEBUG
+#define LOGLEVEL Log::ERROR

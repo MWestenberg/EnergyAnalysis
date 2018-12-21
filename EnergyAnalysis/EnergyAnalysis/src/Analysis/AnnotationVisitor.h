@@ -14,6 +14,9 @@ private:
 	int m_result = 0;
 public:
 
+	AnnotationVisitor() {};
+	AnnotationVisitor(Log::Level level) { log.SetLevel(level); };
+
 	// Inherited via AnalysisVisitor
 	virtual int visit(EnergyModule & em) override;
 	

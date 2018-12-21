@@ -10,6 +10,8 @@
 
 #define PRINT_FUNCTION "printf"
 
+#define NUM_OF_TOKENS 4
+
 // External hardware functions are prefixed with _ and are removed after annotation
 #define ENERGY_FUNCTION_PREFIX "_";
 // the name of the energy function as defined by the user

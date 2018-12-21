@@ -20,12 +20,13 @@ int EnergyCalculation::visit(EnergyModule & em)
 
 void EnergyCalculation::PrintTrace()
 {
+	log.LogConsole("Input trace: \n");
 	for (TraceMap::iterator it = m_traceMap.begin(), ie = m_traceMap.end(); it != ie; ++it)
 	{
-		log.LogConsole(it->first.str() + ":\n");
+		log.LogConsole(" "+ it->first.str() + ":\n");
 		for (llvm::StringRef& bb : it->second)
-			log.LogConsole(" " + bb.str());
-		log.LogConsole("\n");
+			log.LogConsole("  " + bb.str());
+		log.LogConsole("\n\n");
 	}
 }
 
@@ -39,7 +40,7 @@ void EnergyCalculation::Print()
 		for (llvm::BasicBlock* BB : bbSet)
 			log.LogConsole(" " + getSimpleNodeLabel(BB));
 
-		log.LogConsole("\n");
+		log.LogConsole("\n\n");
 	}
 }
 
@@ -134,7 +135,7 @@ void EnergyCalculation::SetInstructionCost(llvm::Function& F, llvm::BasicBlock& 
 {
 	InstructionCost IC = wcetAnalysis->GetInstructionCost(F, BB, I);
 	//AddWCET(IC.InstrCost);
-	log.LogDebug(" cost: " + std::to_string(IC.InstrCost) + "\n");
+	log.LogInfo(" cost: " + std::to_string(IC.InstrCost) + "\n");
 	//AddPowerdraw(IC);
 
 }
@@ -145,9 +146,23 @@ bool  EnergyCalculation::SetEnergyFunctionCost(const llvm::Function& F, llvm::Ba
 	if (&F != nullptr && HasEnergyAnnotation(F))
 	{
 
-	//	EnergyValue ev = GetEnergyValue(F);
+		EnergyValue ev = GetEnergyValue(F);
 
-	//	log.LogDebug("  EnergyFunction Name = " + ev.name.str() + " pd = " + std::to_string(ev.pd) + " ec = " + std::to_string(ev.ec) + " wcet = " + std::to_string(ev.t) + "\n");
+		log.LogInfo("  EnergyFunction Name = " + ev.name.str() + " pd = " + std::to_string(ev.pd) + " ec = " + std::to_string(ev.ec) + " wcet = " + std::to_string(ev.t) + "\n");
+
+		//TODO: the time given by the user is always in miliseconds and NOT in seconds or microseconds. The conversion is easy:
+		// 1 millisecond = 0.001 second = 1000탎.
+		// we get the energy consumption in Joules which is Watt per second. So a 60 Watt light bulb would consume 60 Joules per second
+		// Because the delay by the user is given in miliseconds like 100 we must first divide t to microseconds (times 1000).
+		// the reason is because we also calculate instruction costs per microsecond (탎). so the 100 milisecond delay is multiplied by 1000
+		// and becomes 100.000탎 and is stored as such.
+
+		//if something takes 5 seconds that means 5.000.000탎
+		// when we calculate the number of Joules we must convert it back to seconds. We do this by dividing the total number of 탎 by 1.000.000
+		// and mulitply that number with the number of Joules.
+
+		//I.e. we have 120.000.000탎 = 120 seconds for a lightbulb of 60Watt this means 60*120 = 7200 Joules
+
 
 	//	if (ev.HasValues())
 	//	{

@@ -82,8 +82,14 @@ int EnergyAnalysis::ReadArgument(const char* argument)
 	int error = NO_ERRORS;
 
 	//help argument options
-	if (strncmp(argument, "-h", 2) == 0 || strncmp(argument, "-help", 6) == 0)
+	if (strncmp(argument, "-h", 2) == 0 || strncmp(argument, "--help", 6) == 0)
 		m_action = SHOWHELP;
+	if (strncmp(argument, "-d", 2) == 0 || strncmp(argument, "--debug", 7) == 0)
+		log.SetLevel(Log::DEBUG);
+	if (strncmp(argument, "-i", 2) == 0 || strncmp(argument, "--info", 6) == 0)
+		log.SetLevel(Log::INFO);
+	else if (strncmp(argument, "-clockspeed=", 12) == 0)
+		error = SetArgument(CLOCKSPEED, std::string(argument).substr(12).c_str());
 	else if (strncmp(argument, "-trace=", 7) == 0)
 		error = SetArgument(TRACE, std::string(argument).substr(7).c_str());
 	else if (strncmp(argument, "-o", 2) == 0)
@@ -123,6 +129,13 @@ int EnergyAnalysis::SetArgument(ArgType type, const char* value)
 				error = E_MESSAGE_ERROR_TRACEFILE;
 
 			ImportTrace();
+			break;
+		}
+		case CLOCKSPEED: {
+			m_clockspeed = std::stoi(value);
+			if (!m_clockspeed) {
+				error = E_MESSAGE_INVALID_CLOCKSPEED;
+			}			
 			break;
 		}
 		case IRFILE: m_inputFile = const_cast<char*>(value);  break;
@@ -194,30 +207,44 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	
 	//Run the Analysis
 	log.LogConsole("=============================== Starting Energy Analysis ===============================\n\n");
-	log.LogConsole("LLVM IR FILE: " + std::string(m_inputFile) + "\n\n");
+	log.LogConsole("LLVM IR FILE: " + std::string(m_inputFile) + "\n");
+	if (!m_clockspeed)
+		m_clockspeed = 16;
+
+	std::string clockspeed = std::to_string(m_clockspeed) + "Mhz";
+	if (m_clockspeed > 1000)
+		clockspeed = std::to_string((m_clockspeed / 1000)) + "Ghz";
+
+	log.LogConsole("Clock speed was set to " + clockspeed + "\n\n");
+
+
 	std::unique_ptr<EnergyModule> energy(new EnergyModule(*Mod));
 
 	// Handles Energy Annotations implemented by the EnergyAnalysis.h header file
-	std::unique_ptr<AnnotationVisitor> annotate(new AnnotationVisitor);
+	std::unique_ptr<AnnotationVisitor> annotate(new AnnotationVisitor(log.GetLevel()));
 	Error = energy->accept(*annotate);
 	if (Error)
 		return ExitProgram(Error);
-	annotate->Print(*Mod);
+	if (log.GetLevel() >= Log::INFO)
+		annotate->Print(*Mod);
 
 	// Calculates and stores all cost per instruction in a FunctionMap
-	WCETAnalysisVisitor  wcetAnalysis;
+	WCETAnalysisVisitor  wcetAnalysis(m_clockspeed);
 	Error = energy->accept(wcetAnalysis);
 	if (Error)
 		return ExitProgram(Error);
-	//wcetAnalysis.Print();
+	if (log.GetLevel() >= Log::INFO)
+		wcetAnalysis.Print();
 	
 	//Make the final calculation of energy consumption
-	EnergyCalculation energyCalculation(m_traceMap, wcetAnalysis);
-	energyCalculation.PrintTrace();
+	EnergyCalculation energyCalculation(m_traceMap, wcetAnalysis, log.GetLevel());
+	if (log.GetLevel() >= Log::INFO)
+		energyCalculation.PrintTrace();
 	Error = energy->accept(energyCalculation);
 	if (Error)
 		return ExitProgram(Error);
-	energyCalculation.Print();
+	if (log.GetLevel() >= Log::INFO)
+		energyCalculation.Print();
 
 	return Error;
 }

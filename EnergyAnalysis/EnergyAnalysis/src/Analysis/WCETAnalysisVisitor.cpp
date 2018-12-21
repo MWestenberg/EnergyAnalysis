@@ -14,24 +14,29 @@ int WCETAnalysisVisitor::visit(EnergyModule & em)
 		pass.run(fn);
 		InstructionCostVec ICV;
 
-		unsigned fnCost = 0;
+		long double fnCost = 0;
 
 		for (llvm::BasicBlock &B : fn) 
 		{
 			unsigned bbCost = 0;
+			long double time = 0;
 			for (llvm::Instruction &Inst : B)
 			{
 
 				if (IsFunction(Inst))
 					continue;
 				
-				unsigned cost = wcetAnalysis->getInstructionCost(&Inst);
-				if (cost >= INT_MAX)
-					cost = 1;
+				unsigned cycles = wcetAnalysis->getInstructionCost(&Inst);
+				if (cycles >= INT_MAX)
+					cycles = 1;
+
+				long double cost = 0.0;
+				if (cycles > 0) 
+					cost = double(cycles) / m_clockspeed;
+			
 				bbCost += cost;
 
-				//TODO: cummulative cost not working properly
-				InstructionCost IC(&Inst, &B, cost, bbCost);
+				InstructionCost IC(&Inst, &B, cost, cycles, bbCost);
 				ICV.push_back(IC);
 			}
 			fnCost += bbCost;
@@ -48,7 +53,7 @@ int WCETAnalysisVisitor::visit(EnergyModule & em)
 void WCETAnalysisVisitor::Print()
 {
 
-	log.LogConsole(PRINT_BEGIN);
+
 	for (FunctionCostMap::iterator I = FCM->begin(), IE = FCM->end(); I != IE; ++I)
 	{
 		llvm::Function& F = *I->first;
@@ -61,7 +66,7 @@ void WCETAnalysisVisitor::Print()
 			llvm::BasicBlock& BB = *BI->first;
 			InstructionCostVec ICV = BI->second;
 
-			unsigned totalBBCost = 0;
+			long double totalBBCost = 0;
 
 			log.LogConsole(" BB: " + getSimpleNodeLabel(&BB) + "\n");
 			for (InstructionCost IC : ICV)
@@ -75,9 +80,11 @@ void WCETAnalysisVisitor::Print()
 						fnName = " (function call: " +  call->getName().str() + ")";
 						
 				}
+				
 				log.LogConsole("   Instr: " + std::string(instr->getOpcodeName()) +  fnName + "\n");
-				log.LogConsole("   Cost: " + std::to_string(IC.InstrCost) + "\n");
-				log.LogConsole("   Cumulative Cost: " + std::to_string(totalBBCost) + "\n");
+				log.LogConsole("   Cycles: " + std::to_string(IC.InstrCycle) + "\n");
+				log.LogConsole("   Cost: " + std::to_string(IC.InstrCost) + MICROSECONDS + "\n");
+				log.LogConsole("   Cumulative Cost: " + std::to_string(totalBBCost) + MICROSECONDS + "\n");
 				
 			}
 			totalFnCost += totalBBCost;
@@ -87,7 +94,7 @@ void WCETAnalysisVisitor::Print()
 		
 		
 	}
-	log.LogConsole(PRINT_END);
+	
 
 
 }

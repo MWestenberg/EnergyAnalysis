@@ -1,5 +1,5 @@
 #pragma once
-#include "../Logging.h"
+#include "../Log.h"
 #include "../Constants.h"
 #include <iostream>
 #include <string>
@@ -27,7 +27,7 @@ struct EnergyValue
 	llvm::StringRef name;
 	unsigned pd = 0;
 	unsigned ec = 0;
-	unsigned t = 0;
+	long double t = 0.0;
 	
 	//Default constructor
 	EnergyValue() {};
@@ -128,7 +128,7 @@ protected:
 
 	//Main Log function
 	// To log to std out use Log.LogConsole()
-	Logging log;
+	Log log;
 };
 
 class AnalysisVisitor: public Analysis
@@ -155,9 +155,10 @@ struct InstructionCost
 	llvm::Instruction* instruction;
 	llvm::BasicBlock* parentBB;
 
-	unsigned InstrCost = 0;
+	unsigned InstrCycle = 0;
+	long double InstrCost = 0.0;
 
-	unsigned cummulativeCost = 0;
+	long double cummulativeCost = 0.0;
 	//Default Constructor
 	InstructionCost() : instruction(nullptr), parentBB(nullptr) {};
 
@@ -168,16 +169,16 @@ struct InstructionCost
 	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent) { SetIntruction(inst); SetParentBasicBlock(parent); }
 
 	//Overloaded Constructor
-	InstructionCost(llvm::Instruction* inst, unsigned cost) { SetIntruction(inst); SetInstructionCost(cost); }
+	InstructionCost(llvm::Instruction* inst, long double cost, unsigned cycles) { SetIntruction(inst); SetInstructionCost(cost); SetCycleCost(cycles); }
 
 	//Overloaded Constructor
-	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, unsigned cost) {
-		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost);
+	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, long double cost, unsigned cycles) {
+		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost); SetCycleCost(cycles);
 	}
 
 	//Overloaded Constructor
-	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, unsigned cost, unsigned cummulativeCost) {
-		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost);
+	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, long double cost, unsigned cycles, long double cummulativeCost) {
+		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost); SetCycleCost(cycles);
 		SetCumulativeCost(cummulativeCost);
 	}
 
@@ -185,6 +186,7 @@ struct InstructionCost
 	InstructionCost(const InstructionCost& rhs) {
 		SetIntruction(rhs.instruction);
 		SetInstructionCost(rhs.InstrCost);
+		SetCycleCost(rhs.InstrCycle);
 		SetParentBasicBlock(rhs.parentBB);
 		SetCumulativeCost(rhs.cummulativeCost);
 	}
@@ -193,14 +195,17 @@ struct InstructionCost
 	void SetIntruction(llvm::Instruction* inst) { instruction = inst; }
 
 	//Set the Instruction Cost
-	void SetInstructionCost(unsigned cost) { InstrCost = cost; }
+	void SetInstructionCost(long double cost) { InstrCost = cost; }
+
+	//Set the Instruction Cost
+	void SetCycleCost(unsigned cycles) { InstrCycle = cycles; }
 
 	//Set the parent Basic block
 	void SetParentBasicBlock(llvm::BasicBlock* BB) { parentBB = BB; }
 
 	// Calling this method will add the cummulative costs
 	// this will be the max cost of a basic block for the last instruction
-	void SetCumulativeCost(unsigned cost) { cummulativeCost = cost; }
+	void SetCumulativeCost(long double cost) { cummulativeCost = cost; }
 };
 
 

@@ -16,6 +16,8 @@ private:
 	llvm::Module* module;
 
 public:
+	AnnotationTransformer() : module(nullptr) {};
+	AnnotationTransformer(Log::Level level) : module(nullptr) { log.SetLevel(level); };
 
 	// Inherited via AnalysisVisitor
 	virtual int visit(TraceModule & em) override;

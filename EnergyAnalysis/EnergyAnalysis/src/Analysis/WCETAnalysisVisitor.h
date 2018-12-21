@@ -14,8 +14,12 @@ private:
 	// A heap allocated Cost map per function of type FunctionCostMap
 	FunctionCostMap* FCM = new FunctionCostMap();
 
+	long double m_clockspeed;
+
 public:
 	
+	WCETAnalysisVisitor(int clockspeed = 16) : m_clockspeed(clockspeed) {};
+	WCETAnalysisVisitor(Log::Level level, int clockspeed = 16) : m_clockspeed(clockspeed)  { log.SetLevel(level); };
 	// Inherited via AnalysisVisitor
 	virtual int visit(EnergyModule & em) override;
 

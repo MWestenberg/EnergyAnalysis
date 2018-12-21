@@ -29,7 +29,7 @@ private:
 
 public:
 	//Constructor
-	explicit EnergyCalculation(TraceMap traceMap, WCETAnalysisVisitor& wcet) : m_traceMap(traceMap), wcetAnalysis(&wcet){};
+	explicit EnergyCalculation(TraceMap traceMap, WCETAnalysisVisitor& wcet, Log::Level level) : m_traceMap(traceMap), wcetAnalysis(&wcet) { log.SetLevel(level); };
 	
 	// Inherited via AnalysisVisitor
 	virtual int visit(EnergyModule & em) override;

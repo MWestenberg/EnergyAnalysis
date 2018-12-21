@@ -1,13 +1,13 @@
-; ModuleID = 'lightbulb-anno.c'
-source_filename = "lightbulb-anno.c"
+; ModuleID = 'LightBulb\lightbulb-anno.c'
+source_filename = "LightBulb\5Clightbulb-anno.c"
 target datalayout = "e-m:w-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-pc-windows-msvc19.16.27025"
 
 @.str = private unnamed_addr constant [13 x i8] c"Light,40,0,0\00", section "llvm.metadata"
-@.str.1 = private unnamed_addr constant [17 x i8] c"lightbulb-anno.c\00", section "llvm.metadata"
+@.str.1 = private unnamed_addr constant [27 x i8] c"LightBulb\5Clightbulb-anno.c\00", section "llvm.metadata"
 @.str.2 = private unnamed_addr constant [12 x i8] c"Light,0,0,0\00", section "llvm.metadata"
 @.str.3 = private unnamed_addr constant [12 x i8] c"delay,0,0,5\00", section "llvm.metadata"
-@llvm.global.annotations = appending global [3 x { i8*, i8*, i8*, i32 }] [{ i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_turnOn to i8*), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([17 x i8], [17 x i8]* @.str.1, i32 0, i32 0), i32 18 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_turnOff to i8*), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str.2, i32 0, i32 0), i8* getelementptr inbounds ([17 x i8], [17 x i8]* @.str.1, i32 0, i32 0), i32 19 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_delay to i8*), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str.3, i32 0, i32 0), i8* getelementptr inbounds ([17 x i8], [17 x i8]* @.str.1, i32 0, i32 0), i32 21 }], section "llvm.metadata"
+@llvm.global.annotations = appending global [3 x { i8*, i8*, i8*, i32 }] [{ i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_turnOn to i8*), i8* getelementptr inbounds ([13 x i8], [13 x i8]* @.str, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.1, i32 0, i32 0), i32 18 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_turnOff to i8*), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str.2, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.1, i32 0, i32 0), i32 19 }, { i8*, i8*, i8*, i32 } { i8* bitcast (void ()* @_delay to i8*), i8* getelementptr inbounds ([12 x i8], [12 x i8]* @.str.3, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @.str.1, i32 0, i32 0), i32 21 }], section "llvm.metadata"
 
 ; Function Attrs: norecurse nounwind readnone uwtable
 define dso_local void @_turnOn() #0 {
