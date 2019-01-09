@@ -20,28 +20,40 @@
 #include "llvm/support/raw_os_ostream.h"
 #include <string>
 
+// This is kept as single object to be used to map this data against energy functions
+struct EnergyConsumption
+{
+	unsigned numberOfCycles = 0;
+	//execution time is in microseconds 
+	long double executionTime = 0.0;
+	long double Joules = 0.0;
+};
+
 // This class hold a value for Energy consumption
 // Consumption can be temperal, non temperal or incidental and has a time in microseconds.
-struct EnergyValue
+struct ExternalComponent
 {
 	llvm::StringRef name;
 	unsigned pd = 0;
 	unsigned ec = 0;
 	long double t = 0.0;
 	
+	EnergyConsumption energyConsumption;
+
 	//Default constructor
-	EnergyValue() {};
+	ExternalComponent() {};
 
 	//Overloaded Constructor
-	EnergyValue(llvm::StringRef newName) : name(newName) {};
+	ExternalComponent(llvm::StringRef newName) : name(newName) {};
 
 	//Copy Constructor
-	EnergyValue(const EnergyValue& other)
+	ExternalComponent(const ExternalComponent& other)
 	{
 		name = other.name;
 		pd = other.pd;
 		ec = other.ec;
 		t = other.t;
+		energyConsumption = other.energyConsumption;
 	}
 
 	//Returns true if the name was set. 
@@ -55,14 +67,14 @@ struct EnergyValue
 
 	// Compare this object of LHS with RHS
 	// returns true when names are equal, false otherwise
-	bool operator==(const EnergyValue& other)
+	bool operator==(const ExternalComponent& other)
 	{
 		return name == other.name;
 	}
 	
 	// Compare this object of LHS with RHS
 	// returns true when names are NOT equal, false otherwise
-	bool operator!=(const EnergyValue& other)
+	bool operator!=(const ExternalComponent& other)
 	{
 		return name != other.name;
 	}
@@ -72,7 +84,8 @@ struct EnergyValue
 };
 
 // A vector of EnergyValue objects
-typedef std::vector<EnergyValue> EnergyValueVec;
+typedef std::vector<ExternalComponent> ExternalComponents;
+
 
 class Analysis
 {
@@ -91,7 +104,8 @@ public:
 		llvm::raw_string_ostream OS(Str);
 
 		Node->printAsOperand(OS, false);
-		return OS.str();
+		// omit the first % sign
+		return OS.str().substr(1);
 	}
 
 	void Tokenize(std::vector<llvm::StringRef>& tokens, const llvm::StringRef & text, char sep) const;
@@ -117,7 +131,7 @@ protected:
 
 	bool IsNotTraversable(llvm::Function& F) const;
 
-	EnergyValue GetEnergyValue(const llvm::Function&F) const;
+	ExternalComponent GetEnergyValue(const llvm::Function&F) const;
 
 	// Splits StringRef into separate tokens based on a separator.
 	// All annotations are comma separated in a certain order.
@@ -156,6 +170,7 @@ struct InstructionCost
 	llvm::BasicBlock* parentBB;
 
 	unsigned InstrCycle = 0;
+	// The cost of an instruction in microseconds
 	long double InstrCost = 0.0;
 
 	long double cummulativeCost = 0.0;
@@ -169,10 +184,10 @@ struct InstructionCost
 	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent) { SetIntruction(inst); SetParentBasicBlock(parent); }
 
 	//Overloaded Constructor
-	InstructionCost(llvm::Instruction* inst, long double cost, unsigned cycles) { SetIntruction(inst); SetInstructionCost(cost); SetCycleCost(cycles); }
+	InstructionCost(llvm::Instruction* inst, long double cost, unsigned cycles = 0) { SetIntruction(inst); SetInstructionCost(cost); SetCycleCost(cycles); }
 
 	//Overloaded Constructor
-	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, long double cost, unsigned cycles) {
+	InstructionCost(llvm::Instruction* inst, llvm::BasicBlock* parent, long double cost, unsigned cycles = 0) {
 		SetIntruction(inst); SetParentBasicBlock(parent); SetInstructionCost(cost); SetCycleCost(cycles);
 	}
 

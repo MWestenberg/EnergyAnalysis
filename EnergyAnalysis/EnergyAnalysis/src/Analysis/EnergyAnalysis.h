@@ -36,8 +36,9 @@ private:
 	char* m_executable;
 	char* m_inputFile;
 	char* m_traceFile;
+	char* m_speedtestFile;
 	char* m_outputFile;
-	int m_clockspeed = 16;
+	int m_clockspeed = DEFAULT_SPEED;
 	std::string m_trace;
 	std::string m_programTrace;
 
@@ -53,7 +54,7 @@ public:
 		E_MESSAGE_MISSING_IRFILE, 
 		E_MESSAGE_INVALID_ARGUMENT, 
 		E_MESSAGE_INVALID_OUTPUT,
-		E_MESSAGE_ERROR_TRACEFILE, 
+		E_MESSAGE_ERROR_TRACEFILE,
 		E_MESSAGE_ERROR_IRFILE,
 		E_MESSAGE_INVALID_ENTRY_POINT, 
 		E_MESSAGE_UNDEFINED_LOOP,
@@ -69,7 +70,7 @@ public:
 	// static error messages used when the program should exit
 	static const struct ErrorMessages
 	{
-		static constexpr char* USAGE = "EnergyAnalysis <IR FILE> -trace=<TRACE FILE>\n\n  -h Show this help\n  --help Show this help\n  -o <OUTPUT FILE> default stdOut\n  -clockspeed=<CLOCKSPEED> Clockspeed in Mhz, default is 16Mhz\n  -d Show debug information\n  --debug Show debug information\n  -i Show execution information\n  --debug Show execution information";
+		static constexpr char* USAGE = "EnergyAnalysis <IR FILE> -trace=<TRACE FILE>\n\n  -h Show this help\n  --help Show this help\n  -o <OUTPUT FILE> default stdOut\n  -clockspeed=<CLOCKSPEED> Clockspeed in Mhz, default is 16Mhz\n  -speedtest=<ARDUINO SPEEDTESTFILE>\n  -d Show debug information\n  --debug Show debug information\n  -i Show execution information\n  --debug Show execution information";
 		static constexpr char* MESSAGE_MISSING_IRFILE = "First program argument must be a valid IR FILE. Use -h or --help to show options.";
 		static constexpr char* MESSAGE_INVALID_ARGUMENT = "Argument given is invalid. Use -h or --help to show options.";
 		static constexpr char* MESSAGE_INVALID_OUTPUT = "Cannot write to given outputfile. Please check the target location and your permissions";

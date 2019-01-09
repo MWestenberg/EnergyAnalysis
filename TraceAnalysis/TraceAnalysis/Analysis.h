@@ -27,17 +27,20 @@ public:
 	// Useful helper function to print out a node name. 
 	// In LLVM basic blocks are often defined as numbers like %3
 	// This function tries to evaluate the node and returns a possible value as string
+	// The % will be stripped though
 	std::string getSimpleNodeLabel(const llvm::BasicBlock* Node) const
 	{
 
 		if (!Node->getName().empty())
 			return Node->getName().str();
-
+			
+		//in this case it is not a name but something like %2
+		//The % will be stripped
 		std::string Str;
 		llvm::raw_string_ostream OS(Str);
 
 		Node->printAsOperand(OS, false);
-		return OS.str();
+		return OS.str().substr(1); 
 	}
 protected:
 

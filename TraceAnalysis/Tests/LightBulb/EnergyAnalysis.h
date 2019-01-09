@@ -1,11 +1,7 @@
 #define LLVM
-
+#include <stdbool.h>
 #include <stdio.h>
-#ifdef _WIN32
-#include <Windows.h>
-#else
-#include <unistd.h>
-#endif
+
 
 #ifdef LLVM
  #define ENERGY_ANNOTATION(x) __attribute__((annotate(x)))

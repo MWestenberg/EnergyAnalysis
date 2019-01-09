@@ -194,6 +194,7 @@ int EnergyAnalysis::ImportTrace()
 }
 
 
+
 int EnergyAnalysis::StartEnergyAnalysis()
 {
 	int Error = NO_ERRORS;
@@ -209,15 +210,13 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	log.LogConsole("=============================== Starting Energy Analysis ===============================\n\n");
 	log.LogConsole("LLVM IR FILE: " + std::string(m_inputFile) + "\n");
 	if (!m_clockspeed)
-		m_clockspeed = 16;
+		m_clockspeed = DEFAULT_SPEED;
 
 	std::string clockspeed = std::to_string(m_clockspeed) + "Mhz";
 	if (m_clockspeed > 1000)
 		clockspeed = std::to_string((m_clockspeed / 1000)) + "Ghz";
 
 	log.LogConsole("Clock speed was set to " + clockspeed + "\n\n");
-
-
 	std::unique_ptr<EnergyModule> energy(new EnergyModule(*Mod));
 
 	// Handles Energy Annotations implemented by the EnergyAnalysis.h header file
@@ -233,18 +232,17 @@ int EnergyAnalysis::StartEnergyAnalysis()
 	Error = energy->accept(wcetAnalysis);
 	if (Error)
 		return ExitProgram(Error);
-	if (log.GetLevel() >= Log::INFO)
+	if (log.GetLevel() >= Log::DEBUG)
 		wcetAnalysis.Print();
 	
 	//Make the final calculation of energy consumption
 	EnergyCalculation energyCalculation(m_traceMap, wcetAnalysis, log.GetLevel());
-	if (log.GetLevel() >= Log::INFO)
+	if (log.GetLevel() >= Log::DEBUG)
 		energyCalculation.PrintTrace();
 	Error = energy->accept(energyCalculation);
 	if (Error)
 		return ExitProgram(Error);
-	if (log.GetLevel() >= Log::INFO)
-		energyCalculation.Print();
+	energyCalculation.Print();
 
 	return Error;
 }

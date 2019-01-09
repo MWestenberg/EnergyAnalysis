@@ -183,7 +183,7 @@
       <ConformanceMode>false</ConformanceMode>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\llvm\include;;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\llvm\include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat />
       <PreprocessorDefinitions>WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;GTEST_HAS_RTTI=0;_LARGEFILE_SOURCE;_FILE_OFFSET_BITS=64;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;UNICODE;_UNICODE;__STDC_CONSTANT_MACROS;__STDC_FORMAT_MACROS;__STDC_LIMIT_MACROS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -231,7 +231,7 @@
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <OmitFramePointers>false</OmitFramePointers>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\llvm\include;;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\llvm\include;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat />
       <PreprocessorDefinitions>WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;GTEST_HAS_RTTI=0;_LARGEFILE_SOURCE;_FILE_OFFSET_BITS=64;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;_CRT_NONSTDC_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;UNICODE;_UNICODE;__STDC_CONSTANT_MACROS;__STDC_FORMAT_MACROS;__STDC_LIMIT_MACROS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>

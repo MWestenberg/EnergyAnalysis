@@ -102,9 +102,9 @@ llvm::Function* Analysis::GetModuleEntryPoint(llvm::Module& M) const
 	return nullptr;
 }
 
-EnergyValue Analysis::GetEnergyValue(const llvm::Function& F) const
+ExternalComponent Analysis::GetEnergyValue(const llvm::Function& F) const
 {
-	EnergyValue ev;
+	ExternalComponent extComp;
 
 	if (F.hasFnAttribute(ENERGY_ATTR)) {
 		llvm::StringRef name = "";
@@ -124,14 +124,14 @@ EnergyValue Analysis::GetEnergyValue(const llvm::Function& F) const
 		if (F.hasFnAttribute(ENERGY_TIME_UNIT))
 			t = std::stoi(F.getFnAttribute(ENERGY_TIME_UNIT).getValueAsString().str());
 
-		ev.name = name;
-		ev.pd = pd;
-		ev.ec = ec;
-		ev.t = t;
+		extComp.name = name;
+		extComp.pd = pd;
+		extComp.ec = ec;
+		extComp.t = t;
 
 	}
 
-	return ev;
+	return extComp;
 }
 
 

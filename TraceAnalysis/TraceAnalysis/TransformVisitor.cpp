@@ -58,11 +58,13 @@ void TransformVisitor::AddPrintFunction()
 				// initialize builder
 				llvm::IRBuilder<> builder(&BB);
 				//get the nodelabel
-				llvm::StringRef bbName = getSimpleNodeLabel(&BB);
+				std::string bbName = getSimpleNodeLabel(&BB);
+
 				// create a string with functionname, nodelabel
-				std::string  strVal = "F:" + F.getName().str() + std::string(",BB:") + std::string(bbName.str().substr(1)) + std::string(";");
+				std::string  strVal = "F:" + F.getName().str() + std::string(",BB:") + bbName + ";";
+				
 				//create a name for the globalstr identifier (starts with .str)
-				std::string globalStrID = std::string(".str") + bbName.str().substr(1);
+				std::string globalStrID = std::string(".str") + bbName;
 				//add the global string
 				llvm::Value *strPtr = builder.CreateGlobalStringPtr(strVal, globalStrID);
 
@@ -79,7 +81,7 @@ void TransformVisitor::AddPrintFunction()
 				//get the last instruction of the basic block
 				llvm::Instruction* inst = BB.getTerminator();
 				//insert the print function
-				llvm::CallInst::Create(printf, ArgsV, bbName.str().substr(1), inst);
+				llvm::CallInst::Create(printf, ArgsV, bbName.substr(1), inst);
 
 			}
 		}

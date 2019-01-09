@@ -19,7 +19,7 @@ int WCETAnalysisVisitor::visit(EnergyModule & em)
 		for (llvm::BasicBlock &B : fn) 
 		{
 			unsigned bbCost = 0;
-			long double time = 0;
+//			long double time = 0;
 			for (llvm::Instruction &Inst : B)
 			{
 

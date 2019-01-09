@@ -1,5 +1,0 @@
-digraph "CFG for '_delay' function" {
-	label="CFG for '_delay' function";
-
-	Node0xb1b128 [shape=record,label="{%0:\l  ret void\l}"];
-}

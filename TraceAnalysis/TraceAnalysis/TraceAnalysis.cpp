@@ -153,7 +153,10 @@ int TraceAnalysis::StartTraceAnalysis()
 
 	transform->WriteBitCodeFile(m_outputFile);
 	
-	
+	log.LogConsole("\n\nTo create the trace run the following command (omit '> traceoutput.txt' for console output):\n\n");
+	log.LogConsole(" lli --force-interpreter " + std::string(m_outputFile)+" > traceoutput.txt\n\n");
+	log.LogConsole("When you know the cpu and it is installed you can run a command with cpu type.\nFor example for the Arduino UNO:\n\n");
+	log.LogConsole(" lli --force-interpreter -march=avr -mcpu=atmega328p " + std::string(m_outputFile)+ " > traceoutput.txt\n\n");
 	return Error;
 }
 

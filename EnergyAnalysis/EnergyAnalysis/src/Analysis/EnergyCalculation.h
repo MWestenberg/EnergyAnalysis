@@ -6,6 +6,17 @@
 class WCETAnalysisVisitor;
 
 
+
+//This struct is used to store the final outcome of the energy calculation
+struct TotalEnergyConsumption
+{
+	EnergyConsumption energyConsumption;
+	ExternalComponents externalComponents;
+	ExternalComponents externalComponentsTrace;
+};
+
+
+
 class EnergyCalculation :public AnalysisVisitor
 {
 
@@ -27,6 +38,8 @@ private:
 	typedef llvm::DenseMap<llvm::Function*, OrderedBBSet>  PathMap;
 	PathMap m_pathMap;
 
+	TotalEnergyConsumption TEC;
+
 public:
 	//Constructor
 	explicit EnergyCalculation(TraceMap traceMap, WCETAnalysisVisitor& wcet, Log::Level level) : m_traceMap(traceMap), wcetAnalysis(&wcet) { log.SetLevel(level); };
@@ -47,5 +60,12 @@ private:
 	bool TraverseTrace(OrderedBBSet& OBB);
 	void EnergyCalculation::SetInstructionCost(llvm::Function& F, llvm::BasicBlock& BB, llvm::Instruction& I);
 	bool  SetEnergyFunctionCost(const llvm::Function& F, llvm::BasicBlock& BB, llvm::Instruction& I);
+
+
+	void AddCycles(unsigned int cycles);
+	void AddJoules(long double joules);
+	void AddPowerdraw(const InstructionCost & IC);
+	void AddExternalComponent(ExternalComponent c);
+	void AddExecTime(long double time);
 };
 

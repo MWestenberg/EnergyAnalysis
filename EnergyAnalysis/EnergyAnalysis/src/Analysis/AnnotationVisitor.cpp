@@ -132,10 +132,10 @@ void AnnotationVisitor::Print(llvm::Module& M)
 	}
 	for (llvm::Function &fn : M) {
 
-		EnergyValue ev = GetEnergyValue(fn);
+		ExternalComponent extComp = GetEnergyValue(fn);
 
-		if (ev.HasValues())
-			log.LogConsole(" " +ev.name.str() + " has Energy values: Time-dependent consumption=" + std::to_string(ev.pd) + " One-time energy consumption=" + std::to_string(ev.ec) + " Time=" + std::to_string(ev.t) + "\n");
+		if (extComp.HasValues())
+			log.LogConsole(" " + extComp.name.str() + " has Energy values: Time-dependent consumption=" + std::to_string(extComp.pd) + " One-time energy consumption=" + std::to_string(extComp.ec) + " Time=" + std::to_string(extComp.t) + "\n");
 	}
 
 	log.LogConsole("\n");
