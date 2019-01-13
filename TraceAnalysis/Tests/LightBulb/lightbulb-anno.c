@@ -15,11 +15,11 @@
 
 #include "EnergyAnalysis.h"
 
-ENERGY(turnOn, void, "Light,25.5,0,0");
+ENERGY(turnOn, void, "Light,25,0,0");
 ENERGY(turnOff, void, "Light,0,0,0");
 
-ENERGY(delayOff, void, "delay,0,0,2000");
-ENERGY(delayOn, void, "delay,0,0,8000");
+ENERGY(delayOff, void, "delay,0,0,2");
+ENERGY(delayOn, void, "delay,0,0,8");
 
 
 bool done = false;
