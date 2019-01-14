@@ -5,6 +5,8 @@ const int sensorIn = A0;
 int mVperAmp = 100; // use 100 for 20A Module and 66 for 30A Module
 
 int ACVoltage = 230;
+
+float vpc = 4.882812;
  
 double Voltage = 0;
 double VRMS = 0;
@@ -12,7 +14,7 @@ double AmpsRMS = 0;
 double Joules = 0;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   lcd.begin(16, 2);
   lcd.print("loading...");
 }
@@ -22,7 +24,7 @@ void printJoules()
 
 
   lcd.setCursor(0,0);
-  lcd.print("Joules: ");
+  lcd.print("Wattage: ");
   lcd.print(Joules);
 }
 
@@ -42,13 +44,16 @@ void loop(){
  VRMS = (Voltage/2.0) *0.707;  //root 2 is 0.707
  AmpsRMS = (VRMS * 1000)/mVperAmp;
 
- if ((VRMS * AmpsRMS) > 0.1) 
- {
-  Joules = Joules +(VRMS * AmpsRMS) * ACVoltage;
- }
+ Serial.println("AmpRMS: " + String(AmpsRMS) + " MilliVolts: "+ String(VRMS) + " Wattage " + String(AmpsRMS * ACVoltage));
  
- printJoules();
- printAmps(AmpsRMS, VRMS);
+ //if ((VRMS * AmpsRMS) > 0.1) 
+// {
+//  Joules = (VRMS * AmpsRMS) * ACVoltage;
+// }
+
+
+// printJoules();
+// printAmps(AmpsRMS, VRMS);
  //Serial.print(AmpsRMS);
 // Serial.println(" Amps RMS");
 
@@ -80,10 +85,9 @@ float getVPP()
        }
    }
 
-   Serial.println((maxValue-minValue)/1024);
    
    // Subtract min from max
-   result = ((maxValue - minValue) * 5)/1024.0;
+   result = ((maxValue - minValue) * vpc)/1024.0;
       
    return result;
  }
