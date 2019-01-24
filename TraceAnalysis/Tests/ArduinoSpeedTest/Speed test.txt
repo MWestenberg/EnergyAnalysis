@@ -1,0 +1,42 @@
+Speed test
+----------
+F_CPU = 16000000 Hz
+1/F_CPU = 0.0625 us
+The next tests are runtime compensated for overhead
+Interrupts are still enabled, because millis() is used for timing
+  Serial.println            : 5.084 milliseconds
+  Serial.print              : 3.004 milliseconds
+  nop                       : 0.063 us
+  avr gcc I/O               : 0.125 us
+  Arduino digitalRead       : 3.585 us
+  Arduino digitalWrite      : 4.534 us
+  pinMode                   : 4.220 us
+  multiply byte             : 0.632 us
+  divide byte               : 5.412 us
+  add byte                  : 0.443 us
+  multiply integer          : 1.385 us
+  divide integer            : 14.277 us
+  add integer               : 0.883 us
+  substract integer         : 0.883 us
+  multiply long             : 6.102 us
+  divide long               : 38.662 us
+  add long                  : 1.763 us
+  multiply float            : 7.930 us
+  divide float              : 80.162 us
+  add float                 : 10.107 us
+  substract float           : 9.497 us
+  itoa()                    : 12.827 us
+  ltoa()                    : 125.887 us
+  dtostrf()                 : 78.612 us
+  random()                  : 50.462 us
+  y |= (1<<x)               : 0.569 us
+  icmp                      : 0.301 us
+  bitSet()                  : 0.568 us
+  analogRead()              : 111.987 us
+  analogWrite() PWM         : 11.162 us
+  delay(1)                  : 1007.987 us
+  delay(100)                : 100024.984 us
+  delayMicroseconds(2)      : 0.758 us
+  delayMicroseconds(5)      : 3.839 us
+  delayMicroseconds(100)    : 99.337 us
+-----------

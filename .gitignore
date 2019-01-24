@@ -1,5 +1,6 @@
 .vs
 bin/
+ArduinoSketches/
 Dependencies
 TraceAnalysis/TraceAnalysis/TraceAnalysis.vcxproj.user
 EnergyAnalysis/EnergyAnalysis/EnergyAnalysis.vcxproj.user
@@ -10,4 +11,3 @@ old/
 cfe-7.0.0.src.tar.xz
 EnergyAnalysis.exe
 mywebapp
-createDot.bat
