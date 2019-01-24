@@ -134,6 +134,8 @@
     </ProjectReference>
     <PostBuildEvent>
       <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -175,6 +177,8 @@
     </ProjectReference>
     <PostBuildEvent>
       <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -220,6 +224,8 @@
     </ProjectReference>
     <PostBuildEvent>
       <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -268,9 +274,12 @@
     </ProjectReference>
     <PostBuildEvent>
       <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+      <Message>
+      </Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\ProgressBar.h" />
     <ClInclude Include="src\Analysis\EnergyCalculation.h" />
     <ClInclude Include="src\Constants.h" />
     <ClInclude Include="src\Log.h" />
@@ -282,6 +291,7 @@
     <ClInclude Include="src\Analysis\WCETAnalysisVisitor.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ProgressBar.cpp" />
     <ClCompile Include="src\Analysis\AnalysisVisitor.cpp" />
     <ClCompile Include="src\Analysis\AnnotationVisitor.cpp" />
     <ClCompile Include="src\Analysis\EnergyAnalysis.cpp" />

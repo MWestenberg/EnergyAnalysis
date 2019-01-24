@@ -1,7 +1,8 @@
 
-const int relayPin = 7;
-int d[6] = { 5, 3};
+const int relayPin = 13;
+int d[7] = { 5, 3, 7, 10, 120, 51, 38};
 bool done = false;
+long timer = 0; 
 
 void setup() {
   Serial.begin(115200);
@@ -9,7 +10,7 @@ void setup() {
   Serial.println("Get ready");
   delay(5000);
   Serial.write("Program started\n");
-
+  
 }
 
 void turnOn()
@@ -19,11 +20,10 @@ void turnOn()
 
 void turnOff()
 {
-  digitalWrite(relayPin, LOW);
-
+  digitalWrite(relayPin, LOW); 
 }
 
-void fibonacci(int n)
+int fibonacci(int n)
 {
   int first = 0, second = 1, next;
   for (int c = 0; c < n; c++)
@@ -35,9 +35,11 @@ void fibonacci(int n)
       next = first + second;
       first = second;
       second = next;
-    }
+    }  
     Serial.println(next);
   }
+  delay(5000);
+  return next;
 }
 
 void loop() {
@@ -61,7 +63,7 @@ void loop() {
       else
       {
         turnOn();
-        fibonacci(25000);
+        int x = fibonacci(1000);     
       }
 
     }
@@ -69,6 +71,7 @@ void loop() {
   turnOff();
   done = true;
   Serial.write("Program done\n");
-  delay (5000);
+  Serial.println("Program took: " + String(timer /1000) + " seconds");
+ 
 
 }

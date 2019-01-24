@@ -27,6 +27,13 @@ struct EnergyConsumption
 	//execution time is in microseconds 
 	long double executionTime = 0.0;
 	long double Joules = 0.0;
+
+	void Reset()
+	{
+		numberOfCycles = 0;
+		executionTime = 0.0;
+		Joules = 0.0;
+	}
 };
 
 // This class hold a value for Energy consumption

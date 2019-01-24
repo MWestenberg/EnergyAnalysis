@@ -1,0 +1,21 @@
+digraph "CFG for 'main' function" {
+	label="CFG for 'main' function";
+
+	Node0xac180 [shape=record,label="{entry:\l  %cmp = icmp sgt i32 %argc, 0\l  br i1 %cmp, label %if.then, label %if.end\l|{<s0>T|<s1>F}}"];
+	Node0xac180:s0 -> Node0xabdb8;
+	Node0xac180:s1 -> Node0xabfc8;
+	Node0xabdb8 [shape=record,label="{if.then:                                          \l  %arrayidx = getelementptr inbounds i8*, i8** %argv, i32 1\l  %0 = load i8*, i8** %arrayidx, align 4, !tbaa !3\l  %call = tail call i32 @strlen(i8* %0)\l  %cmp6.i = icmp sgt i32 %call, 0\l  br i1 %cmp6.i, label %for.body.i, label %if.end\l|{<s0>T|<s1>F}}"];
+	Node0xabdb8:s0 -> Node0xabe10;
+	Node0xabdb8:s1 -> Node0xabfc8;
+	Node0xabe10 [shape=record,label="{for.body.i:                                       \l  %i.07.i = phi i32 [ %inc.i, %for.inc.i ], [ 0, %if.then ]\l  %arrayidx.i = getelementptr inbounds i8, i8* %0, i32 %i.07.i\l  %1 = load i8, i8* %arrayidx.i, align 1, !tbaa !7\l  %cmp1.i = icmp eq i8 %1, 97\l  br i1 %cmp1.i, label %if.then.i, label %if.else.i\l|{<s0>T|<s1>F}}"];
+	Node0xabe10:s0 -> Node0xac1d8;
+	Node0xabe10:s1 -> Node0xabba8;
+	Node0xac1d8 [shape=record,label="{if.then.i:                                        \l  tail call void (i32, ...) @digitalWriteHIGH(i32 7, i32 1) #4\l  tail call void (i32, ...) @delayOn(i32 3000) #4\l  br label %for.inc.i\l}"];
+	Node0xac1d8 -> Node0xabf18;
+	Node0xabba8 [shape=record,label="{if.else.i:                                        \l  tail call void (i32, ...) @digitalWriteLOW(i32 7, i32 0) #4\l  tail call void (i32, ...) @delayOff(i32 2000) #4\l  br label %for.inc.i\l}"];
+	Node0xabba8 -> Node0xabf18;
+	Node0xabf18 [shape=record,label="{for.inc.i:                                        \l  %inc.i = add nuw nsw i32 %i.07.i, 1\l  %exitcond.i = icmp eq i32 %inc.i, %call\l  br i1 %exitcond.i, label %if.end, label %for.body.i\l|{<s0>T|<s1>F}}"];
+	Node0xabf18:s0 -> Node0xabfc8;
+	Node0xabf18:s1 -> Node0xabe10;
+	Node0xabfc8 [shape=record,label="{if.end:                                           \l  ret i32 1\l}"];
+}

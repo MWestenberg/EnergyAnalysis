@@ -15,15 +15,15 @@
 
 #include "EnergyAnalysis.h"
 
-ENERGY(turnOn, void, "Light,25,0,0");
+ENERGY(turnOn, void, "Light,550,0,0");
 ENERGY(turnOff, void, "Light,0,0,0");
 
-ENERGY(delayOff, void, "delay,0,0,2");
-ENERGY(delayOn, void, "delay,0,0,8");
+ENERGY(delayOff, void, "delay,0,0,2000");
+ENERGY(delayOn, void, "delay,0,0,8000");
 
 
 bool done = false;
-int d[6] = { 5, 3, 10, 38, 22, 40 };
+int d[2] = { 5, 3 };
 
 void loop() {
 

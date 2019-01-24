@@ -42,24 +42,24 @@ unsigned WCETAnalysisPass::getInstructionCost(const llvm::Instruction * I) const
 	}
 	case llvm::Instruction::Add:
 	case llvm::Instruction::Sub:
-		return 14;
+	//	return 14;
 	case llvm::Instruction::FAdd:
 	case llvm::Instruction::FSub:
-		return 161;
+	//	return 161;
 	case llvm::Instruction::Mul:
-		return 22;
+	//	return 22;
 	case llvm::Instruction::FMul:
-		return 126;
+	//	return 126;
 	case llvm::Instruction::UDiv:
-		return 618;
+	//	return 618;
 	case llvm::Instruction::SDiv:
-		return 227;
+	//	return 227;
 	case llvm::Instruction::FDiv:
-		return 1282;
+	//	return 1282;
 	case llvm::Instruction::Shl:
 	case llvm::Instruction::LShr:
 	case llvm::Instruction::AShr:
-		return 9;
+	//	return 9;
 	case llvm::Instruction::URem:
 	case llvm::Instruction::SRem:
 	case llvm::Instruction::FRem:
@@ -80,9 +80,9 @@ unsigned WCETAnalysisPass::getInstructionCost(const llvm::Instruction * I) const
 	}
 	case llvm::Instruction::ICmp:
 	case llvm::Instruction::FCmp: {
-		/*llvm::Type *ValTy = I->getOperand(0)->getType();
-		return TTI->getCmpSelInstrCost(I->getOpcode(), ValTy);*/
-		return 5;
+		llvm::Type *ValTy = I->getOperand(0)->getType();
+		return TTI->getCmpSelInstrCost(I->getOpcode(), ValTy);
+	//	return 5;
 	}
 	case llvm::Instruction::Store: {
 		const llvm::StoreInst *SI = llvm::cast<llvm::StoreInst>(I);

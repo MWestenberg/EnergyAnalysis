@@ -9,6 +9,7 @@ class Log
 {
 public:
 	
+	Log();
 	//The log Levels
 	enum Level
 	{
@@ -44,6 +45,8 @@ private:
 	Level m_loglevel = LOGLEVEL;
 
 };
+
+
 
 template<class T>
 inline void Log::RecursiveCommas(std::ostream & os, T n)

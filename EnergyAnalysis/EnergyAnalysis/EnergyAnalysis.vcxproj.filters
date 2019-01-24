@@ -56,6 +56,9 @@
     <ClInclude Include="src\Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ProgressBar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Analysis\EnergyAnalysis.cpp">
@@ -84,6 +87,9 @@
     </ClCompile>
     <ClCompile Include="src\Analysis\WCETAnalysisVisitor.cpp">
       <Filter>Resource Files\Visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ProgressBar.cpp">
+      <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

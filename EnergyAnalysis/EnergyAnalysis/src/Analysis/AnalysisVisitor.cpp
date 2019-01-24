@@ -108,9 +108,11 @@ ExternalComponent Analysis::GetEnergyValue(const llvm::Function& F) const
 
 	if (F.hasFnAttribute(ENERGY_ATTR)) {
 		llvm::StringRef name = "";
-		signed int pd = 0;
-		unsigned int ec = 0;
-		unsigned int t = 0;
+		unsigned pd = 0;
+		unsigned ec = 0;
+		long double t = 0;
+
+		char * pEnd;
 
 		if (F.hasFnAttribute(ENERGY_FUNCTION_NAME))
 			name = F.getFnAttribute(ENERGY_FUNCTION_NAME).getValueAsString();
@@ -122,7 +124,8 @@ ExternalComponent Analysis::GetEnergyValue(const llvm::Function& F) const
 			ec = std::stoi(F.getFnAttribute(ENERGY_CONSUMPTION).getValueAsString().str());
 
 		if (F.hasFnAttribute(ENERGY_TIME_UNIT))
-			t = std::stoi(F.getFnAttribute(ENERGY_TIME_UNIT).getValueAsString().str());
+			t = std::strtold(F.getFnAttribute(ENERGY_TIME_UNIT).getValueAsString().str().c_str(), &pEnd);
+	
 
 		extComp.name = name;
 		extComp.pd = pd;

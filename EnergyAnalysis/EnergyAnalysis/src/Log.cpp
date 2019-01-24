@@ -1,8 +1,10 @@
 #include "Log.h"
 
 
-
-
+Log::Log()
+{
+	std::cout.imbue(std::locale(""));
+}
 
 
 Log::Level Log::GetLevel()

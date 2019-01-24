@@ -18,8 +18,8 @@
 ENERGY(turnOn, void, "Light,550,0,0");
 ENERGY(turnOff, void, "Light,0,0,0");
 
-ENERGY(delayOff, void, "delay,0,0,2");
-ENERGY(delayOn, void, "delay,0,0,8");
+ENERGY(delayOff, void, "delay,0,0,2000");
+ENERGY(delayOn, void, "delay,0,0,8000");
 
 
 bool done = false;

@@ -42,6 +42,10 @@ bool AnnotationTransformer::locateAnnotations()
 			std::vector<llvm::StringRef> tokens;
 			Tokenize(tokens, anno, ',');
 
+
+			
+
+
 			if (tokens.size() == NUM_OF_TOKENS)
 			{
 				assert(tokens.size() >= 4 && "Need at least 4 tokens in the Energy Annotation");
@@ -53,7 +57,15 @@ bool AnnotationTransformer::locateAnnotations()
 			}
 			else
 			{
-				log.LogError("Program halted");
+				log.LogError("Program halted: Token size of Energy Function less than 4 (found " + std::to_string(tokens.size()) + ")\nFunction: " + fn->getName().str().substr(1)+"\n");
+				log.LogConsole("Components found:\n");
+				int c = 1;
+				for (llvm::StringRef t : tokens)
+				{
+					log.LogConsole(std::to_string(c) + ": " + t.str() +"\n");
+					c++;
+				}
+				
 				m_result = TraceAnalysis::E_MESSAGE_INVALID_TOKENS;
 				return false;
 			}

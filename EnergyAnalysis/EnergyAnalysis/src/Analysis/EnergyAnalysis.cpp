@@ -180,14 +180,14 @@ int EnergyAnalysis::ImportTrace()
 		std::vector<llvm::StringRef> traceElements;
 		Tokenize(traceElements, ref, ',');
 
-		llvm::StringRef fName = traceElements.front().substr(2);
-		llvm::StringRef bbID = traceElements.back().substr(3);
+		llvm::StringRef fName = traceElements.front().substr(2); //function name
+		llvm::StringRef bbID = traceElements.back().substr(3); // basic block name/id
 
 		if (!fName.empty() && m_traceMap.find(fName) == m_traceMap.end())
-			m_traceMap[fName];
+			m_traceMap[fName]; //add the function name to the trace map if not exist
 
 		if (!bbID.empty())
-			m_traceMap[fName].push_back(bbID);
+			m_traceMap[fName].push_back(bbID); //add the basic block to the proper function in the tracemap
 	}
 	
 	return NO_ERRORS;

@@ -26,9 +26,9 @@
 #define MICROSECONDS_TO_SECONDS(x) (x / 1000000)
 
 //The user enters time for external components in miliseconds.
-//This Macro converts that to microseconds.
-// if you use seconds change it to 1.000.000
-#define USERDELAY_TO_MICROSECONDS(x) (x * 1000000)
+//This Macro converts that to microseconds. (x 1000)
+// if you use seconds change it to x 1.000.000
+#define USERDELAY_TO_MICROSECONDS(x) (x * 1000)
 
 #define NUM_OF_TOKENS 4
 // External hardware functions are prefixed with _ and are removed after annotation

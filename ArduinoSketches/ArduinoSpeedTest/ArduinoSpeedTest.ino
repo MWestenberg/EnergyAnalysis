@@ -557,6 +557,106 @@ void SpeedTest(void)
 #endif  
   delay(800);    // Allow the Serial text to be transmitted
 
+
+  
+  delay(70);     // Allow the Serial text to be transmitted
+  m=millis();
+  for (i=0; i<2; i++)
+  {
+    for (j=0; j<1000; j++)
+    {
+      Serial.println(j);       
+      Serial.println(j);       
+
+      Serial.println(j);       
+      Serial.println(j);       
+
+      Serial.println(j);       
+      Serial.println(j);
+
+      Serial.println(j);       
+      Serial.println(j);
+
+      Serial.println(j);       
+      Serial.println(j);
+
+      Serial.println(j);       
+      Serial.println(j);
+
+      Serial.println(j);       
+      Serial.println(j);
+
+      Serial.println(j);       
+      Serial.println(j);
+
+      Serial.println(j);       
+      Serial.println(j);
+
+      Serial.println(j);       
+      Serial.println(j);
+    }
+  }
+  n=millis();
+  d = ((float)n - (float)m) / ((float)i * (float)j);
+  //d *= 1000.0;
+  d -= overhead;
+  d /= 20.0;
+
+  float sprintln = d;
+
+  delay(70);     // Allow the Serial text to be transmitted
+  m=millis();
+  for (i=0; i<2; i++)
+  {
+    for (j=0; j<1000; j++)
+    {
+      Serial.print(j);       
+      Serial.print(j);       
+
+      Serial.print(j);       
+      Serial.print(j);       
+
+      Serial.print(j);       
+      Serial.print(j);
+
+      Serial.print(j);       
+      Serial.print(j);
+
+      Serial.print(j);       
+      Serial.print(j);
+
+      Serial.print(j);       
+      Serial.print(j);
+
+      Serial.print(j);       
+      Serial.print(j);
+
+      Serial.print(j);       
+      Serial.print(j);
+
+      Serial.print(j);       
+      Serial.print(j);
+
+      Serial.print(j);       
+      Serial.print(j);
+    }
+  }
+  n=millis();
+  d = ((float)n - (float)m) / ((float)i * (float)j);
+  d -= overhead;
+  d /= 20.0;
+  
+  //clear the screen
+  Serial.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+  
+  Serial.print(F("  Serial.println            : "));
+  Serial.print (sprintln,3);
+  Serial.println (F(" milliseconds"));
+
+  Serial.print(F("  Serial.print              : "));
+  Serial.print (d,3);
+  Serial.println (F(" milliseconds"));
+  
   Serial.print(F("  nop                       : "));
   delay(70);     // Allow the Serial text to be transmitted
   m=millis();
