@@ -1,45 +1,54 @@
 const int relayPin = 13;
 char input;
 
+bool IsPrime(int n)
+{
+  bool aPrime = true;
+  for (int t = 2; t <= n; t++)
+  {
+    if (n % t == 0)
+    {
+      aPrime = false;
+      break;
+    }
+  }
+  return aPrime;
+}
+
 void turnOff() 
 {
   digitalWrite(relayPin, LOW);
-  Serial.println("Off");
-  delay(2000);
 }
 
 void turnOn()
 {
   digitalWrite(relayPin, HIGH);
-  Serial.println("On");
-  delay(3000);
 }
 
 void setup()
 {
   pinMode(relayPin, OUTPUT);
-  turnOff();
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println("Get ready");
   delay(2000);
-  Serial.println("Input a number: ");
-
+  
 }
 
 void loop()
 {
-  
-  if (Serial.available())
+
+  int tot = 0;
+  long start = millis();
+  input = Serial.read();
+  int max = 100000;
+  turnOn();
+  for (int i = 1; i < max; i++)
   {
-      input = Serial.read();
-      if (input == 97) // a
-      {
-        turnOn();
-      }
-      else
-      {
-        turnOff();
-      }       
+    if (IsPrime(i))
+      tot++;
   }
-  
+  turnOff();
+  Serial.println("It took :" + String((millis() - start)) + " milliseconds and found " +  String(tot) + " Prime numbers");
+
+      
 }

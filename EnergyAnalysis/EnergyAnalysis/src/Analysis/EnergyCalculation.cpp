@@ -195,13 +195,23 @@ void EnergyCalculation::AddExternalComponent(ExternalComponent c)
 {
 	if (c.pd == 0 && c.ec == 0)
 		return;
+	
+	c.t = USERDELAY_TO_MICROSECONDS(c.t);
 
 	auto found = std::find_if(TEC.externalComponents.begin(), TEC.externalComponents.end(), [&c](const ExternalComponent& e) { return e.name == c.name;  });
 	if (found == TEC.externalComponents.end())
 	{
-		
+		//not found so add
+		c.energyConsumption.Joules += c.ec;
+		c.energyConsumption.executionTime += c.t;
 		TEC.externalComponents.push_back(c);
 	}
+	else
+	{
+		found->energyConsumption.Joules += c.ec;
+		found->energyConsumption.executionTime += c.t;
+	}
+
 }
 
 //Checks all previous components and trace. It calculates the powerdraw based on energy functions that
@@ -247,8 +257,6 @@ void EnergyCalculation::AddPowerdraw(const InstructionCost & IC)
 		AddJoules(powerdraw);
 		AddExecTime(IC.InstrCost);
 		log.LogDebug(" ==> Powerdraw: " + extComp.name.str() + ": " + std::to_string(extComp.pd) + "W  * " + std::to_string(MICROSECONDS_TO_SECONDS(IC.InstrCost)) + " = " + std::to_string(powerdraw) + "\n");
-		
-
 		
 		//Adds the consumption to the component
 		auto found = std::find_if(TEC.externalComponents.begin(), TEC.externalComponents.end(), [&extComp](const ExternalComponent& e) { return e.name == extComp.name;  });
@@ -305,13 +313,13 @@ bool  EnergyCalculation::SetEnergyFunctionCost(const llvm::Function& F, llvm::Ba
 			//Add the non temperal energy consumption to the number of joules
 			AddJoules(extComp.ec);
 			
-			//Add the component to the unique list.
-			//Function will take if it already exists or not
-			AddExternalComponent(extComp);
-
 			//Create an instructionCost class of the component
 			// make sure that the user entered delay is converterd (default miliseconds to microseconds)
 			InstructionCost IC = InstructionCost(&I, &BB, USERDELAY_TO_MICROSECONDS(extComp.t));
+
+			//Add the component to the unique list.
+			//Function will take if it already exists or not
+			AddExternalComponent(extComp);
 
 			//log.LogConsole(extComp.name.str() + ": " + std::to_string(IC.InstrCost) + "\n");
 			// This is a toggle:
@@ -349,18 +357,22 @@ void EnergyCalculation::Print()
 	for (ExternalComponent& c : TEC.externalComponents)
 	{
 		
-		std::cout << "             Name: " + c.name.str() << std::endl;
-		std::cout << "           Joules: " << std::lround(c.energyConsumption.Joules) << std::endl;
-		std::cout << "       Total Time: " << std::lround(MICROSECONDS_TO_SECONDS(c.energyConsumption.executionTime)) << " seconds\n";
-		std::cout << "  Calculated Watt: " << std::lround(c.energyConsumption.Joules / MICROSECONDS_TO_SECONDS(c.energyConsumption.executionTime)) << " Watt\n\n";
+		std::cout << "                         Name: " + c.name.str() << std::endl;
+		std::cout << "              Calculated Watt: " << std::lround(c.energyConsumption.Joules / MICROSECONDS_TO_SECONDS(c.energyConsumption.executionTime)) << " Watt\n\n";
+		std::cout << "       Total consumption Time: " << std::lround(MICROSECONDS_TO_SECONDS(c.energyConsumption.executionTime)) << " seconds\n";
+		std::cout << "                       Joules: " << std::lround(c.energyConsumption.Joules) << std::endl;
+		
+		
 
 	}
 
 	log.LogConsole("================================= Total Energy Consumption ================================\n\n");
 	
-	std::cout << "         Total Cycles: " << std::lround(TEC.energyConsumption.numberOfCycles) << "\n\n";
-	std::cout << "  Total ExecutionTime: " << std::lround(MICROSECONDS_TO_SECONDS(TEC.energyConsumption.executionTime)) << " seconds\n\n";
-	std::cout << "         Total Joules: " << std::lround(TEC.energyConsumption.Joules) << "\n";
+	//std::cout << "            Total Cycles: " << std::lround(TEC.energyConsumption.numberOfCycles) << "\n\n";
+	std::cout << "   Total Calculated Watt: " << std::lround(TEC.energyConsumption.Joules / MICROSECONDS_TO_SECONDS(TEC.energyConsumption.executionTime)) << " Watt\n";
+	std::cout << "  Total consumption time: " << std::lround(MICROSECONDS_TO_SECONDS(TEC.energyConsumption.executionTime)) << " seconds\n";
+	std::cout << "            Total Joules: " << std::lround(TEC.energyConsumption.Joules) << "\n";
+	
 
 	log.LogConsole("\n===========================================================================================\n\n");
 
