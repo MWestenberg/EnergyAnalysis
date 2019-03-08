@@ -66,7 +66,7 @@ public:
 	//checks all program arguments and calls the SetArgument() function
 	int CheckArguments(int argc, char** argv);
 	//Starts the analysis. CheckArguments must be called before
-	int StartTraceAnalysis();
+	int StartTraceGenerator();
 	
 private:
 	// This function sets all the arguments. It requires a type ArgType

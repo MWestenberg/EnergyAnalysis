@@ -7,7 +7,9 @@ EnergyAnalysis/bin
 EnergyAnalysis/EnergyAnalysis/EnergyAnalysis.vcxproj.user
 EnergyAnalysis/EnergyAnalysis/src/Old
 TraceGenerator/Tests
-EnergyAnalysis/tests
+EnergyAnalysis/EnergyAnalysis/tests
+EnergyAnalysis/EnergyAnalysis/EnergyAnalysis/Tests
+EnergyAnalysis/EnergyAnalysis/EnergyAnalysis/tests
 llvm/
 LLVMBaseProject/
 old/

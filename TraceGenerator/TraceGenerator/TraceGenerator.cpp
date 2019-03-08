@@ -122,7 +122,7 @@ int TraceGenerator::SetArgument(ArgType type, const char* value)
 }
 
 
-int TraceGenerator::StartTraceAnalysis()
+int TraceGenerator::StartTraceGenerator()
 {
 	int Error = NO_ERRORS;
 
