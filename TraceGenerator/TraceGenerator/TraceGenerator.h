@@ -4,7 +4,7 @@
 #include "AnnotationTransformer.h"
 #include "TransformVisitor.h"
 
-class TraceAnalysis
+class TraceGenerator
 {
 private:
 	//Argument types
@@ -43,7 +43,7 @@ public:
 		E_MESSAGE_INVALID_TOKENS
 	};
 
-	TraceAnalysis() : m_arg_counter(0), m_executable(""), m_inputFile(""), m_traceFile(""), m_outputFile("") { log.SetLevel(LOGLEVEL); };
+	TraceGenerator() : m_arg_counter(0), m_executable(""), m_inputFile(""), m_traceFile(""), m_outputFile("") { log.SetLevel(LOGLEVEL); };
 
 	const struct ErrorMessages
 	{

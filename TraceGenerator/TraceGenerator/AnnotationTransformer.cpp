@@ -66,7 +66,7 @@ bool AnnotationTransformer::locateAnnotations()
 					c++;
 				}
 				
-				m_result = TraceAnalysis::E_MESSAGE_INVALID_TOKENS;
+				m_result = TraceGenerator::E_MESSAGE_INVALID_TOKENS;
 				return false;
 			}
 		}

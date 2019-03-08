@@ -1,7 +1,7 @@
 #include "TraceGenerator.h"
 
 
-int TraceAnalysis::ExitProgram(int Error)
+int TraceGenerator::ExitProgram(int Error)
 {
 	switch (Error)
 	{
@@ -16,7 +16,7 @@ int TraceAnalysis::ExitProgram(int Error)
 	return 0;
 }
 
-int TraceAnalysis::ExitProgram(int Error, const std::string& message)
+int TraceGenerator::ExitProgram(int Error, const std::string& message)
 {
 
 	std::cout << std::endl;
@@ -31,7 +31,7 @@ int TraceAnalysis::ExitProgram(int Error, const std::string& message)
 	return Error;
 }
 
-int TraceAnalysis::CheckArguments(int argc, char** argv)
+int TraceGenerator::CheckArguments(int argc, char** argv)
 {
 
 	m_executable = const_cast<char*>(argv[0]);
@@ -40,9 +40,9 @@ int TraceAnalysis::CheckArguments(int argc, char** argv)
 	m_argc = argc;
 
 	//Missing Arguments, minimal 1 is required
-	if (argc <= TraceAnalysis::SHOWHELP)
+	if (argc <= TraceGenerator::SHOWHELP)
 	{
-		return TraceAnalysis::E_USAGE;// 
+		return TraceGenerator::E_USAGE;// 
 	}
 
 	//Check the first argument
@@ -63,13 +63,13 @@ int TraceAnalysis::CheckArguments(int argc, char** argv)
 		error = E_MESSAGE_INVALID_OUTPUT;
 
 	if (error)
-		return TraceAnalysis::E_USAGE;
+		return TraceGenerator::E_USAGE;
 
 	return NO_ERRORS;
 }
 
 
-int TraceAnalysis::ReadArgument(const char* argument)
+int TraceGenerator::ReadArgument(const char* argument)
 {
 	int error = NO_ERRORS;
 	
@@ -104,7 +104,7 @@ int TraceAnalysis::ReadArgument(const char* argument)
 }
 
 
-int TraceAnalysis::SetArgument(ArgType type, const char* value)
+int TraceGenerator::SetArgument(ArgType type, const char* value)
 {
 	int error = NO_ERRORS;
 	switch (type)
@@ -122,7 +122,7 @@ int TraceAnalysis::SetArgument(ArgType type, const char* value)
 }
 
 
-int TraceAnalysis::StartTraceAnalysis()
+int TraceGenerator::StartTraceAnalysis()
 {
 	int Error = NO_ERRORS;
 
@@ -160,7 +160,7 @@ int TraceAnalysis::StartTraceAnalysis()
 	return Error;
 }
 
-bool TraceAnalysis::IsValidFile(const char * filename)
+bool TraceGenerator::IsValidFile(const char * filename)
 {
 
 	//check if file is valid
@@ -170,7 +170,7 @@ bool TraceAnalysis::IsValidFile(const char * filename)
 }
 
 
-bool TraceAnalysis::IsWriteable(const char* filename)
+bool TraceGenerator::IsWriteable(const char* filename)
 {
 	std::ofstream ofs;
 	ofs.open(filename);

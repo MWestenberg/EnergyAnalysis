@@ -3,11 +3,11 @@
 
 int main(int argc, char** argv)
 {
-	TraceAnalysis energy;
+	TraceGenerator energy;
 	int check = energy.CheckArguments(argc, argv);
 
-	if (check != TraceAnalysis::NO_ERRORS)
-		return TraceAnalysis::ExitProgram(check);
+	if (check != TraceGenerator::NO_ERRORS)
+		return TraceGenerator::ExitProgram(check);
 	   
 	return energy.StartTraceAnalysis();
 
