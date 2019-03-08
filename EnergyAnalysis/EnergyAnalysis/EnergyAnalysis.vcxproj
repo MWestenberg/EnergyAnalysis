@@ -133,7 +133,8 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <PostBuildEvent>
-      <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+      <Command>
+      </Command>
       <Message>
       </Message>
     </PostBuildEvent>
@@ -176,7 +177,8 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <PostBuildEvent>
-      <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+      <Command>
+      </Command>
       <Message>
       </Message>
     </PostBuildEvent>
@@ -223,7 +225,8 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <PostBuildEvent>
-      <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+      <Command>
+      </Command>
       <Message>
       </Message>
     </PostBuildEvent>
@@ -273,7 +276,8 @@
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
     </ProjectReference>
     <PostBuildEvent>
-      <Command>copy /y $(TargetPath) K:\Dev\TraceAnalysis\Tests</Command>
+      <Command>
+      </Command>
       <Message>
       </Message>
     </PostBuildEvent>

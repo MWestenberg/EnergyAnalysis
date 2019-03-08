@@ -1,5 +1,0 @@
-1. create print function that accepts a string value and prints it to the stdOut
-2. Iterate all BB's:
-	a. check for undefined but declared functions calls and remove those
-	b. add a function call to the printf with the nodelabel
-3. print the result to a file rather then stdOut
